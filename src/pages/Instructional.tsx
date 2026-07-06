@@ -490,14 +490,9 @@ export function Instructional() {
                             <span className="font-display text-2xl text-white">{course.price_cents ? (course.price_cents / 100).toFixed(2) : course.price || 0}€</span>
                             
                             <div className="flex items-center gap-2">
-                              {course.trailer_url ? (
-                                <>
-                                  <span className="hidden sm:inline-block text-[10px] text-[var(--color-text-secondary)]">1. Teaser gratuit / 2. Formation payante</span>
-                                  <button className="hidden sm:block bg-white/[0.05] hover:bg-white/[0.1] text-white font-ui font-semibold py-2.5 px-4 rounded-xl transition-colors border border-white/10 text-xs md:text-sm text-center">
-                                    Voir le teaser
-                                  </button>
-                                </>
-                              ) : null}
+                              {course.trailer_url && (
+                                <span className="hidden sm:inline-block text-xs text-[var(--color-text-secondary)]">Teaser gratuit inclus</span>
+                              )}
                               <button className="bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white font-ui font-bold py-2.5 px-4 md:px-5 rounded-xl transition-colors flex items-center justify-center gap-2 text-xs md:text-sm shadow-[0_0_15px_rgba(230,41,58,0.2)]">
                                 Découvrir <ArrowRight size={16} />
                               </button>

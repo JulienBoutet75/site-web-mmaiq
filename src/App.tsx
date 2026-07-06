@@ -27,6 +27,7 @@ import { MediathequeDrawer } from "./components/admin/MediathequeDrawer";
 import { Connexion } from "./pages/Connexion";
 import { Success } from "./pages/Success";
 import { Cancel } from "./pages/Cancel";
+import { NotFound } from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
                 <Route path="/connexion" element={<Connexion />} />
                 <Route path="/success" element={<Success />} />
                 <Route path="/cancel" element={<Cancel />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </Layout>
             <AdminToolbar />

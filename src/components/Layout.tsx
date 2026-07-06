@@ -1,14 +1,35 @@
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, ReactNode, FormEvent } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search, Pencil, ShieldCheck } from "lucide-react";
+import { Menu, X, Pencil, ShieldCheck, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useSite } from "../context/SiteContext";
+import { insertData } from "../lib/supabase";
+
+// Sections sans contenu pour l'instant — retirées de la navigation publique
+// tant qu'elles sont vides (les URLs restent accessibles directement).
+const HIDDEN_NAV_PATHS = ["/shop", "/blog"];
 
 export function Layout({ children }: { children: ReactNode }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const location = useLocation();
   const { siteData, isAdmin, updateArray } = useSite();
+
+  const handleNewsletter = async (e: FormEvent) => {
+    e.preventDefault();
+    if (newsletterStatus === "loading") return;
+    setNewsletterStatus("loading");
+    try {
+      await insertData("leads", { type: "newsletter", email: newsletterEmail });
+      setNewsletterStatus("success");
+      setNewsletterEmail("");
+    } catch (err) {
+      console.error("Newsletter error:", err);
+      setNewsletterStatus("error");
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,7 +44,9 @@ export function Layout({ children }: { children: ReactNode }) {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  const navLinks = siteData.navLinks;
+  const navLinks = siteData.navLinks.filter(
+    (link) => isAdmin || !HIDDEN_NAV_PATHS.includes(link.path)
+  );
 
   const handleEditNavLink = (index: number) => {
     const newName = prompt("Nouveau nom pour le lien :", navLinks[index].name);
@@ -82,34 +105,17 @@ export function Layout({ children }: { children: ReactNode }) {
             ))}
             
             <div className="flex items-center gap-4 pl-6 border-l border-white/10">
-              <button className="text-[var(--color-text-sec)] hover:text-white transition-colors p-2 hover:bg-white/10 rounded-full">
-                <Search size={20} />
-              </button>
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="relative"
               >
-                <Link 
-                  to="/" 
-                  className="group relative flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#0a0a1a] text-white font-ui font-bold text-[10px] tracking-[0.25em] border border-white/10 hover:border-[#a020f0]/50 transition-all duration-700 hover:shadow-[0_0_30px_rgba(160,32,240,0.4)] overflow-hidden"
+                <Link
+                  to="/app"
+                  className="group relative flex items-center gap-2 px-5 py-2 rounded-full bg-[var(--color-accent-primary)] text-white font-ui font-bold text-xs tracking-[0.15em] uppercase border border-white/20 hover:shadow-[0_0_30px_rgba(123,47,255,0.5)] transition-all duration-300"
                 >
-                  {/* Animated Border Beam */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                    <div className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0%,transparent_40%,#a020f0_50%,transparent_60%,transparent_100%)] animate-[spin_3s_linear_infinite]" />
-                  </div>
-                  
-                  {/* Inner Content Background to mask the beam */}
-                  <div className="absolute inset-[1px] rounded-full bg-[#0a0a1a] z-0" />
-                  
-                  {/* Glassy overlay */}
-                  <div className="absolute inset-0 bg-white/5 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
-                  
-                  {/* Subtle Shimmer */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out z-20" />
-                  
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a020f0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="relative z-30 group-hover:scale-110 transition-transform duration-500 drop-shadow-[0_0_5px_rgba(160,32,240,0.5)]"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                  <span className="relative z-30">ACCUEIL</span>
+                  <span>Découvrir l'app</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </motion.div>
               {isAdmin && (
@@ -268,39 +274,12 @@ export function Layout({ children }: { children: ReactNode }) {
                       Coaching vidéo
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      to="/shop"
-                      className="hover:text-white transition-colors inline-flex items-center gap-2"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-white opacity-0 -ml-3 transition-all hidden md:block"></span>
-                      Shop
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/blog"
-                      className="hover:text-white transition-colors inline-flex items-center gap-2"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-white opacity-0 -ml-3 transition-all hidden md:block"></span>
-                      Blog
-                    </Link>
-                  </li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="font-display text-base md:text-lg mb-4 md:mb-6 text-white/90">RESSOURCES</h4>
                 <ul className="flex flex-col gap-3 md:gap-4 font-ui text-xs md:text-sm text-[var(--color-text-sec)]">
-                  <li>
-                    <Link
-                      to="/blog"
-                      className="hover:text-white transition-colors inline-flex items-center gap-2"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-white opacity-0 -ml-3 transition-all hidden md:block"></span>
-                      Interviews
-                    </Link>
-                  </li>
                   <li>
                     <Link
                       to="/about"
@@ -328,15 +307,6 @@ export function Layout({ children }: { children: ReactNode }) {
                       Contact
                     </Link>
                   </li>
-                  <li>
-                    <Link
-                      to="/connexion"
-                      className="hover:text-white transition-colors inline-flex items-center gap-2"
-                    >
-                      <span className="w-1 h-1 rounded-full bg-[var(--color-accent-purple)] opacity-0 -ml-3 transition-all hidden md:block"></span>
-                      Admin
-                    </Link>
-                  </li>
                 </ul>
               </div>
             </div>
@@ -346,16 +316,37 @@ export function Layout({ children }: { children: ReactNode }) {
               <p className="text-[var(--color-text-sec)] font-ui text-xs md:text-sm mb-4 leading-relaxed max-w-xs">
                 Instructional, actus, méthode. Pas de spam, que du concret.
               </p>
-              <form className="flex gap-2 w-full max-w-xs" onSubmit={(e) => e.preventDefault()}>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 md:px-4 w-full font-ui text-xs md:text-sm text-white focus:outline-none focus:border-[var(--color-accent-purple)] focus:bg-white/10 transition-all placeholder:text-white/30"
-                />
-                <button className="bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)] text-white font-ui font-bold px-3 py-2 md:px-4 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(160,32,240,0.3)] text-sm shrink-0">
-                  OK
-                </button>
-              </form>
+              {newsletterStatus === "success" ? (
+                <p className="text-[var(--color-success)] font-ui text-xs md:text-sm font-semibold">
+                  ✓ Inscription confirmée. À très vite !
+                </p>
+              ) : (
+                <form className="flex flex-col gap-2 w-full max-w-xs" onSubmit={handleNewsletter}>
+                  <div className="flex gap-2 w-full">
+                    <label htmlFor="newsletter-email" className="sr-only">Email</label>
+                    <input
+                      id="newsletter-email"
+                      type="email"
+                      required
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      placeholder="Email"
+                      className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 md:px-4 w-full font-ui text-xs md:text-sm text-white focus:outline-none focus:border-[var(--color-accent-purple)] focus:bg-white/10 transition-all placeholder:text-white/40"
+                    />
+                    <button
+                      disabled={newsletterStatus === "loading"}
+                      className="bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)] text-white font-ui font-bold px-3 py-2 md:px-4 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(160,32,240,0.3)] text-sm shrink-0 disabled:opacity-60"
+                    >
+                      {newsletterStatus === "loading" ? "…" : "OK"}
+                    </button>
+                  </div>
+                  {newsletterStatus === "error" && (
+                    <p className="text-[var(--color-accent-red)] font-ui text-xs">
+                      L'inscription a échoué. Réessaie dans un instant.
+                    </p>
+                  )}
+                </form>
+              )}
             </div>
           </div>
 
@@ -363,16 +354,6 @@ export function Layout({ children }: { children: ReactNode }) {
             <p className="text-[var(--color-text-sec)] font-ui text-xs md:text-sm">
               © 2026 <span className="font-days-one tracking-normal">MMA IQ</span> — Perf Lab System. Tous droits réservés.
             </p>
-            <div className="flex gap-6 md:gap-4">
-              <a href="#" className="text-white/50 hover:text-white transition-colors">
-                <span className="sr-only">Instagram</span>
-                <svg className="w-6 h-6 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" /></svg>
-              </a>
-              <a href="#" className="text-white/50 hover:text-white transition-colors">
-                <span className="sr-only">YouTube</span>
-                <svg className="w-6 h-6 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clipRule="evenodd" /></svg>
-              </a>
-            </div>
           </div>
         </div>
       </footer>

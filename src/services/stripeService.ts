@@ -1,7 +1,15 @@
 /// <reference types="vite/client" />
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || "");
+// Chargé à la demande : évite une IntegrationError au chargement de
+// chaque page quand la clé publishable n'est pas configurée.
+let stripePromise: Promise<Stripe | null> | null = null;
+export function getStripe() {
+  const key = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+  if (!key) return null;
+  if (!stripePromise) stripePromise = loadStripe(key);
+  return stripePromise;
+}
 
 export async function createCheckoutSession(items: any[], metadata: any = {}) {
   try {

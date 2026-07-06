@@ -110,7 +110,9 @@ export function Shop() {
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl opacity-20">👕</div>
+                      <div className="w-full h-full flex items-center justify-center opacity-30">
+                        <ShoppingBag className="w-12 h-12 text-white/40" />
+                      </div>
                     )}
                     
                     {product.stock === 0 && (

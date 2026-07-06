@@ -14,27 +14,23 @@ const faqs = [
   },
   {
     q: "Comment accéder aux formations achetées ?",
-    a: "Après achat, tu accèdes à ton contenu via ton espace compte sur le site. Accès illimité, lecture sur tous tes appareils.",
+    a: "Après achat, un lien d'accès direct à la formation t'est fourni. Accès illimité, lecture sur tous tes appareils.",
   },
   {
-    q: "L'application est-elle gratuite ?",
-    a: "L'application propose un accès gratuit aux fonctionnalités de base. Les fonctionnalités avancées (Coach Digital, Gameplan, Analytics complets) sont disponibles via abonnement premium.",
+    q: "L'application est-elle disponible ?",
+    a: "L'application arrive sur iOS et Android. Laisse ton email sur la page Application pour être prévenu du lancement. Un accès gratuit aux fonctionnalités de base sera proposé, avec un abonnement premium pour les fonctionnalités avancées (Coach Digital, Gameplan, Analytics complets).",
   },
   {
     q: "Peut-on se faire rembourser une formation ?",
-    a: "Oui, sous 14 jours après achat si tu as visionné moins de 20% du contenu. Pas de question, pas de complication.",
+    a: "Écris-nous via la page Contact : on étudie chaque demande au cas par cas et on répond vite.",
   },
   {
     q: "Comment choisir la bonne formation ?",
-    a: "Chaque formation indique son niveau, ses prérequis et ses objectifs. En cas de doute, contacte-nous ou utilise le filtre par objectif dans la boutique.",
+    a: "Chaque formation indique son niveau, sa discipline et ses objectifs. En cas de doute, contacte-nous — on t'oriente vers le bon contenu.",
   },
   {
     q: "Les formations sont-elles en français ?",
     a: "Oui, 100% en français. Contenu tourné et monté par notre équipe avec des coachs francophones.",
-  },
-  {
-    q: "L'équipement Bar Tack x MMA IQ est-il disponible ?",
-    a: "Oui, la collection est disponible en pré-commande. T-shirt DryMax, rashguard, short Aerolite et spats. Livraison sous 2-3 semaines.",
   },
 ];
 

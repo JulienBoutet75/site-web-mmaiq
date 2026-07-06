@@ -155,7 +155,7 @@ export function Connexion() {
                 onClick={() => setLoginMode('admin')}
                 className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMode === 'admin' ? 'bg-[#a020f0] text-white' : 'text-[#a0a0b8] hover:text-white'}`}
               >
-                Super Admin
+                Administration
               </button>
               <button
                 type="button"

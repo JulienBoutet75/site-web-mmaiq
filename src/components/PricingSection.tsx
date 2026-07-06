@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useInView, useMotionValue, animate, useTransform, AnimatePresence } from 'motion/react';
-import { CheckCircle2, Minus, Infinity as InfinityIcon, Star, X, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Minus, Infinity as InfinityIcon, X, ArrowRight } from 'lucide-react';
 
 const PLANS = [
   {
@@ -294,22 +294,9 @@ export default function PricingSection() {
             </span>
           </h2>
           
-          <div className="flex flex-col items-center">
-            <div className="flex justify-center gap-1 mb-2">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <motion.div
-                  key={i}
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: [0, 1.3, 1] }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08, duration: 0.4 }}
-                >
-                  <Star className="w-5 h-5 text-[#FFD600]" fill="#FFD600" />
-                </motion.div>
-              ))}
-            </div>
-            <p className="text-sm font-body text-[#8892B0] font-bold tracking-wider">4,7/5 — +10 000 AVIS</p>
-          </div>
+          <p className="text-sm md:text-base font-body text-[#8892B0]">
+            Sans engagement. Annulable à tout moment.
+          </p>
         </div>
 
         {/* Comparison Table */}

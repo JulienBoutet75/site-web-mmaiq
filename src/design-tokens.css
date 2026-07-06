@@ -14,4 +14,13 @@
   --color-glow-violet: rgba(123, 47, 255, 0.6);
   --color-glow-red: rgba(255, 23, 68, 0.5);
   --color-glow-cyan: rgba(0, 229, 255, 0.4);
+
+  /* Alias requis par les composants (étaient référencés sans être définis,
+     ce qui rendait le bouton primaire et plusieurs titres invisibles). */
+  --color-accent-purple: var(--color-accent-primary);
+  --color-accent-magenta: #B28DFF;
+  --color-card-bg: var(--color-bg-surface);
+  --color-border-dark: rgba(255, 255, 255, 0.1);
+  --color-success: #10B981;
+  --color-text-sec: var(--color-text-secondary);
 }

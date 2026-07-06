@@ -188,11 +188,17 @@ export function Blog() {
                 <Link to={`/blog/${article.slug}`} className="h-full block">
                   <div className="h-full flex flex-col group bg-white/[0.04] border border-white/[0.05] hover:border-[#a020f0]/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] rounded-[2rem] overflow-hidden backdrop-blur-sm">
                     <div className="aspect-video bg-white/5 relative overflow-hidden">
-                      <img 
-                        src={article.thumbnail_path || `https://picsum.photos/seed/${article.id}/800/450`} 
-                        alt={article.title}
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110"
-                      />
+                      {article.thumbnail_path ? (
+                        <img
+                          src={article.thumbnail_path}
+                          alt={article.title}
+                          className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#12152A] to-[#0a0a1a] flex items-center justify-center">
+                          <FileText className="w-10 h-10 text-white/20" />
+                        </div>
+                      )}
                       
                       <div className="absolute top-6 left-6 z-20">
                         <Badge
@@ -244,9 +250,11 @@ export function Blog() {
                           <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </span>
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-white/10 border border-white/10 overflow-hidden">
-                            <img src={`https://picsum.photos/seed/${article.coach_id}/100`} alt="Author" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                          </div>
+                          {article.coaches?.photo_url && (
+                            <div className="w-6 h-6 rounded-full bg-white/10 border border-white/10 overflow-hidden">
+                              <img src={article.coaches.photo_url} alt={article.coaches?.name || "Auteur"} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                            </div>
+                          )}
                           <span className="text-[10px] text-white/40 font-medium uppercase tracking-wider">{article.coaches?.name || <span className="font-days-one tracking-normal">MMA IQ</span>}</span>
                         </div>
                       </div>

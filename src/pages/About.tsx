@@ -1,38 +1,8 @@
-import { motion, useMotionValue, animate } from "motion/react";
-import { useEffect, useState, useMemo } from "react";
-import { Swords, Target, Zap } from "lucide-react";
+import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { ParticlesBackground } from "../components/ParticlesBackground";
 
 export function About() {
-  // Stats animation
-  const count1 = useMotionValue(0);
-  const count2 = useMotionValue(0);
-  const count3 = useMotionValue(0);
-  
-  const [displayCount1, setDisplayCount1] = useState(0);
-  const [displayCount2, setDisplayCount2] = useState(0);
-  const [displayCount3, setDisplayCount3] = useState(0);
-
-  useEffect(() => {
-    const controls1 = animate(count1, 12000, { duration: 2, ease: "easeOut" });
-    const controls2 = animate(count2, 10, { duration: 2, ease: "easeOut" });
-    const controls3 = animate(count3, 3, { duration: 2, ease: "easeOut" });
-
-    const unsubscribe1 = count1.on("change", (latest) => setDisplayCount1(Math.round(latest)));
-    const unsubscribe2 = count2.on("change", (latest) => setDisplayCount2(Math.round(latest)));
-    const unsubscribe3 = count3.on("change", (latest) => setDisplayCount3(Math.round(latest)));
-
-    return () => {
-      controls1.stop();
-      controls2.stop();
-      controls3.stop();
-      unsubscribe1();
-      unsubscribe2();
-      unsubscribe3();
-    };
-  }, []);
-
   const heroWords1 = "LE MMA MÉRITAIT MIEUX.".split(" ");
   const heroWords2 = "ON L'A CONSTRUIT.".split(" ");
 
@@ -69,14 +39,6 @@ export function About() {
       default: return '';
     }
   };
-
-  const tagsWithPositions = useMemo(() => {
-    return tags.map(tag => ({
-      ...tag,
-      top: Math.random() * 80 + 10,
-      left: Math.random() * 80 + 10,
-    }));
-  }, []);
 
   return (
     <div className="bg-[#04050A] text-[#F0F4FF] min-h-screen font-body overflow-hidden relative">
@@ -155,33 +117,23 @@ export function About() {
             </div>
           </motion.div>
           
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="w-full lg:w-[40%] flex justify-center relative"
+            className="w-full lg:w-[40%] flex flex-col gap-4"
           >
-            <div className="absolute inset-0 bg-[#7B2FFF]/20 blur-[100px] rounded-full animate-pulse"></div>
-            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full p-[2px] overflow-hidden flex items-center justify-center shadow-[0_0_30px_rgba(123,47,255,0.3)]">
-              <div className="absolute inset-0 animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_0deg,transparent_0%,transparent_40%,#7B2FFF_80%,#FF1744_100%)]"></div>
-              <div className="absolute inset-[2px] bg-[#0C0E18] rounded-full z-0"></div>
-              
-              <div className="relative z-10 flex flex-col items-center justify-center w-full h-full">
-                <div className="text-center mb-4">
-                  <div className="font-[Orbitron] text-2xl md:text-3xl text-white font-bold">{displayCount1.toLocaleString()}+</div>
-                  <div className="text-[10px] md:text-xs text-[#8892B0] uppercase tracking-wider">combattants actifs</div>
-                </div>
-                <div className="text-center mb-4">
-                  <div className="font-[Orbitron] text-2xl md:text-3xl text-white font-bold">{displayCount2}+</div>
-                  <div className="text-[10px] md:text-xs text-[#8892B0] uppercase tracking-wider">coachs certifiés</div>
-                </div>
-                <div className="text-center">
-                  <div className="font-[Orbitron] text-2xl md:text-3xl text-white font-bold">{displayCount3} ans</div>
-                  <div className="text-[10px] md:text-xs text-[#8892B0] uppercase tracking-wider">de R&D terrain</div>
-                </div>
+            {[
+              { title: "Une application", desc: "Plans d'entraînement, nutrition, suivi de performance et gameplans tactiques." },
+              { title: "Des cours vidéo", desc: "Des coachs reconnus qui transmettent leur méthode, à l'essentiel." },
+              { title: "Un écosystème connecté", desc: "Combattants, coachs et clubs sur la même plateforme." },
+            ].map((item, i) => (
+              <div key={i} className="bg-[#0C0E18] border border-white/5 rounded-2xl p-5">
+                <div className="font-display text-xl text-white mb-1">{item.title}</div>
+                <div className="text-sm text-[#8892B0] leading-relaxed">{item.desc}</div>
               </div>
-            </div>
+            ))}
           </motion.div>
         </div>
       </section>
@@ -256,24 +208,20 @@ export function About() {
           LES DISCIPLINES QU'ON MAÎTRISE
         </motion.h2>
         
-        <div className="relative w-full h-auto min-h-[300px] md:h-[400px] flex flex-wrap justify-center items-center gap-4 md:block">
-          {tagsWithPositions.map((tag, i) => {
+        <div className="relative w-full max-w-5xl mx-auto flex flex-wrap justify-center items-center gap-3 md:gap-4">
+          {tags.map((tag, i) => {
             return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, scale: 0 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.05 }}
+                transition={{ duration: 0.5, delay: i * 0.03 }}
                 className={`
-                  md:absolute px-4 py-2 rounded-full border border-white/10 bg-[#0C0E18] text-[#8892B0] 
-                  cursor-pointer transition-all duration-300 hover:text-white hover:scale-110 z-10 hover:z-20
+                  px-4 py-2 rounded-full border border-white/10 bg-[#0C0E18] text-[#8892B0]
+                  transition-all duration-300 hover:text-white hover:scale-110 z-10 hover:z-20
                   ${tag.size} ${getTagStyle(tag.color)}
                 `}
-                style={{
-                  top: `calc(${tag.top}% - 20px)`,
-                  left: `calc(${tag.left}% - 50px)`,
-                }}
               >
                 {tag.text}
               </motion.div>

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { 
-  ArrowLeft, ShoppingBag, Check, ChevronRight, 
-  Truck, ShieldCheck, RefreshCcw, Info
+import {
+  ArrowLeft, ShoppingBag, Check, ChevronRight,
+  ShieldCheck
 } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
@@ -103,7 +103,9 @@ export function ProductDetail() {
                   referrerPolicy="no-referrer"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-6xl opacity-20">👕</div>
+                <div className="w-full h-full flex items-center justify-center opacity-30">
+                  <ShoppingBag className="w-16 h-16 text-white/40" />
+                </div>
               )}
               
               {product.stock === 0 && (
@@ -170,9 +172,6 @@ export function ProductDetail() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <label className="text-sm font-bold uppercase tracking-widest text-[#a0a0b8]">Taille</label>
-                    <button className="text-xs text-[#a020f0] hover:underline flex items-center gap-1">
-                      <Info size={12} /> Guide des tailles
-                    </button>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     {product.sizes.map((size: string) => (
@@ -235,25 +234,11 @@ export function ProductDetail() {
                 {product.stock === 0 ? "Rupture de stock" : "Ajouter au panier"}
               </Button>
               
-              <div className="grid grid-cols-3 gap-4 pt-8 border-t border-[#22223a]">
-                <div className="flex flex-col items-center text-center gap-2">
-                  <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[#a020f0]">
-                    <Truck size={18} />
-                  </div>
-                  <span className="text-[10px] uppercase tracking-widest text-[#6a6a82] font-bold">Livraison 48h</span>
+              <div className="flex items-center justify-center gap-3 pt-8 border-t border-[#22223a]">
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[#a020f0]">
+                  <ShieldCheck size={18} />
                 </div>
-                <div className="flex flex-col items-center text-center gap-2">
-                  <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[#a020f0]">
-                    <ShieldCheck size={18} />
-                  </div>
-                  <span className="text-[10px] uppercase tracking-widest text-[#6a6a82] font-bold">Paiement Sécurisé</span>
-                </div>
-                <div className="flex flex-col items-center text-center gap-2">
-                  <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[#a020f0]">
-                    <RefreshCcw size={18} />
-                  </div>
-                  <span className="text-[10px] uppercase tracking-widest text-[#6a6a82] font-bold">Retours Gratuits</span>
-                </div>
+                <span className="text-xs uppercase tracking-widest text-[#a0a0b8] font-bold">Paiement sécurisé via Stripe</span>
               </div>
             </div>
           </motion.div>

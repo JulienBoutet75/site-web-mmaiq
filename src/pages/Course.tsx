@@ -75,7 +75,7 @@ export function Course() {
       discipline: formation.discipline,
       coach_bio: formation.coaches?.bio || "",
       coach_tagline: formation.coaches?.tagline || "",
-      duration: formation.duration || "4h 30m",
+      duration: formation.duration || "",
       rating: formation.rating,
       reviews_count: formation.reviews_count
     });
@@ -538,38 +538,40 @@ export function Course() {
                         className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-24 outline-none focus:border-[#a020f0]"
                       />
                     ) : (
-                      <span className="text-base font-bold">{formation.duration || "4h 30m"}</span>
+                      <span className="text-base font-bold">{formation.duration || "—"}</span>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 text-white/60">
-                    <Star size={20} className="text-yellow-500 fill-yellow-500" />
-                    {isEditing && editData ? (
-                      <div className="flex gap-2">
-                        <input 
-                          type="number"
-                          value={editData.rating ?? ""}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            setEditData({...editData, rating: isNaN(val) ? 0 : val});
-                          }}
-                          className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-16 outline-none focus:border-[#a020f0]"
-                          placeholder="4.9"
-                        />
-                        <input 
-                          type="number"
-                          value={editData.reviews_count ?? ""}
-                          onChange={(e) => {
-                            const val = parseInt(e.target.value);
-                            setEditData({...editData, reviews_count: isNaN(val) ? 0 : val});
-                          }}
-                          className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-20 outline-none focus:border-[#a020f0]"
-                          placeholder="128"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-base font-bold">{formation.rating || "4.9"} ({formation.reviews_count || "128"} avis)</span>
-                    )}
-                  </div>
+                  {(isEditing || (formation.rating && formation.reviews_count)) && (
+                    <div className="flex items-center gap-2 text-white/60">
+                      <Star size={20} className="text-yellow-500 fill-yellow-500" />
+                      {isEditing && editData ? (
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            value={editData.rating ?? ""}
+                            onChange={(e) => {
+                              const val = parseFloat(e.target.value);
+                              setEditData({...editData, rating: isNaN(val) ? 0 : val});
+                            }}
+                            className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-16 outline-none focus:border-[#a020f0]"
+                            placeholder="Note"
+                          />
+                          <input
+                            type="number"
+                            value={editData.reviews_count ?? ""}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value);
+                              setEditData({...editData, reviews_count: isNaN(val) ? 0 : val});
+                            }}
+                            className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-20 outline-none focus:border-[#a020f0]"
+                            placeholder="Nb avis"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-base font-bold">{formation.rating} ({formation.reviews_count} avis)</span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* À propos de cette formation */}

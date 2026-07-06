@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'motion/react';
-import { 
+import {
   Swords, Target, Brain, Zap, Activity, FlameKindling,
-  CheckCircle2, X, Star, Apple, Play, ChevronRight, Quote
+  CheckCircle2, X, Play, ChevronRight, Quote,
+  Bell, Loader2, AlertCircle
 } from "lucide-react";
 import { ParticlesBackground } from '../components/ParticlesBackground';
 import { IPhoneMockup } from '../components/IPhoneMockup';
 import { GameplanDemo } from '../components/GameplanDemo';
+import { insertData } from '../lib/supabase';
 
 // --- ANIMATION VARIANTS ---
 const staggerContainer = {
@@ -34,6 +36,22 @@ const powerRight = {
 
 export function AppPage() {
   const [isMobile, setIsMobile] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const handleWaitlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (waitlistStatus === "loading") return;
+    setWaitlistStatus("loading");
+    try {
+      await insertData("leads", { type: "waitlist", email: waitlistEmail });
+      setWaitlistStatus("success");
+      setWaitlistEmail("");
+    } catch (err) {
+      console.error("Waitlist error:", err);
+      setWaitlistStatus("error");
+    }
+  };
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -122,10 +140,7 @@ export function AppPage() {
               
               <div className="hidden sm:flex flex-row gap-4 mt-4">
                 <a href="#download" className="group flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#111111] rounded-[20px] font-dm font-bold text-sm hover:scale-105 transition-all shadow-xl">
-                  <Apple className="w-5 h-5" /> App Store
-                </a>
-                <a href="#download" className="group flex items-center justify-center gap-2 px-8 py-4 bg-white text-[#111111] rounded-[20px] font-dm font-bold text-sm hover:scale-105 transition-all shadow-xl">
-                  <Play className="w-4 h-4 fill-black" /> Google Play
+                  <Bell className="w-5 h-5" /> Être prévenu du lancement
                 </a>
               </div>
             </div>
@@ -253,10 +268,12 @@ export function AppPage() {
                            <div className="text-[#a020f0] text-sm font-bold font-mono">-4.2kg</div>
                         </div>
                         <div className="bg-[#a020f0]/10 border border-[#a020f0]/30 rounded-2xl p-4 flex items-center gap-3">
-                           <div className="w-10 h-10 rounded-lg bg-[url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150')] bg-cover bg-center shrink-0"></div>
+                           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#a020f0]/40 to-[#a020f0]/10 flex items-center justify-center shrink-0">
+                             <FlameKindling className="w-5 h-5 text-[#a020f0]" />
+                           </div>
                            <div>
                              <div className="text-white text-xs font-bold font-dm">Scan de repas</div>
-                             <div className="text-[#a020f0] text-[10px] font-mono mt-0.5">Gemini: Validé</div>
+                             <div className="text-[#a020f0] text-[10px] font-mono mt-0.5">Analyse : validée</div>
                            </div>
                         </div>
                      </div>
@@ -287,7 +304,7 @@ export function AppPage() {
 
                   {/* Card 7: Summary */}
                   <div className="snap-center shrink-0 w-[85vw] sm:w-[320px] max-w-[320px] h-[400px] sm:h-[500px] bg-[#111111] rounded-[32px] sm:rounded-[40px] p-0 flex flex-col relative shadow-2xl border border-white/10 overflow-hidden">
-                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1599552611573-8b43f9a716c5?q=80&w=600&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-luminosity"></div>
+                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(160,32,240,0.35)_0%,transparent_60%)]"></div>
                      <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/80 to-transparent"></div>
                      
                      <div className="relative z-10 flex flex-col h-full p-6">
@@ -400,7 +417,9 @@ export function AppPage() {
                 </div>
                 
                 <div className="bg-[#a020f0]/10 border border-[#a020f0]/30 rounded-2xl p-4 mb-4 flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-[url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=150')] bg-cover bg-center shrink-0"></div>
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#a020f0]/40 to-[#a020f0]/10 flex items-center justify-center shrink-0">
+                    <FlameKindling className="w-6 h-6 text-[#a020f0]" />
+                  </div>
                   <div>
                     <div className="text-white text-xs sm:text-sm font-bold font-dm">Poulet & Riz grillé</div>
                     <div className="text-white/50 text-[10px] sm:text-xs font-mono">Scan validé — 0% écart</div>
@@ -701,14 +720,14 @@ export function AppPage() {
             className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1"
           >
             <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#a020f0]/10 border border-[#a020f0]/30 mb-6 shadow-[0_0_20px_rgba(160,32,240,0.2)]">
-              <Star className="w-3.5 h-3.5 text-[#a020f0] fill-[#a020f0]" />
-              <span className="text-xs font-rajdhani font-bold text-[#F0F4FF] tracking-widest uppercase">4.7/5 • +10k Combattants</span>
+              <Bell className="w-3.5 h-3.5 text-[#a020f0]" />
+              <span className="text-xs font-rajdhani font-bold text-[#F0F4FF] tracking-widest uppercase">Bientôt sur iOS &amp; Android</span>
             </motion.div>
 
-            <motion.h1 variants={fadeUp} className="font-bebas text-[11vw] sm:text-7xl lg:text-[80px] leading-[0.85] mb-6 uppercase">
+            <motion.h2 variants={fadeUp} className="font-bebas text-[11vw] sm:text-7xl lg:text-[80px] leading-[0.85] mb-6 uppercase">
               <span className="block text-white">L'ARME SECRÈTE</span>
               <span className="block text-gradient-primary mt-2">DES COMBATTANTS.</span>
-            </motion.h1>
+            </motion.h2>
 
             <motion.p variants={fadeUp} className="text-lg md:text-xl text-[#8892B0] mb-8 max-w-xl leading-relaxed">
               L'application ultime pour structurer tes entraînements, analyser tes adversaires et dominer la cage. Ne laisse plus rien au hasard.
@@ -730,19 +749,9 @@ export function AppPage() {
 
             {/* CTAs */}
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <a href="#download" className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-[#F0F4FF] text-[#04050A] rounded-2xl font-rajdhani font-bold text-lg hover:scale-[1.03] transition-all duration-300 shadow-[0_0_30px_rgba(240,244,255,0.15)]">
-                <Apple className="w-6 h-6" />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[10px] uppercase tracking-wider opacity-60">Télécharger sur</span>
-                  <span>App Store</span>
-                </div>
-              </a>
-              <a href="#download" className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#a020f0] to-[#FF1744] text-white rounded-2xl font-rajdhani font-bold text-lg hover:scale-[1.03] transition-all duration-300 shadow-[0_0_30px_rgba(160,32,240,0.3)]">
-                <Play className="w-5 h-5 fill-white" />
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[10px] uppercase tracking-wider opacity-80">Disponible sur</span>
-                  <span>Google Play</span>
-                </div>
+              <a href="#download" className="group relative flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[#a020f0] to-[#7B2FFF] text-white rounded-2xl font-rajdhani font-bold text-lg hover:scale-[1.03] transition-all duration-300 shadow-[0_0_30px_rgba(160,32,240,0.3)]">
+                <Bell className="w-5 h-5" />
+                <span>Être prévenu du lancement</span>
               </a>
             </motion.div>
           </motion.div>
@@ -785,7 +794,7 @@ export function AppPage() {
             viewport={{ once: true, margin: "-100px" }}
             className="space-y-2 sm:space-y-4 order-1"
           >
-            <h3 className="font-bebas text-xl sm:text-2xl text-white/30/50 text-center md:text-left mb-4 sm:mb-8 uppercase tracking-widest">Sans <span className="font-days-one tracking-normal">MMA IQ</span></h3>
+            <h3 className="font-bebas text-xl sm:text-2xl text-white/40 text-center md:text-left mb-4 sm:mb-8 uppercase tracking-widest">Sans <span className="font-days-one tracking-normal">MMA IQ</span></h3>
             {[
               "Notes éparpillées",
               "Nutrition au feeling",
@@ -796,12 +805,12 @@ export function AppPage() {
               <motion.div 
                 key={i}
                 variants={glitchLeft}
-                className="flex items-center gap-2 sm:gap-4 p-2 sm:p-5 rounded-xl sm:rounded-2xl bg-white/10/5 border border-[#FF1744]/10"
+                className="flex items-center gap-2 sm:gap-4 p-2 sm:p-5 rounded-xl sm:rounded-2xl bg-white/5 border border-[#FF1744]/10"
               >
-                <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-white/10/10 flex items-center justify-center shrink-0">
+                <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                   <X className="w-3 h-3 sm:w-5 sm:h-5 text-white/30" />
                 </div>
-                <p className="text-[10px] sm:text-base text-[#8892B0] line-through decoration-white/30/30 leading-tight">{text}</p>
+                <p className="text-[10px] sm:text-base text-[#8892B0] line-through decoration-white/30 leading-tight">{text}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -1001,7 +1010,7 @@ export function AppPage() {
                 </li>
               ))}
             </ul>
-            <a href="#download" className="block w-full text-center py-3 sm:py-4 bg-[#a020f0] hover:bg-[#a020f0]/80 text-[#04050A] rounded-xl font-rajdhani font-bold text-base sm:text-lg transition-colors">
+            <a href="#download" className="block w-full text-center py-3 sm:py-4 bg-[#a020f0] hover:bg-[#a020f0]/80 text-white rounded-xl font-rajdhani font-bold text-base sm:text-lg transition-colors">
               Créer mon espace Coach
             </a>
           </motion.div>
@@ -1010,68 +1019,9 @@ export function AppPage() {
       </section>
 
       {/* ==========================================
-          SECTION 6 — TESTIMONIALS
-          ========================================== */}
-      <section className="relative z-10 pt-10 pb-12 sm:py-24 px-6 max-w-7xl mx-auto overflow-hidden">
-        <div className="text-center mb-10 sm:mb-16">
-          <h2 className="font-bebas text-4xl md:text-[48px] mb-4 uppercase tracking-wide">ILS ONT CHANGÉ LEUR JEU</h2>
-          <p className="text-[#8892B0] text-sm sm:text-lg max-w-2xl mx-auto">Des vrais combattants. Des vrais résultats.</p>
-        </div>
-
-        <div className="flex md:grid md:grid-cols-3 gap-4 sm:gap-6 overflow-x-auto md:overflow-visible snap-x snap-mandatory hide-scrollbar pb-8 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0">
-          {[
-            { quote: "Le générateur de gameplan a tout changé pour moi. J'arrive dans la cage en sachant exactement quoi faire.", author: "Lucas M.", role: "-77kg", initials: "LM" },
-            { quote: "Je gère 8 combattants facilement depuis l'app. Le suivi de la charge d'entraînement m'évite de les cramer.", author: "Coach Amine", role: "Toulouse", initials: "CA" },
-            { quote: "L'algo de fatigue m'a alerté et j'ai évité une blessure à 3 semaines du combat. Indispensable.", author: "Théo R.", role: "MMA Pro", initials: "TR" }
-          ].map((testimonial, i) => (
-            <motion.div 
-              key={i}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: i * 0.15, type: "spring", bounce: 0.4 }}
-              className="w-[85vw] shrink-0 md:w-auto md:shrink snap-center bg-[#0C0E18]/60 backdrop-blur-lg border border-[#a020f0]/20 p-5 sm:p-8 rounded-2xl sm:rounded-[24px] relative group hover:border-[#a020f0]/50 transition-colors"
-            >
-              <Quote className="absolute top-4 right-4 w-16 h-16 sm:w-24 sm:h-24 text-white/[0.03] rotate-180 z-0" />
-              
-              <div className="flex gap-1 mb-4 sm:mb-6 relative z-10">
-                {[...Array(5)].map((_, j) => (
-                  <motion.div
-                    key={j}
-                    initial={{ opacity: 0, scale: 0 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.15 + j * 0.1 + 0.3 }}
-                  >
-                    <Star className="w-3 h-3 sm:w-4 sm:h-4 text-[#a020f0] fill-[#a020f0]" />
-                  </motion.div>
-                ))}
-              </div>
-
-              <p className="text-sm sm:text-base italic text-[#F0F4FF] mb-6 sm:mb-8 leading-relaxed relative z-10 min-h-[60px] sm:min-h-[80px]">
-                "{testimonial.quote}"
-              </p>
-              
-              <div className="flex items-center gap-3 sm:gap-4 relative z-10">
-                <div className="w-10 h-10 sm:w-12 h-12 rounded-full bg-gradient-to-br from-[#a020f0] to-[#FF1744] p-[2px] shrink-0">
-                  <div className="w-full h-full bg-[#04050A] rounded-full flex items-center justify-center">
-                    <span className="font-bebas text-base sm:text-lg text-white">{testimonial.initials}</span>
-                  </div>
-                </div>
-                <div>
-                  <div className="font-rajdhani font-bold text-base text-white">{testimonial.author}</div>
-                  <div className="text-[#8892B0] text-sm font-dm">{testimonial.role}</div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* ==========================================
           SECTION 8 — FINAL CTA
           ========================================== */}
-      <section className="relative z-10 pt-8 pb-32 sm:py-32 px-6 text-center overflow-hidden">
+      <section id="download" className="relative z-10 pt-8 pb-32 sm:py-32 px-6 text-center overflow-hidden scroll-mt-24">
         {/* Intense Background Gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#04050A] via-[#2A0E3D] to-[#4A001F] -z-20"></div>
         
@@ -1112,22 +1062,48 @@ export function AppPage() {
             PRÊT À PASSER AU NIVEAU SUPÉRIEUR ?
           </h2>
           <p className="text-xl text-[#F0F4FF]/80 mb-10 font-dm">
-            Rejoins 12 000+ combattants qui ont déjà transformé leur façon de s'entraîner.
+            L'application arrive sur iOS et Android. Laisse ton email pour être prévenu du lancement.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-            <a href="#download" className="group flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-5 bg-white text-[#04050A] rounded-2xl font-rajdhani font-bold text-xl hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)]">
-              <Apple className="w-7 h-7" />
-              <span>App Store</span>
-            </a>
-            <a href="#download" className="group flex items-center justify-center gap-3 w-full sm:w-auto px-10 py-5 bg-[#04050A] border-2 border-[#a020f0] text-white rounded-2xl font-rajdhani font-bold text-xl hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(160,32,240,0.3)] hover:bg-[#a020f0]/10">
-              <Play className="w-6 h-6 fill-white" />
-              <span>Google Play</span>
-            </a>
-          </div>
+
+          {waitlistStatus === "success" ? (
+            <div className="flex items-center justify-center gap-3 max-w-lg mx-auto mb-8 px-6 py-5 bg-white/10 border border-white/20 rounded-2xl">
+              <CheckCircle2 className="w-6 h-6 text-white shrink-0" />
+              <p className="text-white font-dm font-bold text-left">
+                C'est noté ! Tu recevras un email dès que l'app sera disponible.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-lg mx-auto mb-4">
+              <label htmlFor="waitlist-email" className="sr-only">Email</label>
+              <input
+                id="waitlist-email"
+                type="email"
+                required
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
+                placeholder="ton@email.com"
+                className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 font-dm focus:outline-none focus:border-white/60 transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={waitlistStatus === "loading"}
+                className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-[#04050A] rounded-2xl font-rajdhani font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] disabled:opacity-60 disabled:hover:scale-100"
+              >
+                {waitlistStatus === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bell className="w-5 h-5" />}
+                <span>Me prévenir</span>
+              </button>
+            </form>
+          )}
+
+          {waitlistStatus === "error" && (
+            <div className="flex items-center justify-center gap-2 text-sm font-dm text-white bg-[#FF1744]/20 border border-[#FF1744]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mb-4">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              L'inscription a échoué. Réessaie dans un instant.
+            </div>
+          )}
 
           <p className="text-sm text-[#F0F4FF]/60 uppercase tracking-widest font-rajdhani font-bold">
-            Gratuit • Sans engagement • iOS & Android
+            Gratuit • Sans engagement • iOS &amp; Android
           </p>
         </motion.div>
       </section>
@@ -1143,13 +1119,9 @@ export function AppPage() {
             className="fixed bottom-0 left-0 right-0 z-[100] p-4 bg-gradient-to-t from-[#04050A] via-[#04050A]/90 to-transparent pb-6 pointer-events-none"
           >
             <div className="flex gap-3 max-w-md mx-auto pointer-events-auto">
-              <a href="#download" className="flex-1 flex justify-center items-center gap-2 bg-white text-[#111111] py-4 rounded-2xl font-rajdhani font-bold text-base shadow-[0_10px_40px_rgba(0,0,0,0.5)] active:scale-95 transition-transform" onClick={(e) => { e.preventDefault(); window.location.href="#download"; }}>
-                <Apple className="w-5 h-5" />
-                App Store
-              </a>
-              <a href="#download" className="flex-1 flex justify-center items-center gap-2 bg-[#a020f0] text-white py-4 rounded-2xl font-rajdhani font-bold text-base shadow-[0_10px_40px_rgba(160,32,240,0.4)] active:scale-95 transition-transform" onClick={(e) => { e.preventDefault(); window.location.href="#download"; }}>
-                <Play className="w-4 h-4 fill-white" />
-                Google Play
+              <a href="#download" className="flex-1 flex justify-center items-center gap-2 bg-[#a020f0] text-white py-4 rounded-2xl font-rajdhani font-bold text-base shadow-[0_10px_40px_rgba(160,32,240,0.4)] active:scale-95 transition-transform">
+                <Bell className="w-4 h-4" />
+                Être prévenu du lancement
               </a>
             </div>
           </motion.div>

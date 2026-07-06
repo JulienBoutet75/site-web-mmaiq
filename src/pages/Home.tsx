@@ -172,13 +172,13 @@ export function Home() {
             <EditableText
               as="h1"
               path="home.hero.right.title"
-              defaultText="INSTRUCTIONNAL :\n COACHING VIDÉO"
+              defaultText="MMA IQ \n ACADEMY"
               className="font-display text-3xl md:text-6xl lg:text-7xl mb-1 md:mb-4 leading-[1.1] tracking-wider uppercase text-white font-bold whitespace-pre-line"
             />
             <EditableText
               as="p"
               path="home.hero.right.subtitle"
-              defaultText="MMA IQ ACADEMY"
+              defaultText="Coaching vidéo"
               className="font-ui text-[9px] md:text-sm text-white/80 font-bold tracking-[0.15em] md:tracking-[0.3em] uppercase mb-3 md:mb-8"
             />
             
@@ -423,10 +423,10 @@ export function Home() {
                   </div>
                   <EditableText as="h3" path={`home.method.title${i}`} defaultText={block.title} className="text-3xl md:text-4xl lg:text-5xl font-display mb-4 text-white leading-tight uppercase tracking-tight" />
                   <EditableText as="p" path={`home.method.desc${i}`} defaultText={block.desc} className="text-[var(--color-text-secondary)] font-body text-base md:text-lg mb-6 md:mb-8" />
-                  <Button className="bg-transparent border border-[var(--color-border)] text-white font-ui font-semibold px-6 py-4 md:px-8 md:py-6 rounded-none hover:bg-white/5 transition-all duration-300 relative overflow-hidden group">
-                    <span className="relative z-10 flex items-center gap-2 font-mono text-sm tracking-wider">INITIALISER <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
+                  <Link to="/app" className="inline-flex bg-transparent border border-[var(--color-border)] text-white font-ui font-semibold px-6 py-4 md:px-8 md:py-5 hover:bg-white/5 transition-all duration-300 relative overflow-hidden group">
+                    <span className="relative z-10 flex items-center gap-2 text-sm tracking-wider uppercase">Découvrir l'app <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></span>
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-[var(--color-accent-energy)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-                  </Button>
+                  </Link>
                 </motion.div>
               </div>
             ))}
@@ -466,7 +466,9 @@ export function Home() {
             <div id="coaches-scroll" className="flex overflow-x-auto gap-4 md:gap-6 pb-8 snap-x snap-mandatory hide-scrollbar scroll-smooth w-full px-4 md:px-0">
               {[1, 2].map((i) => {
                 const selectedId = siteData.texts[`home.featured_coach_${i}`];
-                const coach = coaches.find(c => String(c.id) === String(selectedId));
+                const coach = coaches.find(c => String(c.id) === String(selectedId)) || coaches[i - 1];
+
+                if (!coach && !isAdmin) return null;
 
                 return (
                   <motion.div 
@@ -494,38 +496,34 @@ export function Home() {
                     <div className="w-20 h-20 md:w-32 md:h-32 mx-auto mb-4 md:mb-6 relative mt-4 md:mt-6">
                       <div className="absolute inset-0 bg-[var(--color-accent-energy)] rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity animate-aura-pulse"></div>
                       <div className="w-full h-full rounded-full overflow-hidden border-2 border-[var(--color-border)] group-hover:border-[var(--color-accent-energy)] transition-colors relative z-10">
-                        <img 
-                          src={coach?.photo_url || `https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80`}
-                          alt={coach?.name || `Coach ${i}`}
-                          className="w-full h-full object-cover object-center grayscale group-hover:grayscale-0 transition-all duration-500"
-                        />
+                        {coach?.photo_url ? (
+                          <img
+                            src={coach.photo_url}
+                            alt={coach.name}
+                            className="w-full h-full object-cover object-center grayscale group-hover:grayscale-0 transition-all duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[var(--color-bg-elevated)] to-[var(--color-bg-surface)] flex items-center justify-center">
+                            <span className="font-display text-3xl md:text-5xl text-white/40">{(coach?.name || "?").charAt(0)}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
-                    
-                    <h3 className="text-2xl font-ui font-bold text-white mb-2">{coach?.name || `Coach ${i}`}</h3>
+
+                    <h3 className="text-2xl font-ui font-bold text-white mb-2">{coach?.name || "Sélectionne un coach"}</h3>
                     <div className="flex flex-wrap justify-center gap-2 mb-4">
                       {coach?.specialties?.slice(0, 2).map((specialty: string, idx: number) => (
                         <Badge key={idx} className="bg-white/5 text-[var(--color-accent-energy)] border-[var(--color-accent-energy)]/30 font-ui text-xs">{specialty}</Badge>
-                      )) || (
-                        <>
-                          <Badge className="bg-white/5 text-[var(--color-accent-energy)] border-[var(--color-accent-energy)]/30 font-ui text-xs">Striking</Badge>
-                          <Badge className="bg-white/5 text-[var(--color-accent-energy)] border-[var(--color-accent-energy)]/30 font-ui text-xs">MMA</Badge>
-                        </>
-                      )}
+                      ))}
                     </div>
-                    <p className="text-sm font-body text-[var(--color-text-secondary)] mb-6 line-clamp-3">
-                      {coach?.bio || "Ex-combattant pro, spécialiste en striking et préparation physique."}
-                    </p>
-                    
-                    <div className="grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-4">
-                      <div>
-                        <div className="font-accent font-bold text-white text-lg">10+</div>
-                        <div className="text-[10px] font-ui text-[var(--color-text-secondary)] uppercase tracking-wider">Années Exp.</div>
-                      </div>
-                      <div>
-                        <div className="font-accent font-bold text-white text-lg">500+</div>
-                        <div className="text-[10px] font-ui text-[var(--color-text-secondary)] uppercase tracking-wider">Élèves</div>
-                      </div>
+                    {coach?.bio && (
+                      <p className="text-sm font-body text-[var(--color-text-secondary)] mb-6 line-clamp-3">
+                        {coach.bio}
+                      </p>
+                    )}
+
+                    <div className="border-t border-[var(--color-border)] pt-4 text-sm font-ui font-semibold text-[var(--color-accent-energy)]">
+                      Voir son profil →
                     </div>
                   </Link>
                 </motion.div>
@@ -555,7 +553,7 @@ export function Home() {
             variants={textRevealVariant}
             className="text-center mb-12 md:mb-16 flex flex-col items-center"
           >
-            <EditableText as="h2" path="home.courses.title" defaultText="Instructionnal : Coaching Vidéo" className="text-lg sm:text-2xl md:text-5xl lg:text-6xl font-display uppercase tracking-tighter text-white mb-2 text-center whitespace-nowrap" />
+            <EditableText as="h2" path="home.courses.title" defaultText="Coaching vidéo : MMA IQ Academy" className="text-lg sm:text-2xl md:text-5xl lg:text-6xl font-display uppercase tracking-tighter text-white mb-2 text-center whitespace-nowrap" />
             <EditableText as="p" path="home.courses.subtitle" defaultText="Apprends des meilleurs. Domine la cage." className="text-[var(--color-text-secondary)] font-body text-xs sm:text-sm md:text-xl text-center whitespace-nowrap" />
           </motion.div>
 
@@ -583,8 +581,10 @@ export function Home() {
                 if (!formation || (selectedCoachId && String(formation.coach_id) !== String(selectedCoachId))) {
                   formation = filteredFormations[0];
                 }
-                
+
                 const formationCoach = coaches.find(c => String(c.id) === String(formation?.coach_id));
+
+                if (!formation && !isAdmin) return null;
 
                 return (
                   <motion.div 
@@ -619,12 +619,18 @@ export function Home() {
                     <div className="w-full aspect-video mx-auto mb-3 md:mb-6 relative mt-2 md:mt-6 rounded-xl overflow-hidden">
                       <div className="absolute inset-0 bg-[var(--color-accent-primary)] rounded-xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity animate-aura-pulse"></div>
                       <div className="w-full h-full rounded-xl overflow-hidden border-2 border-[var(--color-border)] group-hover:border-[var(--color-accent-primary)] transition-colors relative z-10">
-                        <img 
-                          src={formation?.thumbnail_url || `https://images.unsplash.com/photo-1517438322307-e67111335449?auto=format&fit=crop&q=80`}
-                          alt={formation?.title || "Formation"}
-                          className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                          referrerPolicy="no-referrer"
-                        />
+                        {formation?.thumbnail_url ? (
+                          <img
+                            src={formation.thumbnail_url}
+                            alt={formation.title}
+                            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[var(--color-bg-elevated)] to-[var(--color-bg-surface)] flex items-center justify-center">
+                            <Video className="w-10 h-10 text-white/30" />
+                          </div>
+                        )}
                         <div className="absolute inset-0 bg-[var(--color-accent-primary)]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                           <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-[var(--color-accent-primary)]">
                             <Play className="w-5 h-5 text-white ml-1" />
@@ -632,34 +638,46 @@ export function Home() {
                         </div>
                       </div>
                     </div>
-                    
-                    <h3 className="text-2xl font-ui font-bold text-white mb-2">{formation?.title || `Formation ${i}`}</h3>
+
+                    <h3 className="text-2xl font-ui font-bold text-white mb-2">{formation?.title || "Sélectionne une formation"}</h3>
                     <div className="flex flex-wrap justify-center gap-2 mb-4">
-                      <Badge className="bg-white/5 text-[var(--color-accent-primary)] border-[var(--color-accent-primary)]/30 font-ui text-xs">
-                        {formation?.level || "Tous niveaux"}
-                      </Badge>
-                      <Badge className="bg-white/5 text-[var(--color-accent-primary)] border-[var(--color-accent-primary)]/30 font-ui text-xs">
-                        {formation?.duration || "2h 30m"}
-                      </Badge>
+                      {formation?.level && (
+                        <Badge className="bg-white/5 text-[var(--color-accent-primary)] border-[var(--color-accent-primary)]/30 font-ui text-xs">
+                          {formation.level}
+                        </Badge>
+                      )}
+                      {formation?.duration && (
+                        <Badge className="bg-white/5 text-[var(--color-accent-primary)] border-[var(--color-accent-primary)]/30 font-ui text-xs">
+                          {formation.duration}
+                        </Badge>
+                      )}
                     </div>
-                    
-                    <p className="text-sm font-body text-[var(--color-text-secondary)] mb-6 line-clamp-3">
-                      {formation?.description || `Apprends les techniques avancées avec ${formationCoach?.name || "notre expert"}.`}
-                    </p>
-                    
+
+                    {formation?.description && (
+                      <p className="text-sm font-body text-[var(--color-text-secondary)] mb-6 line-clamp-3">
+                        {formation.description}
+                      </p>
+                    )}
+
                     <div className="grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-4 items-center">
                       <div className="flex flex-col items-center">
-                        <img 
-                          src={formationCoach?.photo_url || coach?.photo_url || "https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&q=80"}
-                          alt={formationCoach?.name || coach?.name || "Coach"}
-                          className="w-10 h-10 rounded-full object-cover mb-1 border border-[var(--color-border)]"
-                          referrerPolicy="no-referrer"
-                        />
+                        {(formationCoach?.photo_url || coach?.photo_url) ? (
+                          <img
+                            src={formationCoach?.photo_url || coach?.photo_url}
+                            alt={formationCoach?.name || coach?.name || "Coach"}
+                            className="w-10 h-10 rounded-full object-cover mb-1 border border-[var(--color-border)]"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[var(--color-bg-elevated)] border border-[var(--color-border)] flex items-center justify-center mb-1">
+                            <span className="font-display text-sm text-white/40">{(formationCoach?.name || coach?.name || "?").charAt(0)}</span>
+                          </div>
+                        )}
                         <div className="text-[10px] font-ui text-[var(--color-text-secondary)] uppercase tracking-wider">{formationCoach?.name || coach?.name || "Coach"}</div>
                       </div>
                       <div>
                         <Button className="w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-indigo)] text-white font-ui font-semibold rounded-lg text-xs py-2 h-auto pointer-events-none">
-                          Accéder ({formation ? `${formation.price_cents ? formation.price_cents / 100 : 99}€` : "49€"})
+                          {formation?.price_cents ? `Accéder (${formation.price_cents / 100}€)` : "Découvrir"}
                         </Button>
                       </div>
                     </div>
@@ -718,26 +736,25 @@ export function Home() {
             </div>
           </motion.div>
           
-          <motion.div 
+          <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
-            className="w-full md:w-1/2 grid grid-cols-2 gap-3 md:gap-6"
+            className="w-full md:w-1/2 flex flex-col gap-3 md:gap-4"
           >
             {[
-              { val: '500+', label: 'Techniques décortiquées', color: 'var(--color-accent-primary)' },
-              { val: '85%', label: 'Amélioration de la confiance en soi', color: 'var(--color-accent-energy)' },
-              { val: '10k+', label: 'Heures de contenu analysées', color: 'var(--color-accent-secondary)' },
-              { val: '0', label: 'Excuse acceptée', color: 'var(--color-accent-gold)' }
-            ].map((stat, i) => (
-              <motion.div 
+              { title: 'Discipline', desc: "Une méthode claire, un plan à suivre, des repères concrets à chaque entraînement." },
+              { title: 'Maîtrise de soi', desc: "Apprendre à gérer la pression, la fatigue et la peur — dans la cage comme en dehors." },
+              { title: 'Résilience', desc: "Se relever après chaque chute et transformer les défaites en données de progression." },
+            ].map((item, i) => (
+              <motion.div
                 key={i}
                 variants={powerUpVariant}
-                className="bg-[var(--color-bg-surface)]/50 backdrop-blur-md border border-[var(--color-border)] p-3 md:p-8 rounded-xl md:rounded-2xl text-center hover:border-[var(--color-accent-primary)] transition-colors"
+                className="bg-[var(--color-bg-surface)]/50 backdrop-blur-md border border-[var(--color-border)] p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-[var(--color-accent-primary)] transition-colors"
               >
-                <div className="text-xl md:text-4xl lg:text-5xl font-accent font-black mb-1 md:mb-2" style={{ color: stat.color }}>{stat.val}</div>
-                <div className="text-[9px] md:text-sm font-ui text-[var(--color-text-secondary)] uppercase tracking-wider">{stat.label}</div>
+                <div className="text-lg md:text-2xl font-display text-white mb-1 uppercase tracking-wide">{item.title}</div>
+                <div className="text-xs md:text-base font-body text-[var(--color-text-secondary)]">{item.desc}</div>
               </motion.div>
             ))}
           </motion.div>

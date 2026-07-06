@@ -168,12 +168,16 @@ export function BlogPost() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#a020f0]/5 blur-3xl rounded-full -mr-32 -mt-32"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
               <div className="w-full md:w-1/3 aspect-video bg-black rounded-xl overflow-hidden border border-white/5">
-                <img 
-                  src={`https://picsum.photos/seed/${relatedFormation.id}/400/225`} 
-                  alt={relatedFormation.title} 
-                  className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
-                  referrerPolicy="no-referrer"
-                />
+                {relatedFormation.thumbnail_url ? (
+                  <img
+                    src={relatedFormation.thumbnail_url}
+                    alt={relatedFormation.title}
+                    className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-[#12122a] to-[#0a0a1a]"></div>
+                )}
               </div>
               <div className="flex-1 text-center md:text-left">
                 <Badge color="purple" className="mb-4">Formation recommandée</Badge>
@@ -201,12 +205,16 @@ export function BlogPost() {
               {recommendedPosts.map((p) => (
                 <Link key={p.id} to={`/blog/${p.slug}`} className="group">
                   <div className="aspect-video bg-[#12122a] rounded-xl overflow-hidden mb-4 border border-[#22223a] group-hover:border-[#a020f0]/30 transition-all">
-                    <img 
-                      src={p.thumbnail_path || `https://picsum.photos/seed/${p.id}/400/225`} 
-                      alt={p.title} 
-                      className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
-                      referrerPolicy="no-referrer"
-                    />
+                    {p.thumbnail_path ? (
+                      <img
+                        src={p.thumbnail_path}
+                        alt={p.title}
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#12122a] to-[#0a0a1a]"></div>
+                    )}
                   </div>
                   <h4 className="font-display text-sm group-hover:text-[#a020f0] transition-colors line-clamp-2">{p.title}</h4>
                 </Link>
