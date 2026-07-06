@@ -260,7 +260,7 @@ export function About() {
             transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
-            <Link to="/app" className="w-full sm:w-auto px-8 py-4 bg-[#7B2FFF] hover:bg-[#6520d4] text-white rounded-full font-bold transition-colors text-center">
+            <Link to="/app" className="w-full sm:w-auto px-8 py-4 bg-[#7B2FFF] hover:bg-[#6520d9] text-white rounded-full font-bold transition-colors text-center">
               Découvrir l'app
             </Link>
             <Link to="/instructional" className="w-full sm:w-auto px-8 py-4 bg-transparent border border-white text-white hover:bg-white/10 rounded-full font-bold transition-colors text-center">

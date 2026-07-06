@@ -333,7 +333,7 @@ export function Instructional() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
             <input 
               type="text" 
-              placeholder="Rechercher une technique, un coach..." 
+              aria-label="Rechercher une technique ou un coach" placeholder="Rechercher une technique, un coach..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-[#12152A] border border-white/10 rounded-full py-3 pl-11 pr-4 text-sm text-white placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-accent-red)]/50 focus:bg-white/5 transition-all"
@@ -343,6 +343,7 @@ export function Instructional() {
           <div className="relative w-full flex-1 min-w-0 md:flex md:justify-end">
             <div className="flex flex-row gap-2 w-full md:justify-end overflow-x-auto pb-2 md:pb-0 scrollbar-hide" ref={scrollRef}>
               <select 
+                aria-label="Filtrer par niveau"
                 className="bg-[#12152A] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
                 onChange={(e) => setLevelFilter(e.target.value)}
                 value={levelFilter}
@@ -355,7 +356,7 @@ export function Instructional() {
 
               <select 
                 className="bg-[#12152A] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
-                onChange={(e) => setMmaFilter(e.target.value)}
+                aria-label="Filtrer par spécificité MMA" onChange={(e) => setMmaFilter(e.target.value)}
                 value={mmaFilter}
               >
                 <option value="">Spécificité MMA</option>
@@ -368,7 +369,7 @@ export function Instructional() {
 
               <select 
                 className="bg-[#12152A] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
-                onChange={(e) => setDisciplineFilter(e.target.value)}
+                aria-label="Filtrer par discipline" onChange={(e) => setDisciplineFilter(e.target.value)}
                 value={disciplineFilter}
               >
                 <option value="">Toutes les disciplines</option>
@@ -426,7 +427,7 @@ export function Instructional() {
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500 z-10"></div>
                         
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
-                          <div className="w-16 h-16 rounded-full bg-[var(--color-accent-red)] flex items-center justify-center backdrop-blur-md shadow-[0_0_40px_rgba(230,41,58,0.6)] transform scale-75 group-hover:scale-100 transition-transform duration-500">
+                          <div className="w-16 h-16 rounded-full bg-[var(--color-accent-red)] flex items-center justify-center backdrop-blur-md shadow-[0_0_40px_rgba(255,23,68,0.6)] transform scale-75 group-hover:scale-100 transition-transform duration-500">
                             <Play className="w-6 h-6 ml-1 text-white" fill="currentColor" />
                           </div>
                         </div>
@@ -493,7 +494,7 @@ export function Instructional() {
                               {course.trailer_url && (
                                 <span className="hidden sm:inline-block text-xs text-[var(--color-text-secondary)]">Teaser gratuit inclus</span>
                               )}
-                              <button className="bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white font-ui font-bold py-2.5 px-4 md:px-5 rounded-xl transition-colors flex items-center justify-center gap-2 text-xs md:text-sm shadow-[0_0_15px_rgba(230,41,58,0.2)]">
+                              <button className="bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white font-ui font-bold py-2.5 px-4 md:px-5 rounded-xl transition-colors flex items-center justify-center gap-2 text-xs md:text-sm shadow-[0_0_15px_rgba(255,23,68,0.2)]">
                                 Découvrir <ArrowRight size={16} />
                               </button>
                             </div>
@@ -559,7 +560,7 @@ export function Instructional() {
             </div>
           </div>
           <div className="w-full md:w-1/2">
-            <div className="aspect-[4/5] bg-[#04050A] border border-[var(--color-accent-red)]/20 rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(230,41,58,0.15)]">
+            <div className="aspect-[4/5] bg-[#04050A] border border-[var(--color-accent-red)]/20 rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(255,23,68,0.15)]">
               <img 
                 src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/about/mission.jpg" 
                 alt="MMA IQ Setup"

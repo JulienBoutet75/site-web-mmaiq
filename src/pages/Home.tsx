@@ -17,7 +17,6 @@ import { powerUpVariant, staggerContainer, speedImpactVariant, speedImpactRightV
 import PricingSection from "../components/PricingSection";
 
 export function Home() {
-  const [hoveredSide, setHoveredSide] = useState<"left" | "right" | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
@@ -67,154 +66,70 @@ export function Home() {
   };
 
   return (
-    <div className="bg-[#141414] text-white selection:bg-[var(--color-accent-purple)] selection:text-white">
-      {/* HERO SPLIT */}
-      <section className="relative md:h-[100dvh] pt-[60px] md:pt-0 flex flex-col md:flex-row overflow-hidden w-full">
-        {/* Left Panel - APP */}
-        <Link
-          to="/app"
-          className={`relative flex flex-col justify-center items-center text-center py-16 px-4 sm:p-6 md:p-16 lg:p-24 transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] z-10 md:flex-1 min-h-[35vh] md:min-h-screen group border-b md:border-b-0 md:border-r border-white/5 w-full overflow-hidden`}
-          onMouseEnter={() => setHoveredSide("left")}
-          onMouseLeave={() => setHoveredSide(null)}
-        >
-          {/* Backgrounds and Glows */}
-          <div className="absolute inset-0 bg-[#141414] z-0 overflow-hidden">
-            <EditableImage 
-              path="home.hero.left.bg"
-              defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/22.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvMjIucG5nIiwiaWF0IjoxNzczNTAyMjEyLCJleHAiOjQ5MjcxMDIyMTJ9.Q0RwDHhhZNWda8AQxy6Ly3IjvwuU9WyJNReRZU7nJIE" 
-              className="w-full h-full"
-              imgClassName="w-full h-full object-cover opacity-40 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
-            />
-          </div>
-          <div className={`absolute inset-0 bg-gradient-to-br from-[var(--color-accent-purple)]/20 to-transparent transition-opacity duration-1000 z-0 ${hoveredSide === "left" ? "opacity-100" : "opacity-50"}`}></div>
-          <div
-            className={`absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(160,32,240,0.18)_0%,transparent_60%)] transition-all duration-1000 ease-out ${hoveredSide === "left" ? "opacity-100 scale-125 blur-2xl" : "opacity-50 scale-100 blur-lg"}`}
-          ></div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
-            className="relative z-10 flex flex-col items-center justify-center w-full max-w-xl h-full py-2"
-          >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="w-10 h-10 md:w-20 md:h-20 mb-2 md:mb-8 rounded-xl md:rounded-2xl border border-[var(--color-accent-purple)] flex items-center justify-center bg-[#141414]/50 backdrop-blur-sm"
-            >
-              <Smartphone className="w-4 h-4 md:w-8 md:h-8 text-white" strokeWidth={1.5} />
-            </motion.div>
-            
-            <EditableText
-              as="h1"
-              path="home.hero.left.title"
-              defaultText="MMA IQ \n APPS"
-              className="font-display text-3xl md:text-6xl lg:text-7xl mb-1 md:mb-4 leading-[1.1] tracking-wider uppercase text-white font-bold whitespace-pre-line"
-            />
-            <EditableText
-              as="p"
-              path="home.hero.left.subtitle"
-              defaultText="Application de performance"
-              className="font-ui text-[9px] md:text-sm text-white/80 font-bold tracking-[0.15em] md:tracking-[0.3em] uppercase mb-3 md:mb-8"
-            />
-            
-            <motion.div 
-              className="transition-all duration-500 hover:-translate-y-1 hover:scale-105"
-            >
-              <span className="inline-flex items-center text-white font-ui text-[10px] md:text-sm font-semibold bg-[#1a1a1a]/80 px-4 py-2 md:px-8 md:py-4 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
-                <EditableText path="home.hero.left.button" defaultText="Découvrir l'application" /> <ArrowRight className="ml-2 md:ml-3 w-3 h-3 md:w-4 md:h-4 opacity-50" />
-              </span>
-            </motion.div>
-          </motion.div>
-        </Link>
-
-        {/* Right Panel - ACADEMY */}
-        <Link
-          to="/instructional"
-          className={`relative flex flex-col justify-center items-center text-center py-16 px-4 sm:p-6 md:p-16 lg:p-24 transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] z-10 md:flex-1 min-h-[35vh] md:min-h-screen group w-full overflow-hidden`}
-          onMouseEnter={() => setHoveredSide("right")}
-          onMouseLeave={() => setHoveredSide(null)}
-        >
-          {/* Backgrounds and Glows */}
-          <div className="absolute inset-0 bg-[#141414] z-0 overflow-hidden">
-            <EditableImage 
-              path="home.hero.right.bg_v3"
-              defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/Coach%20homepage%20rogna%202.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvQ29hY2ggaG9tZXBhZ2Ugcm9nbmEgMi5wbmciLCJpYXQiOjE3NzM1MDc0MzgsImV4cCI6MzMzMDk1MDc0Mzh9.53S0uc8OoTNgfvA5wZPZuIrFEhCjPS-6S12MeO2ThJI" 
-              className="w-full h-full"
-              imgClassName="w-full h-full object-cover opacity-40 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-out"
-            />
-          </div>
-          <div className={`absolute inset-0 bg-gradient-to-bl from-[var(--color-accent-red)]/30 to-transparent transition-opacity duration-1000 z-0 ${hoveredSide === "right" ? "opacity-100" : "opacity-50"}`}></div>
-          <div
-            className={`absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(230,41,58,0.25)_0%,transparent_60%)] transition-all duration-1000 ease-out ${hoveredSide === "right" ? "opacity-100 scale-150 blur-3xl" : "opacity-50 scale-100 blur-lg"}`}
-          ></div>
-          
-          {/* Dynamic Lightning Effect */}
-          <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen">
-            <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,rgba(255,23,68,0.4),transparent_50%)] animate-lightning-flash"></div>
-            <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_bottom_left,rgba(255,23,68,0.2),transparent_50%)] animate-lightning-flash" style={{ animationDelay: '2.5s' }}></div>
-          </div>
-          
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: [0.23, 1, 0.32, 1] }}
-            className="relative z-10 flex flex-col items-center justify-center w-full max-w-xl h-full py-2"
-          >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="w-10 h-10 md:w-20 md:h-20 mb-2 md:mb-8 rounded-full border border-[var(--color-accent-red)] flex items-center justify-center bg-[#141414]/50 backdrop-blur-sm"
-            >
-              <Play className="w-4 h-4 md:w-8 md:h-8 text-white ml-1" strokeWidth={1.5} />
-            </motion.div>
-            
-            <EditableText
-              as="h1"
-              path="home.hero.right.title"
-              defaultText="MMA IQ \n ACADEMY"
-              className="font-display text-3xl md:text-6xl lg:text-7xl mb-1 md:mb-4 leading-[1.1] tracking-wider uppercase text-white font-bold whitespace-pre-line"
-            />
-            <EditableText
-              as="p"
-              path="home.hero.right.subtitle"
-              defaultText="Coaching vidéo"
-              className="font-ui text-[9px] md:text-sm text-white/80 font-bold tracking-[0.15em] md:tracking-[0.3em] uppercase mb-3 md:mb-8"
-            />
-            
-            <motion.div 
-              className="transition-all duration-500 hover:-translate-y-1 hover:scale-105"
-            >
-              <span className="inline-flex items-center text-white font-ui text-[10px] md:text-sm font-semibold bg-[#1a1a1a]/80 px-4 py-2 md:px-8 md:py-4 rounded-full backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
-                <EditableText path="home.hero.right.button" defaultText="Découvrir les coachings" /> <ArrowRight className="ml-2 md:ml-3 w-3 h-3 md:w-4 md:h-4 opacity-50" />
-              </span>
-            </motion.div>
-          </motion.div>
-        </Link>
-      </section>
-
-      {/* CONTINUOUS LIGHTNING WRAPPER */}
-      <div className="relative">
-        {/* Global Lightning Effects */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-20 opacity-30 mix-blend-screen">
-          <svg className="absolute left-[5%] top-0 w-32 h-full text-[var(--color-accent-primary)]" preserveAspectRatio="none" viewBox="0 0 100 1000" style={{ animation: 'lightning-flash-vertical 4s infinite 0.2s' }}>
-            <path d="M50,0 L20,100 L60,200 L10,300 L70,400 L30,500 L80,600 L40,700 L90,800 L20,900 L50,1000" fill="none" stroke="currentColor" strokeWidth="3" filter="drop-shadow(0 0 15px currentColor)" />
-          </svg>
-          <svg className="absolute right-[8%] top-0 w-32 h-full text-[var(--color-accent-energy)]" preserveAspectRatio="none" viewBox="0 0 100 1000" style={{ animation: 'lightning-flash-vertical 5s infinite 1.5s' }}>
-            <path d="M50,0 L80,100 L30,200 L90,300 L40,400 L70,500 L20,600 L60,700 L10,800 L80,900 L50,1000" fill="none" stroke="currentColor" strokeWidth="2.5" filter="drop-shadow(0 0 12px currentColor)" />
-          </svg>
+    <div className="bg-[#04050A] text-white selection:bg-[var(--color-accent-purple)] selection:text-white">
+      {/* HERO — PROPOSITION DE VALEUR */}
+      <section className="relative min-h-[88vh] md:min-h-[92vh] flex items-center overflow-hidden w-full">
+        {/* Fond photo + voile sombre lisible */}
+        <div className="absolute inset-0 z-0">
+          <EditableImage
+            path="home.hero.main.bg"
+            defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/22.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvMjIucG5nIiwiaWF0IjoxNzczNTAyMjEyLCJleHAiOjQ5MjcxMDIyMTJ9.Q0RwDHhhZNWda8AQxy6Ly3IjvwuU9WyJNReRZU7nJIE"
+            className="w-full h-full"
+            imgClassName="w-full h-full object-cover object-center opacity-60"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-bg-base)] via-[var(--color-bg-base)]/85 to-[var(--color-bg-base)]/25"></div>
+          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[var(--color-bg-base)] to-transparent"></div>
         </div>
 
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full pt-32 pb-20 md:py-32">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
+            className="max-w-2xl"
+          >
+            <EditableText
+              as="p"
+              path="home.hero.main.kicker"
+              defaultText="La plateforme de performance MMA"
+              className="font-ui text-xs md:text-sm font-bold tracking-[0.25em] uppercase text-[var(--color-accent-primary)] mb-4 md:mb-6"
+            />
+            <EditableText
+              as="h1"
+              path="home.hero.main.title"
+              defaultText="Progresse en MMA avec méthode."
+              className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl leading-[0.95] uppercase text-white mb-4 md:mb-6"
+            />
+            <EditableText
+              as="p"
+              path="home.hero.main.subtitle"
+              defaultText="Plans d'entraînement, gameplans tactiques et cours vidéo des meilleurs coachs francophones — dans une seule app. Du débutant au compétiteur."
+              className="font-body text-base md:text-xl text-[var(--color-text-secondary)] leading-relaxed mb-8 md:mb-10 max-w-xl"
+            />
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link
+                to="/app"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--color-accent-primary)] hover:opacity-90 text-white rounded-full font-ui font-bold text-base shadow-[0_0_30px_rgba(123,47,255,0.4)] transition-all"
+              >
+                <Smartphone className="w-5 h-5" />
+                <EditableText path="home.hero.main.cta1" defaultText="Découvrir l'application" />
+              </Link>
+              <Link
+                to="/instructional"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/15 text-white rounded-full font-ui font-bold text-base transition-all"
+              >
+                <PlayCircle className="w-5 h-5" />
+                <EditableText path="home.hero.main.cta2" defaultText="Voir les cours vidéo" />
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <div className="relative">
         {/* SECTION 1 & 2 MERGED — L'ÉCOSYSTÈME & LA MÉTHODE */}
         <section className="py-16 md:py-24 px-6 bg-[var(--color-bg-elevated)] relative overflow-hidden border-y border-[var(--color-border)]">
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[var(--color-accent-primary)] to-transparent opacity-50"></div>
-        
-        {/* DBZ Aura & Lightning Background Effect */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
-          <div className="w-[300px] h-[300px] md:w-[400px] md:h-[400px] bg-[var(--color-accent-primary)] rounded-full blur-[80px] animate-aura-pulse mix-blend-screen"></div>
-          <div className="absolute w-[200px] h-[200px] md:w-[300px] md:h-[300px] bg-[var(--color-accent-primary)] rounded-full blur-[60px] animate-pulse mix-blend-screen" style={{ animationDuration: '3s' }}></div>
-        </div>
-        <div className="absolute inset-0 scanlines pointer-events-none opacity-20"></div>
 
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div
@@ -229,7 +144,7 @@ export function Home() {
                 as="h2"
                 path="home.ecosystem.title"
                 defaultText="Un écosystème complet. Un seul objectif."
-                className="text-4xl md:text-5xl lg:text-6xl font-display uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white via-[var(--color-accent-primary)] to-white animate-glitch relative z-10"
+                className="text-4xl md:text-5xl lg:text-6xl font-display uppercase tracking-tighter text-white relative z-10"
               />
             </div>
             
@@ -250,12 +165,7 @@ export function Home() {
             >
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-primary)] transition-colors relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-primary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-0 group-hover:opacity-30 transition-opacity">
-                  <svg className="absolute left-[20%] top-0 w-16 h-full text-[var(--color-accent-primary)]" preserveAspectRatio="none" viewBox="0 0 100 1000" style={{ animation: 'lightning-flash-vertical 3s infinite 0.1s' }}>
-                    <path d="M50,0 L20,150 L60,200 L10,450 L70,500 L30,750 L80,800 L40,1000" fill="none" stroke="currentColor" strokeWidth="3" filter="drop-shadow(0 0 15px currentColor)" />
-                  </svg>
-                </div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-primary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-primary)]/40 transition-colors"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
@@ -272,7 +182,7 @@ export function Home() {
 
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-gold)] transition-colors relative overflow-hidden lg:mt-6">
                 <div className="absolute inset-0 bg-gradient-to-tl from-[var(--color-accent-gold)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(255,215,0,0.1)] group-hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(255,215,0,0.1)] group-hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-gold)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-gold)]/40 transition-colors"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,215,0,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
@@ -313,12 +223,7 @@ export function Home() {
             >
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-primary)] transition-colors relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-bl from-[var(--color-accent-primary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-0 group-hover:opacity-30 transition-opacity">
-                  <svg className="absolute right-[20%] top-0 w-16 h-full text-[var(--color-accent-primary)]" preserveAspectRatio="none" viewBox="0 0 100 1000" style={{ animation: 'lightning-flash-vertical 4s infinite 0.5s' }}>
-                    <path d="M50,0 L80,200 L30,250 L90,550 L40,600 L70,850 L20,900 L60,1000" fill="none" stroke="currentColor" strokeWidth="2.5" filter="drop-shadow(0 0 12px currentColor)" />
-                  </svg>
-                </div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-primary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-primary)]/40 transition-colors"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
@@ -334,7 +239,7 @@ export function Home() {
               </div>
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-secondary)] transition-colors relative overflow-hidden lg:mt-6">
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-secondary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(0,229,255,0.1)] group-hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(0,229,255,0.1)] group-hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-secondary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-secondary)]/40 transition-colors"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
@@ -393,7 +298,7 @@ export function Home() {
                   variants={i % 2 === 0 ? speedImpactVariant : speedImpactRightVariant}
                   className="w-full md:w-1/2 relative"
                 >
-                  <div className="aspect-square w-full max-w-[200px] md:max-w-[300px] mx-auto bg-[#0A0A0C] border border-[var(--color-border)] rounded-full overflow-hidden relative group p-2">
+                  <div className="aspect-square w-full max-w-[200px] md:max-w-[300px] mx-auto bg-[#0C0E18] border border-[var(--color-border)] rounded-full overflow-hidden relative group p-2">
                     <div className="absolute inset-0 border border-[var(--color-accent-energy)]/20 m-4 rounded-full pointer-events-none z-20"></div>
                     
                     <EditableImage 
@@ -402,7 +307,7 @@ export function Home() {
                       className="w-full h-full relative z-10 rounded-full overflow-hidden method-image-container"
                       imgClassName="w-full h-full object-cover object-center transition-all duration-700 rounded-full"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0C] to-transparent opacity-80 z-10 pointer-events-none rounded-full"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E18] to-transparent opacity-80 z-10 pointer-events-none rounded-full"></div>
                   </div>
                   {/* Step Number Overlay */}
                   <div className={`absolute ${i % 2 === 0 ? '-right-4 md:-right-8' : '-left-4 md:-left-8'} -top-8 md:-top-12 text-6xl md:text-[150px] font-accent font-black text-white/5 select-none pointer-events-none`}>
@@ -419,7 +324,7 @@ export function Home() {
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-8 h-px bg-white/20"></div>
-                    <div className="text-sm font-mono tracking-widest" style={{ color: block.color }}>PHASE_{block.step}</div>
+                    <div className="text-sm font-ui tracking-widest" style={{ color: block.color }}>PHASE_{block.step}</div>
                   </div>
                   <EditableText as="h3" path={`home.method.title${i}`} defaultText={block.title} className="text-3xl md:text-4xl lg:text-5xl font-display mb-4 text-white leading-tight uppercase tracking-tight" />
                   <EditableText as="p" path={`home.method.desc${i}`} defaultText={block.desc} className="text-[var(--color-text-secondary)] font-body text-base md:text-lg mb-6 md:mb-8" />

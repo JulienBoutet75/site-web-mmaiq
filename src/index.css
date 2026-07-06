@@ -24,8 +24,8 @@ html, body {
   
   --font-display: "Bebas Neue", sans-serif;
   --font-body: "DM Sans", sans-serif;
-  --font-ui: "Rajdhani", sans-serif;
-  --font-accent: "Orbitron", sans-serif;
+  --font-ui: "DM Sans", sans-serif;
+  --font-accent: "DM Sans", sans-serif;
   --font-days-one: "Days One", sans-serif;
 }
 
@@ -46,7 +46,7 @@ h1, h2, h3, h4, h5, h6, .font-display {
   letter-spacing: -0.02em;
 }
 
-/* DBZ Energy Animations */
+/* Halo doux réservé aux survols de cartes/CTA */
 @keyframes aura-pulse {
   0%, 100% { opacity: 0.3; transform: scale(1); }
   50% { opacity: 0.6; transform: scale(1.05); }
@@ -55,70 +55,21 @@ h1, h2, h3, h4, h5, h6, .font-display {
   animation: aura-pulse 3s ease-in-out infinite;
 }
 
-@keyframes lightning-flash {
-  0%, 90%, 100% { opacity: 0; }
-  92%, 96% { opacity: 0.8; }
-}
-.animate-lightning-flash {
-  animation: lightning-flash 5s linear infinite;
-}
-
-@keyframes lightning-flash-vertical {
-  0%, 80%, 100% { opacity: 0; transform: scaleY(1); }
-  82% { opacity: 1; transform: scaleY(1.1) translateX(-4px); filter: drop-shadow(0 0 20px var(--color-accent-red)); }
-  84% { opacity: 0.2; transform: scaleY(1); }
-  86% { opacity: 1; transform: scaleY(1.05) translateX(4px); filter: drop-shadow(0 0 30px var(--color-accent-red)); }
-  88% { opacity: 0.5; transform: scaleY(1.02) translateX(-2px); }
-  90% { opacity: 1; transform: scaleY(1.1) translateX(2px); filter: drop-shadow(0 0 40px var(--color-accent-red)); }
-  92% { opacity: 0; transform: scaleY(1); }
+/* Focus clavier visible sur tout le site */
+:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-@keyframes energy-ball {
-  0% { transform: scale(0.8) translate(0, 0); opacity: 0.3; filter: hue-rotate(0deg) blur(20px); }
-  50% { transform: scale(1.2) translate(10px, -10px); opacity: 0.6; filter: hue-rotate(45deg) blur(30px); }
-  100% { transform: scale(0.8) translate(0, 0); opacity: 0.3; filter: hue-rotate(0deg) blur(20px); }
-}
-.animate-energy-ball {
-  animation: energy-ball 4s infinite ease-in-out;
-}
-
-@keyframes kamehameha {
-  0% { width: 0; opacity: 0; }
-  50% { width: 100%; opacity: 1; filter: drop-shadow(0 0 20px var(--color-accent-primary)); }
-  100% { width: 0; opacity: 0; transform: translateX(100%); }
-}
-.animate-kamehameha {
-  animation: kamehameha 2s infinite ease-in-out;
-}
-
-@keyframes glitch {
-  0% { transform: translate(0) }
-  20% { transform: translate(-2px, 2px) }
-  40% { transform: translate(-2px, -2px) }
-  60% { transform: translate(2px, 2px) }
-  80% { transform: translate(2px, -2px) }
-  100% { transform: translate(0) }
-}
-.animate-glitch:hover {
-  animation: glitch 0.2s cubic-bezier(.25, .46, .45, .94) both infinite;
-}
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}
-.scanlines::before {
-  content: " ";
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-  z-index: 2;
-  background-size: 100% 2px, 3px 100%;
-  pointer-events: none;
+/* Respect du réglage système "réduire les animations" */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar {

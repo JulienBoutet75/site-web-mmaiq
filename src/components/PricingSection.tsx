@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useInView, useMotionValue, animate, useTransform, AnimatePresence } from 'motion/react';
 import { CheckCircle2, Minus, Infinity as InfinityIcon, X, ArrowRight } from 'lucide-react';
 
@@ -177,25 +178,25 @@ const PlanCard: React.FC<{ plan: any, index: number }> = ({ plan, index }) => {
         ))}
       </div>
       
-      {/* CTA Button */}
+      {/* CTA : l'app n'est pas encore lancée — chaque plan mène à la liste d'attente */}
       {isGold ? (
         <div className="relative group/btn w-full mt-auto">
-          <button className="relative w-full py-2.5 md:py-4 bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF] text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-transform group-hover/btn:scale-[1.02] shadow-[0_0_20px_rgba(123,47,255,0.4)] overflow-hidden">
+          <Link to="/app#download" className="relative block text-center w-full py-2.5 md:py-4 bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF] text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-transform group-hover/btn:scale-[1.02] shadow-[0_0_20px_rgba(123,47,255,0.4)] overflow-hidden">
             <span className="relative z-10">{plan.cta}</span>
-          </button>
+          </Link>
         </div>
       ) : plan.id === 'silver' ? (
-        <button className="w-full py-2.5 md:py-4 bg-[#7B2FFF] hover:bg-[#7B2FFF]/80 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
+        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-[#7B2FFF] hover:bg-[#7B2FFF]/80 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
           {plan.cta}
-        </button>
+        </Link>
       ) : plan.id === 'lite' ? (
-        <button className="w-full py-2.5 md:py-4 bg-[#7B2FFF]/20 hover:bg-[#7B2FFF]/30 border border-[#7B2FFF]/30 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
+        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-[#7B2FFF]/20 hover:bg-[#7B2FFF]/30 border border-[#7B2FFF]/30 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
           {plan.cta}
-        </button>
+        </Link>
       ) : (
-        <button className="w-full py-2.5 md:py-4 bg-transparent hover:bg-white/5 border border-white/20 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
+        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-transparent hover:bg-white/5 border border-white/20 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
           {plan.cta}
-        </button>
+        </Link>
       )}
     </div>
   );

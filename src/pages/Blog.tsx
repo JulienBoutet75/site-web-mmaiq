@@ -57,17 +57,17 @@ export function Blog() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#141414] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#a020f0]"></div>
+      <div className="min-h-screen bg-[#04050A] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7B2FFF]"></div>
       </div>
     );
   }
 
   return (
-    <div className="bg-[#141414] text-white pt-32 pb-24 selection:bg-[var(--color-accent-purple)] selection:text-white min-h-screen">
+    <div className="bg-[#04050A] text-white pt-32 pb-24 selection:bg-[var(--color-accent-purple)] selection:text-white min-h-screen">
       {/* Hero */}
       <section className="px-6 max-w-7xl mx-auto text-center mb-16 relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(160,32,240,0.08)_0%,transparent_50%)] pointer-events-none blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.08)_0%,transparent_50%)] pointer-events-none blur-3xl"></div>
         
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -75,7 +75,7 @@ export function Blog() {
           transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
           className="relative z-10"
         >
-          <Badge color="purple" className="mb-8 bg-white/5 border-white/10 text-white/80 shadow-[0_0_30px_rgba(160,32,240,0.2)]">
+          <Badge color="purple" className="mb-8 bg-white/5 border-white/10 text-white/80 shadow-[0_0_30px_rgba(123,47,255,0.2)]">
             BLOG & INTERVIEWS
           </Badge>
           <h1 className="font-display text-5xl md:text-6xl lg:text-7xl mb-8 max-w-4xl mx-auto leading-[1.1] tracking-tighter drop-shadow-2xl w-full break-words">
@@ -103,13 +103,13 @@ export function Blog() {
 
           {/* Search */}
           <div className="max-w-xl mx-auto relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-[#a020f0] transition-colors" size={20} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-[#7B2FFF] transition-colors" size={20} />
             <input 
               type="text"
-              placeholder="Rechercher un article..."
+              aria-label="Rechercher un article" placeholder="Rechercher un article..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-[#a020f0]/50 focus:bg-white/10 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white focus:outline-none focus:border-[#7B2FFF]/50 focus:bg-white/10 transition-all"
             />
           </div>
         </motion.div>
@@ -126,7 +126,7 @@ export function Blog() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-6 py-2 rounded-full text-sm font-bold transition-all border ${
                   selectedCategory === cat 
-                    ? "bg-[#a020f0] border-[#a020f0] text-white shadow-[0_0_20px_rgba(160,32,240,0.3)]" 
+                    ? "bg-[#7B2FFF] border-[#7B2FFF] text-white shadow-[0_0_20px_rgba(123,47,255,0.3)]" 
                     : "bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -151,7 +151,7 @@ export function Blog() {
                   key={tag}
                   onClick={() => setSelectedTag(tag)}
                   className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
-                    selectedTag === tag ? "bg-[#a020f0]/20 text-[#a020f0] border border-[#a020f0]/30" : "bg-white/5 text-white/30 hover:text-white/60"
+                    selectedTag === tag ? "bg-[#7B2FFF]/20 text-[#7B2FFF] border border-[#7B2FFF]/30" : "bg-white/5 text-white/30 hover:text-white/60"
                   }`}
                 >
                   #{tag}
@@ -169,7 +169,7 @@ export function Blog() {
             <p className="text-white/30 font-body text-lg">Aucun article ne correspond à votre recherche.</p>
             <button 
               onClick={() => { setSelectedCategory("Toutes"); setSelectedTag(null); setSearchQuery(""); }}
-              className="mt-4 text-[#a020f0] hover:underline font-bold"
+              className="mt-4 text-[#7B2FFF] hover:underline font-bold"
             >
               Réinitialiser les filtres
             </button>
@@ -186,7 +186,7 @@ export function Blog() {
                 className="h-full"
               >
                 <Link to={`/blog/${article.slug}`} className="h-full block">
-                  <div className="h-full flex flex-col group bg-white/[0.04] border border-white/[0.05] hover:border-[#a020f0]/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] rounded-[2rem] overflow-hidden backdrop-blur-sm">
+                  <div className="h-full flex flex-col group bg-white/[0.04] border border-white/[0.05] hover:border-[#7B2FFF]/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] rounded-[2rem] overflow-hidden backdrop-blur-sm">
                     <div className="aspect-video bg-white/5 relative overflow-hidden">
                       {article.thumbnail_path ? (
                         <img
@@ -195,7 +195,7 @@ export function Blog() {
                           className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#12152A] to-[#0a0a1a] flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-br from-[#12152A] to-[#04050A] flex items-center justify-center">
                           <FileText className="w-10 h-10 text-white/20" />
                         </div>
                       )}
@@ -212,7 +212,7 @@ export function Blog() {
                       
                       {article.video_url && (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-12 h-12 rounded-full bg-[#a020f0]/90 flex items-center justify-center shadow-[0_0_30px_rgba(160,32,240,0.5)] backdrop-blur-md transform scale-90 group-hover:scale-110 transition-transform duration-500 z-20">
+                          <div className="w-12 h-12 rounded-full bg-[#7B2FFF]/90 flex items-center justify-center shadow-[0_0_30px_rgba(123,47,255,0.5)] backdrop-blur-md transform scale-90 group-hover:scale-110 transition-transform duration-500 z-20">
                             <Play className="w-5 h-5 text-white ml-1" fill="currentColor" />
                           </div>
                         </div>
@@ -228,7 +228,7 @@ export function Blog() {
                         </span>
                       </div>
                       
-                      <h3 className="font-display text-2xl mb-4 transition-colors duration-300 line-clamp-2 text-white/90 group-hover:text-[#a020f0]">
+                      <h3 className="font-display text-2xl mb-4 transition-colors duration-300 line-clamp-2 text-white/90 group-hover:text-[#7B2FFF]">
                         {article.title}
                       </h3>
                       
@@ -245,7 +245,7 @@ export function Blog() {
                       </div>
                       
                       <div className="pt-6 border-t border-white/5 flex items-center justify-between">
-                        <span className="font-ui font-bold text-xs text-[#a020f0] flex items-center gap-2">
+                        <span className="font-ui font-bold text-xs text-[#7B2FFF] flex items-center gap-2">
                           {article.video_url ? "VOIR LA VIDÉO" : "LIRE L'ARTICLE"}
                           <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </span>

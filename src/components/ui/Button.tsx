@@ -21,8 +21,8 @@ export function Button({
 
   const variants = {
     primary:
-      "bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)] text-white shadow-[0_0_20px_rgba(160,32,240,0.3)] hover:shadow-[0_0_30px_rgba(160,32,240,0.5)] hover:-translate-y-0.5",
-    red: "bg-gradient-to-r from-[var(--color-accent-red)] to-[#ff4d5e] text-white shadow-[0_0_20px_rgba(230,41,58,0.3)] hover:shadow-[0_0_30px_rgba(230,41,58,0.5)] hover:-translate-y-0.5",
+      "bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)] text-white shadow-[0_0_20px_rgba(123,47,255,0.3)] hover:shadow-[0_0_30px_rgba(123,47,255,0.5)] hover:-translate-y-0.5",
+    red: "bg-gradient-to-r from-[var(--color-accent-red)] to-[#ff4d5e] text-white shadow-[0_0_20px_rgba(255,23,68,0.3)] hover:shadow-[0_0_30px_rgba(255,23,68,0.5)] hover:-translate-y-0.5",
     secondary:
       "bg-[var(--color-card-bg)] border border-[var(--color-border-dark)] text-white hover:border-[var(--color-accent-purple)] hover:-translate-y-0.5",
     outline:

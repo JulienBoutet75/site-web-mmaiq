@@ -110,7 +110,7 @@ export function VideoEditorModal({ videoUrl, onClose }: { videoUrl: string; onCl
   };
 
   return (
-    <div className="fixed inset-0 z-[10001] bg-[#06060e] flex flex-col">
+    <div className="fixed inset-0 z-[10001] bg-[#04050A] flex flex-col">
       {/* Header */}
       <div className="h-16 border-b border-[#1e1e34] flex items-center justify-between px-6 shrink-0">
         <h2 className="text-white font-days-one text-lg truncate flex-1 mr-4">
@@ -165,7 +165,7 @@ export function VideoEditorModal({ videoUrl, onClose }: { videoUrl: string; onCl
             </div>
           </div>
 
-          <div className="font-mono text-xl text-white tracking-wider">
+          <div className="font-ui text-xl text-white tracking-wider">
             {formatTime(currentTime)} <span className="text-gray-500 text-sm">/ {formatTime(duration)}</span>
           </div>
         </div>
@@ -196,7 +196,7 @@ export function VideoEditorModal({ videoUrl, onClose }: { videoUrl: string; onCl
 
           {/* Playhead */}
           <div className="absolute top-0 bottom-0 w-[2px] bg-purple-500 z-30 pointer-events-none" style={{ left: `${(currentTime / duration) * 100}%` }}>
-            <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-purple-500 rounded-full shadow-[0_0_10px_rgba(160,32,240,0.8)]" />
+            <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-purple-500 rounded-full shadow-[0_0_10px_rgba(123,47,255,0.8)]" />
           </div>
         </div>
 
@@ -206,7 +206,7 @@ export function VideoEditorModal({ videoUrl, onClose }: { videoUrl: string; onCl
           <div className="bg-[#111120] p-4 rounded-xl border border-[#1e1e34]">
             <div className="flex justify-between items-center mb-2">
               <label className="text-sm font-medium text-gray-300">Trim début</label>
-              <span className="font-mono text-xs text-purple-400">{formatTime(trimStart)}</span>
+              <span className="font-ui text-xs text-purple-400">{formatTime(trimStart)}</span>
             </div>
             <input
               type="range"
@@ -229,7 +229,7 @@ export function VideoEditorModal({ videoUrl, onClose }: { videoUrl: string; onCl
           <div className="bg-[#111120] p-4 rounded-xl border border-[#1e1e34]">
             <div className="flex justify-between items-center mb-2">
               <label className="text-sm font-medium text-gray-300">Trim fin</label>
-              <span className="font-mono text-xs text-purple-400">{formatTime(trimEnd)}</span>
+              <span className="font-ui text-xs text-purple-400">{formatTime(trimEnd)}</span>
             </div>
             <input
               type="range"
@@ -259,7 +259,7 @@ export function VideoEditorModal({ videoUrl, onClose }: { videoUrl: string; onCl
               <div className="space-y-2 max-h-32 overflow-y-auto pr-2">
                 {cuts.map((cut, i) => (
                   <div key={i} className="flex items-center justify-between bg-black/50 p-2 rounded-lg border border-red-500/20">
-                    <div className="flex items-center gap-2 text-sm text-gray-300 font-mono">
+                    <div className="flex items-center gap-2 text-sm text-gray-300 font-ui">
                       <Scissors size={14} className="text-red-400" />
                       {formatTime(cut.start)} → {formatTime(cut.end)}
                       <span className="text-gray-500 text-xs ml-2">({formatTime(cut.end - cut.start)} suppr.)</span>
@@ -279,14 +279,14 @@ export function VideoEditorModal({ videoUrl, onClose }: { videoUrl: string; onCl
           <div className="bg-purple-900/20 p-4 rounded-xl border border-purple-500/30 flex flex-col justify-between">
             <div>
               <h3 className="text-sm font-medium text-purple-300 mb-3">Résumé</h3>
-              <ul className="space-y-1 text-sm text-gray-300 font-mono">
+              <ul className="space-y-1 text-sm text-gray-300 font-ui">
                 <li>Original : {formatTime(duration)}</li>
                 <li>Trim : {formatTime(trimStart)} → {formatTime(trimEnd)}</li>
                 <li>Coupes : {cuts.length}</li>
               </ul>
               <div className="mt-4 pt-3 border-t border-purple-500/20">
                 <span className="text-xs text-gray-400 uppercase tracking-wider">Durée finale estimée</span>
-                <p className="text-2xl font-bold text-green-400 font-mono mt-1">{formatTime(calculateFinalDuration())}</p>
+                <p className="text-2xl font-bold text-green-400 font-ui mt-1">{formatTime(calculateFinalDuration())}</p>
               </div>
             </div>
             <button

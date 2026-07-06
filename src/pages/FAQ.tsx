@@ -42,10 +42,10 @@ export function FAQ() {
   };
 
   return (
-    <div className="bg-[#141414] text-white pt-32 pb-24 selection:bg-[var(--color-accent-purple)] selection:text-white min-h-screen">
+    <div className="bg-[#04050A] text-white pt-32 pb-24 selection:bg-[var(--color-accent-purple)] selection:text-white min-h-screen">
       {/* Hero */}
       <section className="px-6 max-w-3xl mx-auto text-center mb-16 relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(160,32,240,0.08)_0%,transparent_50%)] pointer-events-none blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.08)_0%,transparent_50%)] pointer-events-none blur-3xl"></div>
         
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -53,7 +53,7 @@ export function FAQ() {
           transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
           className="relative z-10"
         >
-          <Badge color="purple" className="mb-8 bg-white/5 border-white/10 text-white/80 shadow-[0_0_30px_rgba(160,32,240,0.2)]">
+          <Badge color="purple" className="mb-8 bg-white/5 border-white/10 text-white/80 shadow-[0_0_30px_rgba(123,47,255,0.2)]">
             FAQ
           </Badge>
           <h1 className="font-display text-5xl md:text-6xl lg:text-7xl mb-8 leading-[1.1] tracking-tighter drop-shadow-2xl">
@@ -82,7 +82,7 @@ export function FAQ() {
               <div 
                 className={`border rounded-2xl overflow-hidden transition-all duration-500 backdrop-blur-sm ${
                   openFaq === i 
-                    ? "bg-white/[0.04] border-[var(--color-accent-purple)]/30 shadow-[0_10px_30px_-10px_rgba(160,32,240,0.15)]" 
+                    ? "bg-white/[0.04] border-[var(--color-accent-purple)]/30 shadow-[0_10px_30px_-10px_rgba(123,47,255,0.15)]" 
                     : "bg-white/[0.04] border-white/[0.05] hover:border-white/20 hover:bg-white/[0.03]"
                 }`}
               >

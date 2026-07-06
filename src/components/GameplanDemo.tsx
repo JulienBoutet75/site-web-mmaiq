@@ -64,12 +64,12 @@ export function GameplanDemo() {
   return (
     <div className="w-full max-w-md mx-auto bg-[#0C0E18] rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative">
       {/* Header */}
-      <div className="bg-[#1A1D2D] p-3 sm:p-4 border-b border-white/5 flex items-center justify-between">
+      <div className="bg-[#0C0E18] p-3 sm:p-4 border-b border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-[#a020f0]/20 flex items-center justify-center">
-            <Target className="w-3 h-3 sm:w-4 sm:h-4 text-[#a020f0]" />
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-[#7B2FFF]/20 flex items-center justify-center">
+            <Target className="w-3 h-3 sm:w-4 sm:h-4 text-[#7B2FFF]" />
           </div>
-          <h3 className="text-[#F0F4FF] font-bebas tracking-wide text-base sm:text-lg">ANALYSES EXPERTES</h3>
+          <h3 className="text-[#F0F4FF] font-display tracking-wide text-base sm:text-lg">ANALYSES EXPERTES</h3>
         </div>
         <div className="flex gap-1 sm:gap-2">
           <button onClick={prevPlan} className="p-1 hover:bg-white/10 rounded-md transition-colors">
@@ -96,8 +96,8 @@ export function GameplanDemo() {
             {/* Opponent Profile */}
             <div className={`bg-gradient-to-r ${current.bg} border ${current.border} rounded-xl p-3 sm:p-4 mb-4 flex items-center justify-between`}>
               <div>
-                <p className="text-[#8892B0] text-[10px] font-rajdhani uppercase tracking-wider mb-0.5">Adversaire</p>
-                <h4 className="text-[#F0F4FF] font-bebas text-lg sm:text-xl tracking-wide" style={{ color: current.color }}>
+                <p className="text-[#8892B0] text-[10px] font-ui uppercase tracking-wider mb-0.5">Adversaire</p>
+                <h4 className="text-[#F0F4FF] font-display text-lg sm:text-xl tracking-wide" style={{ color: current.color }}>
                   {current.opponent}
                 </h4>
               </div>
@@ -111,23 +111,23 @@ export function GameplanDemo() {
               <div className="bg-[#04050A] border border-white/5 rounded-lg p-2.5 sm:p-3">
                 <div className="flex items-center gap-2 mb-1">
                   <Crosshair className="w-3 h-3 text-[#8892B0]" />
-                  <p className="text-[#8892B0] text-[10px] font-rajdhani uppercase tracking-wider">Distance & Déplacement</p>
+                  <p className="text-[#8892B0] text-[10px] font-ui uppercase tracking-wider">Distance & Déplacement</p>
                 </div>
-                <p className="text-[#F0F4FF] text-xs sm:text-sm font-dm leading-snug">{current.distance}</p>
+                <p className="text-[#F0F4FF] text-xs sm:text-sm font-body leading-snug">{current.distance}</p>
               </div>
               
               <div className="bg-[#04050A] border border-white/5 rounded-lg p-2.5 sm:p-3">
                 <div className="flex items-center gap-2 mb-1">
                   <Shield className="w-3 h-3 text-[#8892B0]" />
-                  <p className="text-[#8892B0] text-[10px] font-rajdhani uppercase tracking-wider">Focus Défensif</p>
+                  <p className="text-[#8892B0] text-[10px] font-ui uppercase tracking-wider">Focus Défensif</p>
                 </div>
-                <p className="text-[#F0F4FF] text-xs sm:text-sm font-dm leading-snug">{current.defense}</p>
+                <p className="text-[#F0F4FF] text-xs sm:text-sm font-body leading-snug">{current.defense}</p>
               </div>
 
               <div className="bg-[#04050A] border border-white/5 rounded-lg p-2.5 sm:p-3">
                 <div className="flex items-center gap-2 mb-1.5">
                   <Zap className="w-3 h-3 text-[#8892B0]" />
-                  <p className="text-[#8892B0] text-[10px] font-rajdhani uppercase tracking-wider">Armes Prioritaires</p>
+                  <p className="text-[#8892B0] text-[10px] font-ui uppercase tracking-wider">Armes Prioritaires</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {current.attacks.map((attack, idx) => (

@@ -61,7 +61,7 @@ export function Layout({ children }: { children: ReactNode }) {
                         location.pathname.startsWith('/connexion');
 
   if (isNoLayoutPage) {
-    return <main className="min-h-screen bg-[#0a0a0a]">{children}</main>;
+    return <main className="min-h-screen bg-[#04050A]">{children}</main>;
   }
 
   return (
@@ -69,7 +69,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <header
         className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
           isScrolled
-            ? "bg-[#141414]/70 backdrop-blur-xl border-b border-white/5 py-2 md:py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+            ? "bg-[#04050A]/70 backdrop-blur-xl border-b border-white/5 py-2 md:py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
             : "bg-transparent py-3 md:py-6"
         }`}
       >
@@ -125,7 +125,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 >
                   <Link 
                     to="/admin" 
-                    className="group relative flex items-center gap-2 px-5 py-2 rounded-full bg-[#a020f0] text-white font-ui font-bold text-[10px] uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(160,32,240,0.3)] hover:shadow-[0_0_30px_rgba(160,32,240,0.6)] transition-all duration-500 hover:-translate-y-0.5 border border-white/20 overflow-hidden"
+                    className="group relative flex items-center gap-2 px-5 py-2 rounded-full bg-[#7B2FFF] text-white font-ui font-bold text-[10px] uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(123,47,255,0.3)] hover:shadow-[0_0_30px_rgba(123,47,255,0.6)] transition-all duration-500 hover:-translate-y-0.5 border border-white/20 overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
                     <ShieldCheck size={14} className="relative z-10 group-hover:rotate-12 transition-transform" />
@@ -148,25 +148,13 @@ export function Layout({ children }: { children: ReactNode }) {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 bg-[#0a0a0a]/98 backdrop-blur-2xl z-[50] flex flex-col pt-28 px-8 transition-all duration-500 ease-out ${
+        className={`fixed inset-0 bg-[#04050A]/98 backdrop-blur-2xl z-[50] flex flex-col pt-28 px-8 transition-all duration-500 ease-out ${
           isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
         } lg:hidden overflow-hidden`}
       >
-        {/* Subtle background glow and vertical lightnings */}
+        {/* Subtle background glow */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-accent-red)]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-[var(--color-accent-primary)]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
-        
-        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-70">
-          <svg className="absolute left-[10%] top-0 w-32 h-full text-[var(--color-accent-red)]" preserveAspectRatio="none" viewBox="0 0 100 1000" style={{ animation: 'lightning-flash-vertical 5s infinite 0.5s' }}>
-            <path d="M50,0 L20,150 L60,200 L10,450 L70,500 L30,750 L80,800 L40,1000" fill="none" stroke="currentColor" strokeWidth="3" filter="drop-shadow(0 0 15px currentColor)" />
-          </svg>
-          <svg className="absolute right-[10%] top-0 w-32 h-full text-[var(--color-accent-red)]" preserveAspectRatio="none" viewBox="0 0 100 1000" style={{ animation: 'lightning-flash-vertical 7s infinite 2.5s' }}>
-            <path d="M50,0 L80,200 L30,250 L90,550 L40,600 L70,850 L20,900 L60,1000" fill="none" stroke="currentColor" strokeWidth="2.5" filter="drop-shadow(0 0 12px currentColor)" />
-          </svg>
-          <svg className="absolute left-[45%] top-0 w-40 h-full text-[var(--color-accent-red)]" preserveAspectRatio="none" viewBox="0 0 100 1000" style={{ animation: 'lightning-flash-vertical 6s infinite 4s' }}>
-            <path d="M50,0 L30,180 L70,220 L20,480 L80,520 L40,780 L90,820 L50,1000" fill="none" stroke="currentColor" strokeWidth="2" filter="drop-shadow(0 0 10px currentColor)" />
-          </svg>
-        </div>
 
         <nav className="flex flex-col gap-4 relative z-10">
           <Link
@@ -178,16 +166,8 @@ export function Layout({ children }: { children: ReactNode }) {
               transitionTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
             }}
           >
-            {/* Continuous sleek red line on the border */}
-            <div className="absolute bottom-[-1px] left-0 w-full h-[2px] overflow-hidden">
-              <div 
-                className="w-full h-full bg-gradient-to-r from-transparent via-[var(--color-accent-red)] to-transparent -translate-x-full opacity-70" 
-                style={{ animation: 'line-sweep 3s infinite ease-in-out' }} 
-              />
-            </div>
-            
             <span className="relative z-10 flex-1 pr-4 whitespace-normal text-left leading-tight">Accueil</span>
-            <span className="relative z-10 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-active:bg-[var(--color-accent-red)] group-active:scale-110 shadow-[0_0_15px_rgba(255,23,68,0.3)] animate-[pulse_2s_infinite] shrink-0">
+            <span className="relative z-10 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-active:bg-[var(--color-accent-red)] group-active:scale-110 shrink-0">
               <span className="text-sm font-bold text-[var(--color-accent-red)] group-active:text-white">→</span>
             </span>
           </Link>
@@ -205,16 +185,8 @@ export function Layout({ children }: { children: ReactNode }) {
                   transitionTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
                 }}
               >
-                {/* Continuous sleek red line on the border, staggered */}
-                <div className="absolute bottom-[-1px] left-0 w-full h-[2px] overflow-hidden">
-                  <div 
-                    className="w-full h-full bg-gradient-to-r from-transparent via-[var(--color-accent-red)] to-transparent -translate-x-full opacity-70" 
-                    style={{ animation: `line-sweep 3s infinite ${(index + 1) * 0.2}s ease-in-out` }} 
-                  />
-                </div>
-                
                 <span className="relative z-10 flex-1 pr-4 whitespace-normal text-left leading-tight">{link.name}</span>
-                <span className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 group-active:scale-110 shadow-[0_0_15px_rgba(255,23,68,0.3)] animate-[pulse_2s_infinite] shrink-0 ${
+                <span className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 group-active:scale-110 shrink-0 ${
                   location.pathname === link.path ? "bg-[var(--color-accent-red)] text-white" : "bg-white/5 group-active:bg-[var(--color-accent-red)]"
                 }`}>
                   <span className={`text-sm font-bold ${location.pathname === link.path ? "text-white" : "text-[var(--color-accent-red)] group-active:text-white"}`}>→</span>
@@ -235,9 +207,9 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <main className="flex-grow">{children}</main>
 
-      <footer className="bg-[#141414] border-t border-white/10 pt-12 md:pt-20 pb-8 md:pb-10 relative overflow-hidden">
+      <footer className="bg-[#04050A] border-t border-white/10 pt-12 md:pt-20 pb-8 md:pb-10 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_center,rgba(160,32,240,0.05)_0%,transparent_60%)] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_center,rgba(123,47,255,0.05)_0%,transparent_60%)] pointer-events-none"></div>
         
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-16">
@@ -272,6 +244,15 @@ export function Layout({ children }: { children: ReactNode }) {
                     >
                       <span className="w-1 h-1 rounded-full bg-[var(--color-accent-red)] opacity-0 -ml-3 transition-all hidden md:block"></span>
                       Coaching vidéo
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/tarifs"
+                      className="hover:text-white transition-colors inline-flex items-center gap-2"
+                    >
+                      <span className="w-1 h-1 rounded-full bg-white opacity-0 -ml-3 transition-all hidden md:block"></span>
+                      Tarifs
                     </Link>
                   </li>
                 </ul>
@@ -335,7 +316,7 @@ export function Layout({ children }: { children: ReactNode }) {
                     />
                     <button
                       disabled={newsletterStatus === "loading"}
-                      className="bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)] text-white font-ui font-bold px-3 py-2 md:px-4 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(160,32,240,0.3)] text-sm shrink-0 disabled:opacity-60"
+                      className="bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)] text-white font-ui font-bold px-3 py-2 md:px-4 rounded-lg hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(123,47,255,0.3)] text-sm shrink-0 disabled:opacity-60"
                     >
                       {newsletterStatus === "loading" ? "…" : "OK"}
                     </button>

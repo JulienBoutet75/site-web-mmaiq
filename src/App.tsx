@@ -28,6 +28,7 @@ import { Connexion } from "./pages/Connexion";
 import { Success } from "./pages/Success";
 import { Cancel } from "./pages/Cancel";
 import { NotFound } from "./pages/NotFound";
+import { Pricing } from "./pages/Pricing";
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/tarifs" element={<Pricing />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/coach" element={<CoachDashboard />} />
                 <Route path="/coach/dashboard" element={<CoachDashboard />} />

@@ -97,24 +97,24 @@ export function CoachDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a1a] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#a020f0]"></div>
+      <div className="min-h-screen bg-[#04050A] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7B2FFF]"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white font-body">
+    <div className="min-h-screen bg-[#04050A] text-white font-body">
       {/* Header */}
-      <header className="bg-[#12122a] border-b border-[#22223a] sticky top-0 z-50 px-6 py-4">
+      <header className="bg-[#0C0E18] border-b border-white/10 sticky top-0 z-50 px-6 py-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Link to="/" className="font-display text-xl tracking-tighter">
-              <span className="font-days-one tracking-normal">MMA IQ</span> <span className="text-[#a020f0]">COACH</span>
+              <span className="font-days-one tracking-normal">MMA IQ</span> <span className="text-[#7B2FFF]">COACH</span>
             </Link>
-            <div className="h-6 w-[1px] bg-[#22223a] hidden md:block"></div>
+            <div className="h-6 w-[1px] bg-white/10 hidden md:block"></div>
             <div className="flex flex-col">
-              <span className="text-xs text-[#a0a0b8] uppercase tracking-wider font-semibold">Espace Coach</span>
+              <span className="text-xs text-[#8892B0] uppercase tracking-wider font-semibold">Espace Coach</span>
               <span className="text-sm font-medium">Bienvenue, {coach?.display_name || profile?.full_name}</span>
             </div>
           </div>
@@ -123,7 +123,7 @@ export function CoachDashboard() {
             {coach && (
               <Link 
                 to={`/coaches/${coach.slug}`} 
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#a020f0] to-[#b848ff] hover:shadow-[0_0_20px_rgba(160,32,240,0.4)] transition-all text-sm font-bold text-white group"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#7B2FFF] to-[#8f4dff] hover:shadow-[0_0_20px_rgba(123,47,255,0.4)] transition-all text-sm font-bold text-white group"
               >
                 <Eye size={18} className="group-hover:scale-110 transition-transform" />
                 Voir ma page coach
@@ -151,13 +151,13 @@ export function CoachDashboard() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-b border-[#22223a] mb-8">
+        <div className="flex border-b border-white/10 mb-8">
           <button
             onClick={() => setActiveTab("formations")}
             className={`px-6 py-4 flex items-center gap-2 font-medium transition-all border-b-2 ${
               activeTab === "formations" 
-                ? "border-[#a020f0] text-[#a020f0]" 
-                : "border-transparent text-[#a0a0b8] hover:text-white"
+                ? "border-[#7B2FFF] text-[#7B2FFF]" 
+                : "border-transparent text-[#8892B0] hover:text-white"
             }`}
           >
             <GraduationCap size={20} /> Mes formations
@@ -166,8 +166,8 @@ export function CoachDashboard() {
             onClick={() => setActiveTab("profile")}
             className={`px-6 py-4 flex items-center gap-2 font-medium transition-all border-b-2 ${
               activeTab === "profile" 
-                ? "border-[#a020f0] text-[#a020f0]" 
-                : "border-transparent text-[#a0a0b8] hover:text-white"
+                ? "border-[#7B2FFF] text-[#7B2FFF]" 
+                : "border-transparent text-[#8892B0] hover:text-white"
             }`}
           >
             <User size={20} /> Mon profil
@@ -209,22 +209,22 @@ function CoachInstructional({ coach, instructional, onUpdate, categories }: { co
         <h2 className="text-2xl font-display">Mes Instructional</h2>
         <button 
           onClick={() => setIsAdding(true)}
-          className="bg-[#a020f0] hover:bg-[#b030ff] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(160,32,240,0.3)]"
+          className="bg-[#7B2FFF] hover:bg-[#8f4dff] text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(123,47,255,0.3)]"
         >
           <Plus size={20} /> Ajouter un instructional
         </button>
       </div>
 
       {instructional.length === 0 ? (
-        <div className="bg-[#12122a] border border-[#22223a] rounded-2xl p-12 text-center">
+        <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-12 text-center">
           <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-            <GraduationCap size={32} className="text-[#a0a0b8]" />
+            <GraduationCap size={32} className="text-[#8892B0]" />
           </div>
           <h3 className="text-xl font-medium mb-2">Aucun instructional pour le moment</h3>
-          <p className="text-[#a0a0b8] mb-6">Commencez par créer votre premier instructional pour le partager avec vos élèves.</p>
+          <p className="text-[#8892B0] mb-6">Commencez par créer votre premier instructional pour le partager avec vos élèves.</p>
           <button 
             onClick={() => setIsAdding(true)}
-            className="text-[#a020f0] font-bold hover:underline"
+            className="text-[#7B2FFF] font-bold hover:underline"
           >
             Créer un instructional
           </button>
@@ -232,7 +232,7 @@ function CoachInstructional({ coach, instructional, onUpdate, categories }: { co
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {instructional.map((f) => (
-            <div key={f.id} className="bg-[#12122a] border border-[#22223a] rounded-2xl overflow-hidden hover:border-[#a020f0]/30 transition-all group">
+            <div key={f.id} className="bg-[#0C0E18] border border-white/10 rounded-2xl overflow-hidden hover:border-[#7B2FFF]/30 transition-all group">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${
@@ -241,38 +241,38 @@ function CoachInstructional({ coach, instructional, onUpdate, categories }: { co
                     {f.published ? "Publié" : "Brouillon"}
                   </span>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => setEditingFormation(f)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-[#a0a0b8] hover:text-white transition-colors">
+                    <button onClick={() => setEditingFormation(f)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-[#8892B0] hover:text-white transition-colors">
                       <Edit2 size={16} />
                     </button>
                   </div>
                 </div>
                 
                 <h3 className="text-xl font-display mb-2 line-clamp-1">{f.title}</h3>
-                <p className="text-sm text-[#a0a0b8] mb-4 line-clamp-2 h-10">{f.description}</p>
+                <p className="text-sm text-[#8892B0] mb-4 line-clamp-2 h-10">{f.description}</p>
                 
-                <div className="flex items-center gap-4 text-xs text-[#6a6a82] mb-6">
+                <div className="flex items-center gap-4 text-xs text-[#8892B0] mb-6">
                   <span className="flex items-center gap-1"><Video size={14} /> {f.formation_chapters?.length || 0} chapitres</span>
                   <span className="flex items-center gap-1"><Play size={14} /> {f.discipline}</span>
                 </div>
 
-                <div className="pt-4 border-t border-[#22223a] flex items-center justify-between">
-                  <span className="font-display text-lg text-[#a020f0]">{f.price_cents / 100}€</span>
-                  <span className="text-xs text-[#a0a0b8]">{f.level}</span>
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                  <span className="font-display text-lg text-[#7B2FFF]">{f.price_cents / 100}€</span>
+                  <span className="text-xs text-[#8892B0]">{f.level}</span>
                 </div>
               </div>
               
               {/* Chapters Preview */}
-              <div className="bg-[#0a0a1a]/50 p-4 border-t border-[#22223a]">
-                <h4 className="text-[10px] font-bold text-[#6a6a82] uppercase tracking-widest mb-2">Aperçu du contenu</h4>
+              <div className="bg-[#04050A]/50 p-4 border-t border-white/10">
+                <h4 className="text-[10px] font-bold text-[#8892B0] uppercase tracking-widest mb-2">Aperçu du contenu</h4>
                 <div className="space-y-1">
                   {f.formation_chapters?.slice(0, 3).map((ch: any) => (
-                    <div key={ch.id} className="flex items-center justify-between text-[11px] text-[#a0a0b8]">
+                    <div key={ch.id} className="flex items-center justify-between text-[11px] text-[#8892B0]">
                       <span className="truncate pr-2"># {ch.chapter_number} - {ch.title}</span>
                       {ch.is_preview ? <Unlock size={10} className="text-green-500" /> : <Lock size={10} />}
                     </div>
                   ))}
                   {f.formation_chapters?.length > 3 && (
-                    <div className="text-[10px] text-[#6a6a82] italic">+{f.formation_chapters.length - 3} autres chapitres...</div>
+                    <div className="text-[10px] text-[#8892B0] italic">+{f.formation_chapters.length - 3} autres chapitres...</div>
                   )}
                 </div>
               </div>
@@ -408,10 +408,10 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
   };
 
   return (
-    <div className="bg-[#12122a] border border-[#22223a] rounded-2xl p-8">
+    <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-8">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-2xl font-display">{initialData ? "Modifier la formation" : "Nouvelle formation"}</h2>
-        <button onClick={onCancel} className="text-[#a0a0b8] hover:text-white"><X size={24} /></button>
+        <button onClick={onCancel} className="text-[#8892B0] hover:text-white"><X size={24} /></button>
       </div>
 
       {error && <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm">{error}</div>}
@@ -420,31 +420,31 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Titre de la formation</label>
+              <label className="block text-sm font-medium text-[#8892B0] mb-2">Titre de la formation</label>
               <input 
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, "-") })}
-                className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+                className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Slug (URL)</label>
+              <label className="block text-sm font-medium text-[#8892B0] mb-2">Slug (URL)</label>
               <input 
                 required
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+                className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Prix (en euros - ex: 49 pour 49€)</label>
+              <label className="block text-sm font-medium text-[#8892B0] mb-2">Prix (en euros - ex: 49 pour 49€)</label>
               <input 
                 type="number"
                 required
                 value={formData.price_cents / 100}
                 onChange={(e) => setFormData({ ...formData, price_cents: Math.round(parseFloat(e.target.value) * 100) || 0 })}
-                className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+                className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
               />
             </div>
           </div>
@@ -452,11 +452,11 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Niveau</label>
+                <label className="block text-sm font-medium text-[#8892B0] mb-2">Niveau</label>
                 <select 
                   value={formData.level}
                   onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                  className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+                  className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
                 >
                   <option value="debutant">Débutant</option>
                   <option value="amateur">Amateur</option>
@@ -464,11 +464,11 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Discipline</label>
+                <label className="block text-sm font-medium text-[#8892B0] mb-2">Discipline</label>
                 <select 
                   value={formData.discipline}
                   onChange={(e) => setFormData({ ...formData, discipline: e.target.value })}
-                  className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+                  className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
                 >
                   <option value="striking">Striking</option>
                   <option value="grappling">Grappling</option>
@@ -480,12 +480,12 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Catégorie</label>
+              <label className="block text-sm font-medium text-[#8892B0] mb-2">Catégorie</label>
               {categories.length > 0 ? (
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+                  className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
                 >
                   {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
@@ -494,18 +494,18 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
                   required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+                  className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
                 />
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Description</label>
+              <label className="block text-sm font-medium text-[#8892B0] mb-2">Description</label>
               <textarea 
                 required
                 rows={4}
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none resize-none"
+                className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none resize-none"
               />
             </div>
             <div>
@@ -537,23 +537,23 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
                     onChange={(e) => setFormData({ ...formData, published: e.target.checked })}
                     className="sr-only"
                   />
-                  <div className={`w-10 h-5 rounded-full transition-colors ${formData.published ? "bg-green-500" : "bg-[#333]"}`}></div>
+                  <div className={`w-10 h-5 rounded-full transition-colors ${formData.published ? "bg-green-500" : "bg-white/10"}`}></div>
                   <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${formData.published ? "translate-x-5" : ""}`}></div>
                 </div>
-                <span className="text-sm text-[#a0a0b8] group-hover/check:text-white">Publier la formation</span>
+                <span className="text-sm text-[#8892B0] group-hover/check:text-white">Publier la formation</span>
               </label>
             )}
           </div>
         </div>
 
         {/* Chapters Section */}
-        <div className="pt-8 border-t border-[#22223a]">
+        <div className="pt-8 border-t border-white/10">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-xl font-display">Chapitres Vidéo</h3>
             <button 
               type="button"
               onClick={addChapter}
-              className="flex items-center gap-2 text-[#a020f0] font-bold hover:text-[#b030ff] transition-colors"
+              className="flex items-center gap-2 text-[#7B2FFF] font-bold hover:text-[#8f4dff] transition-colors"
             >
               <PlusCircle size={20} /> Ajouter un chapitre
             </button>
@@ -561,11 +561,11 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
 
           <div className="space-y-6">
             {chapters.map((ch, index) => (
-              <div key={index} className="bg-[#0a0a14] border border-[#333] rounded-2xl p-6 relative group">
+              <div key={index} className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6 relative group">
                 <button 
                   type="button"
                   onClick={() => removeChapter(index)}
-                  className="absolute top-4 right-4 text-[#6a6a82] hover:text-red-500 transition-colors"
+                  className="absolute top-4 right-4 text-[#8892B0] hover:text-red-500 transition-colors"
                 >
                   <Trash2 size={18} />
                 </button>
@@ -573,7 +573,7 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-[#a020f0]/10 rounded-full flex items-center justify-center text-[#a020f0] font-bold">
+                      <div className="w-10 h-10 bg-[#7B2FFF]/10 rounded-full flex items-center justify-center text-[#7B2FFF] font-bold">
                         {ch.chapter_number}
                       </div>
                       <input 
@@ -581,16 +581,16 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
                         required
                         value={ch.title}
                         onChange={(e) => updateChapter(index, "title", e.target.value)}
-                        className="flex-1 bg-transparent border-b border-[#333] py-2 text-white focus:border-[#a020f0] outline-none"
+                        className="flex-1 bg-transparent border-b border-white/10 py-2 text-white focus:border-[#7B2FFF] outline-none"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-xs text-[#a0a0b8] mb-2">Vidéo du chapitre</label>
+                      <label className="block text-xs text-[#8892B0] mb-2">Vidéo du chapitre</label>
                       {ch.video_url && (
                         <p className="text-xs text-green-400 mb-2">✓ Vidéo chargée</p>
                       )}
-                      <label className="inline-block cursor-pointer bg-[#22223a] hover:bg-[#333] text-white px-3 py-1.5 rounded-lg text-xs transition-colors">
+                      <label className="inline-block cursor-pointer bg-white/10 hover:bg-white/10 text-white px-3 py-1.5 rounded-lg text-xs transition-colors">
                         {uploadingIndex === index ? "Upload en cours..." : "Importer une vidéo"}
                         <input
                           type="file"
@@ -610,10 +610,10 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
                           onChange={(e) => updateChapter(index, "is_preview", e.target.checked)}
                           className="sr-only"
                         />
-                        <div className={`w-10 h-5 rounded-full transition-colors ${ch.is_preview ? "bg-[#a020f0]" : "bg-[#333]"}`}></div>
+                        <div className={`w-10 h-5 rounded-full transition-colors ${ch.is_preview ? "bg-[#7B2FFF]" : "bg-white/10"}`}></div>
                         <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${ch.is_preview ? "translate-x-5" : ""}`}></div>
                       </div>
-                      <span className="text-sm text-[#a0a0b8] group-hover/check:text-white">Gratuit (aperçu)</span>
+                      <span className="text-sm text-[#8892B0] group-hover/check:text-white">Gratuit (aperçu)</span>
                     </label>
                   </div>
 
@@ -626,18 +626,18 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
           </div>
         </div>
 
-        <div className="pt-8 border-t border-[#22223a] flex justify-end gap-4">
+        <div className="pt-8 border-t border-white/10 flex justify-end gap-4">
           <button 
             type="button"
             onClick={onCancel}
-            className="px-8 py-3 rounded-xl border border-[#333] text-[#a0a0b8] hover:text-white hover:bg-white/5 transition-all"
+            className="px-8 py-3 rounded-xl border border-white/10 text-[#8892B0] hover:text-white hover:bg-white/5 transition-all"
           >
             Annuler
           </button>
           <button 
             type="submit"
             disabled={loading}
-            className="px-12 py-3 rounded-xl bg-[#a020f0] hover:bg-[#b030ff] text-white font-bold transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(160,32,240,0.3)]"
+            className="px-12 py-3 rounded-xl bg-[#7B2FFF] hover:bg-[#8f4dff] text-white font-bold transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(123,47,255,0.3)]"
           >
             {loading ? "Sauvegarde..." : "Sauvegarder la formation"}
           </button>
@@ -692,14 +692,14 @@ function CoachProfile({ coach, onUpdate }: { coach: any, onUpdate: () => void })
   };
 
   return (
-    <div className="bg-[#12122a] border border-[#22223a] rounded-2xl p-8 max-w-4xl mx-auto">
+    <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-8 max-w-4xl mx-auto">
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#a020f0]/30">
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#7B2FFF]/30">
           <img src={formData.photo_url || "https://picsum.photos/seed/mma/200"} alt="Profile" className="w-full h-full object-cover" />
         </div>
         <div>
           <h2 className="text-2xl font-display">Mon Profil Coach</h2>
-          <p className="text-[#a0a0b8] text-sm">Gérez vos informations publiques affichées sur le site.</p>
+          <p className="text-[#8892B0] text-sm">Gérez vos informations publiques affichées sur le site.</p>
         </div>
       </div>
 
@@ -715,35 +715,35 @@ function CoachProfile({ coach, onUpdate }: { coach: any, onUpdate: () => void })
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Nom complet</label>
+            <label className="block text-sm font-medium text-[#8892B0] mb-2">Nom complet</label>
             <input 
               required
               value={formData.name || ""}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+              className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
               placeholder="Ex: Johnny Frachey"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Tagline (Slogan)</label>
+            <label className="block text-sm font-medium text-[#8892B0] mb-2">Tagline (Slogan)</label>
             <input 
               required
               value={formData.tagline || ""}
               onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-              className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none"
+              className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none"
               placeholder="Ex: Spécialiste Grappling & Sambo"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#a0a0b8] mb-2">Biographie complète</label>
+          <label className="block text-sm font-medium text-[#8892B0] mb-2">Biographie complète</label>
           <textarea 
             required
             rows={8}
             value={formData.bio || ""}
             onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-            className="w-full bg-[#0a0a14] border border-[#333] rounded-xl py-3 px-4 text-white focus:border-[#a020f0] outline-none resize-none"
+            className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white focus:border-[#7B2FFF] outline-none resize-none"
             placeholder="Racontez votre parcours, votre palmarès et votre vision du combat..."
           />
         </div>
@@ -772,11 +772,11 @@ function CoachProfile({ coach, onUpdate }: { coach: any, onUpdate: () => void })
           </div>
         </div>
 
-        <div className="pt-6 border-t border-[#22223a]">
+        <div className="pt-6 border-t border-white/10">
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-[#a020f0] hover:bg-[#b030ff] text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(160,32,240,0.3)] flex items-center justify-center gap-2"
+            className="w-full bg-[#7B2FFF] hover:bg-[#8f4dff] text-white font-bold py-4 rounded-xl transition-all disabled:opacity-50 shadow-[0_0_20px_rgba(123,47,255,0.3)] flex items-center justify-center gap-2"
           >
             {loading ? "Mise à jour..." : <><Save size={20} /> Sauvegarder mon profil</>}
           </button>

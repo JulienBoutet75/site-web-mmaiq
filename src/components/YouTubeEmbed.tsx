@@ -23,7 +23,7 @@ export const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ url, className }) =>
       aspectRatio: '16/9',
       borderRadius: 12,
       overflow: 'hidden',
-      background: '#12121f',
+      background: '#0C0E18',
     }}>
       <iframe
         src={`https://www.youtube.com/embed/${id}?rel=0`}

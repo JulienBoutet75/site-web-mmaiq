@@ -259,9 +259,9 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-[#1a1a1a] border border-white/10 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-[#0C0E18] border border-white/10 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl"
       >
-        <div className="sticky top-0 bg-[#1a1a1a] border-b border-white/10 p-6 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-[#0C0E18] border-b border-white/10 p-6 flex items-center justify-between z-10">
           <h2 className="text-2xl font-display text-white">
             {formation ? "Modifier la formation" : "Ajouter une formation"}
           </h2>
@@ -292,9 +292,9 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
                 value={formData.coach_id}
                 onChange={(e) => setFormData({ ...formData, coach_id: e.target.value })}
               >
-                <option value="" disabled className="bg-[#1a1a1a]">Sélectionner un coach</option>
+                <option value="" disabled className="bg-[#0C0E18]">Sélectionner un coach</option>
                 {coaches.map(c => (
-                  <option key={c.id} value={c.id} className="bg-[#1a1a1a]">{c.name}</option>
+                  <option key={c.id} value={c.id} className="bg-[#0C0E18]">{c.name}</option>
                 ))}
               </select>
             </div>
@@ -358,9 +358,9 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
                 value={formData.level}
                 onChange={(e) => setFormData({ ...formData, level: e.target.value })}
               >
-                <option value="debutant" className="bg-[#1a1a1a]">Débutant</option>
-                <option value="amateur" className="bg-[#1a1a1a]">Amateur</option>
-                <option value="pro" className="bg-[#1a1a1a]">Pro</option>
+                <option value="debutant" className="bg-[#0C0E18]">Débutant</option>
+                <option value="amateur" className="bg-[#0C0E18]">Amateur</option>
+                <option value="pro" className="bg-[#0C0E18]">Pro</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -370,12 +370,12 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
                 value={formData.discipline}
                 onChange={(e) => setFormData({ ...formData, discipline: e.target.value })}
               >
-                <option value="striking" className="bg-[#1a1a1a]">Striking</option>
-                <option value="grappling" className="bg-[#1a1a1a]">Grappling</option>
-                <option value="mma-gameplan" className="bg-[#1a1a1a]">MMA Gameplan</option>
-                <option value="prepa-mentale" className="bg-[#1a1a1a]">Prépa Mentale</option>
-                <option value="cut-nutrition" className="bg-[#1a1a1a]">Cut & Nutrition</option>
-                <option value="conditioning" className="bg-[#1a1a1a]">Conditioning</option>
+                <option value="striking" className="bg-[#0C0E18]">Striking</option>
+                <option value="grappling" className="bg-[#0C0E18]">Grappling</option>
+                <option value="mma-gameplan" className="bg-[#0C0E18]">MMA Gameplan</option>
+                <option value="prepa-mentale" className="bg-[#0C0E18]">Prépa Mentale</option>
+                <option value="cut-nutrition" className="bg-[#0C0E18]">Cut & Nutrition</option>
+                <option value="conditioning" className="bg-[#0C0E18]">Conditioning</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -554,7 +554,7 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
             <button 
               type="submit"
               disabled={loading}
-              className="px-8 py-3 bg-gradient-to-r from-[var(--color-accent-red)] to-[#ff4d5e] text-white rounded-2xl font-semibold shadow-[0_10px_20px_-5px_rgba(230,41,58,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-8 py-3 bg-gradient-to-r from-[var(--color-accent-red)] to-[#ff4d5e] text-white rounded-2xl font-semibold shadow-[0_10px_20px_-5px_rgba(255,23,68,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
               {formation ? "Enregistrer les modifications" : "Créer la formation"}

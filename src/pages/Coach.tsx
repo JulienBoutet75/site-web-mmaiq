@@ -193,7 +193,7 @@ export function Coach() {
             transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
             className="w-full max-w-[320px] mx-auto lg:mx-0 lg:w-[400px] shrink-0"
           >
-            <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-white/10 group bg-[#0C0E18] shadow-[0_0_50px_rgba(230,41,58,0.1)]">
+            <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-white/10 group bg-[#0C0E18] shadow-[0_0_50px_rgba(255,23,68,0.1)]">
               <img 
                 src={isEditing && editData ? editData.photo_url : coachData.photo_url} 
                 alt={coachData.name}
@@ -295,7 +295,7 @@ export function Coach() {
                     href={coachData.presentation_video_url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white px-6 py-3 rounded-full font-ui font-bold transition-all shadow-[0_0_20px_rgba(230,41,58,0.3)] hover:shadow-[0_0_30px_rgba(230,41,58,0.5)] hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-3 bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white px-6 py-3 rounded-full font-ui font-bold transition-all shadow-[0_0_20px_rgba(255,23,68,0.3)] hover:shadow-[0_0_30px_rgba(255,23,68,0.5)] hover:-translate-y-0.5"
                   >
                     <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
                       <Play className="w-3 h-3 text-white ml-0.5" fill="currentColor" />
@@ -384,7 +384,7 @@ export function Coach() {
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500 z-10"></div>
                         
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
-                          <div className="w-16 h-16 rounded-full bg-[var(--color-accent-red)] flex items-center justify-center backdrop-blur-md shadow-[0_0_40px_rgba(230,41,58,0.6)] transform scale-75 group-hover:scale-100 transition-transform duration-500">
+                          <div className="w-16 h-16 rounded-full bg-[var(--color-accent-red)] flex items-center justify-center backdrop-blur-md shadow-[0_0_40px_rgba(255,23,68,0.6)] transform scale-75 group-hover:scale-100 transition-transform duration-500">
                             <Play className="w-6 h-6 ml-1 text-white" fill="currentColor" />
                           </div>
                         </div>
@@ -444,7 +444,7 @@ export function Coach() {
                               <button className="hidden sm:block bg-white/[0.05] hover:bg-white/[0.1] text-white font-ui font-semibold py-2.5 px-4 rounded-xl transition-colors border border-white/10 text-xs md:text-sm text-center">
                                 Voir le teaser
                               </button>
-                              <button className="bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white font-ui font-bold py-2.5 px-4 md:px-5 rounded-xl transition-colors flex items-center justify-center gap-2 text-xs md:text-sm shadow-[0_0_15px_rgba(230,41,58,0.2)]">
+                              <button className="bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white font-ui font-bold py-2.5 px-4 md:px-5 rounded-xl transition-colors flex items-center justify-center gap-2 text-xs md:text-sm shadow-[0_0_15px_rgba(255,23,68,0.2)]">
                                 Découvrir <ArrowRight size={16} />
                               </button>
                             </div>
@@ -476,7 +476,7 @@ export function Coach() {
       <section className="px-6 max-w-4xl mx-auto text-center py-16">
         <Link 
           to="/instructional" 
-          className="inline-flex items-center text-white font-ui text-sm md:text-base font-semibold bg-white/5 border border-white/10 px-8 py-4 rounded-full hover:bg-[var(--color-accent-red)] hover:border-[var(--color-accent-red)] transition-all duration-300 shadow-sm hover:shadow-[0_0_30px_rgba(230,41,58,0.3)] hover:-translate-y-1"
+          className="inline-flex items-center text-white font-ui text-sm md:text-base font-semibold bg-white/5 border border-white/10 px-8 py-4 rounded-full hover:bg-[var(--color-accent-red)] hover:border-[var(--color-accent-red)] transition-all duration-300 shadow-sm hover:shadow-[0_0_30px_rgba(255,23,68,0.3)] hover:-translate-y-1"
         >
           Découvrir tous les instructionals <ArrowRight className="ml-3 w-5 h-5" />
         </Link>
