@@ -155,6 +155,19 @@ export async function insertData(table: string, data: any, accessToken?: string 
   return result
 }
 
+// Soumission publique (formulaires visiteurs) : insertion sans relecture.
+// La table leads autorise l'INSERT à tous mais réserve le SELECT à l'admin ;
+// un .select() après insert échouerait donc côté visiteur.
+export async function submitLead(
+  lead: { type: 'contact' | 'newsletter' | 'waitlist'; email: string; name?: string; message?: string }
+): Promise<void> {
+  const { error } = await supabase.from('leads').insert(lead)
+  if (error) {
+    console.error('submitLead error:', error)
+    throw new Error(error.message)
+  }
+}
+
 export async function updateData(table: string, id: string | number, data: any, accessToken?: string | null): Promise<any> {
   const { data: result, error } = await supabase
     .from(table)

@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { ParticlesBackground } from '../components/ParticlesBackground';
 import { GameplanDemo } from '../components/GameplanDemo';
-import { insertData } from '../lib/supabase';
+import { submitLead } from '../lib/supabase';
 
 // --- ANIMATION VARIANTS ---
 const staggerContainer = {
@@ -44,7 +44,7 @@ export function AppPage() {
     if (waitlistStatus === "loading") return;
     setWaitlistStatus("loading");
     try {
-      await insertData("leads", { type: "waitlist", email: waitlistEmail });
+      await submitLead({ type: "waitlist", email: waitlistEmail });
       setWaitlistStatus("success");
       setWaitlistEmail("");
     } catch (err) {

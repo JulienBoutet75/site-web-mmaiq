@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Badge } from "../components/ui/Badge";
 import { Button } from "../components/ui/Button";
 import { Send, Mail, MessageSquare, User, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-import { insertData } from "../lib/supabase";
+import { submitLead } from "../lib/supabase";
 
 export function Contact() {
   const [name, setName] = useState("");
@@ -16,7 +16,7 @@ export function Contact() {
     if (status === "loading") return;
     setStatus("loading");
     try {
-      await insertData("leads", { type: "contact", name, email, message });
+      await submitLead({ type: "contact", name, email, message });
       setStatus("success");
       setName("");
       setEmail("");

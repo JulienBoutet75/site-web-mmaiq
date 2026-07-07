@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Pencil, ShieldCheck, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useSite } from "../context/SiteContext";
-import { insertData } from "../lib/supabase";
+import { submitLead } from "../lib/supabase";
 
 // Sections sans contenu pour l'instant — retirées de la navigation publique
 // tant qu'elles sont vides (les URLs restent accessibles directement).
@@ -22,7 +22,7 @@ export function Layout({ children }: { children: ReactNode }) {
     if (newsletterStatus === "loading") return;
     setNewsletterStatus("loading");
     try {
-      await insertData("leads", { type: "newsletter", email: newsletterEmail });
+      await submitLead({ type: "newsletter", email: newsletterEmail });
       setNewsletterStatus("success");
       setNewsletterEmail("");
     } catch (err) {
