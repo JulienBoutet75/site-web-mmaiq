@@ -42,16 +42,21 @@ create table if not exists public.leads (
 
 alter table public.leads enable row level security;
 
+-- Droit d'écriture au niveau table pour les visiteurs.
+grant insert on table public.leads to anon, authenticated;
+
 -- Tout visiteur peut soumettre (insert), personne ne peut lire
 -- sauf l'admin (fonction check_is_admin déjà en place).
 drop policy if exists "Anyone can submit leads" on public.leads;
 create policy "Anyone can submit leads"
 on public.leads for insert
+to anon, authenticated
 with check (true);
 
 drop policy if exists "Admins can read leads" on public.leads;
 create policy "Admins can read leads"
 on public.leads for select
+to authenticated
 using (check_is_admin());
 
 -- Vérification rapide (doit retourner uniquement Johnny Frachey) :
