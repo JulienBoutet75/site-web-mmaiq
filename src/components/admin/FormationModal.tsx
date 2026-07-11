@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Plus, Trash2, Sparkles, Loader2, Save } from "lucide-react";
+import { X, Plus, Trash2, Loader2, Save } from "lucide-react";
 import { supabase } from "../../lib/supabase";
 import { showToast } from "../../utils/ui";
 import { MediaUploader } from "./MediaUploader";
-import { GoogleGenAI } from "@google/genai";
 
 interface Chapter {
   id?: string | number;
@@ -25,7 +24,6 @@ interface FormationModalProps {
 
 export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelectedCoachId }: FormationModalProps) {
   const [loading, setLoading] = useState(false);
-  const [generating, setGenerating] = useState(false);
   const [coaches, setCoaches] = useState<any[]>([]);
   
   const [formData, setFormData] = useState({
@@ -150,34 +148,6 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
     const newBullets = [...formData.bullets];
     newBullets[index] = value;
     setFormData({ ...formData, bullets: newBullets });
-  };
-
-  const generateBullets = async () => {
-    if (!formData.title || !formData.short_description) {
-      alert("Veuillez remplir le titre et la description courte pour générer des points clés.");
-      return;
-    }
-
-    setGenerating(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Génère 5 points clés (bullet points) courts et percutants pour une formation de MMA intitulée "${formData.title}" avec cette description: "${formData.short_description}". Réponds uniquement avec une liste JSON de chaînes de caractères.`,
-        config: { responseMimeType: "application/json" }
-      });
-
-      const result = JSON.parse(response.text);
-      if (Array.isArray(result)) {
-        setFormData({ ...formData, bullets: result });
-      }
-    } catch (error) {
-      console.error("Error generating bullets:", error);
-      // Fallback
-      setFormData({ ...formData, bullets: ["Apprendre les bases", "Maîtriser les techniques avancées", "Améliorer sa condition physique"] });
-    } finally {
-      setGenerating(false);
-    }
   };
 
   const handleSubmit = async (e: any) => {
@@ -441,15 +411,6 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <label className="text-sm font-semibold text-white/50 uppercase tracking-wider">Ce que vous allez apprendre</label>
-              <button 
-                type="button"
-                onClick={generateBullets}
-                disabled={generating}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 rounded-xl text-sm font-semibold transition-all border border-purple-600/30 disabled:opacity-50"
-              >
-                {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                Générer automatiquement
-              </button>
             </div>
             <div className="space-y-3">
               {formData.bullets.map((bullet, idx) => (

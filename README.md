@@ -1,20 +1,24 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# MMA IQ — Site web
 
-# Run and deploy your AI Studio app
+Plateforme de performance MMA : application, coaching vidéo et équipement.
+Stack : React 19 + Vite + Tailwind v4, backend Supabase, paiements Stripe,
+serveur Express (`server.ts`).
 
-This contains everything you need to run your app locally.
+## Lancer en local
 
-View your app in AI Studio: https://ai.studio/apps/46d192a3-8e84-4a99-b620-f31674e29084
+**Prérequis :** Node.js
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
+1. Installer les dépendances :
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+2. Copier `.env.example` en `.env` et renseigner les valeurs (Supabase, Stripe).
+3. Démarrer :
    `npm run dev`
+
+L'app est servie sur http://localhost:3000.
+
+## Scripts
+
+- `npm run dev` — serveur de développement (Vite + Express)
+- `npm run build` — build de production
+- `npm run preview` — prévisualiser le build
+- `npm run lint` — vérification TypeScript (`tsc --noEmit`)

@@ -4,7 +4,7 @@ import {
   Play, ChevronDown, CheckCircle2, Clock, User, 
   Star, ShoppingCart, ArrowLeft, Lock, Unlock,
   Info, AlertCircle, Check, PlayCircle, ArrowRight,
-  Edit2, Save, X, Plus, Trash2, Sparkles, Loader2, UploadCloud
+  Edit2, Save, X, Plus, Trash2, Loader2, UploadCloud
 } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
@@ -14,7 +14,6 @@ import { useAuth } from "../context/AuthContext";
 import { VideoPlayer } from "../components/VideoPlayer";
 import { createCheckoutSession } from "../services/stripeService";
 import { MediaUploader } from "../components/admin/MediaUploader";
-import { GoogleGenAI } from "@google/genai";
 import { showToast } from "../utils/ui";
 
 export function Course() {
@@ -36,7 +35,6 @@ export function Course() {
   const [editData, setEditData] = useState<any>(null);
   const [editChapters, setEditChapters] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
-  const [generating, setGenerating] = useState(false);
 
   const { isAdmin: isGlobalAdmin } = useAuth();
   const canEdit = isGlobalAdmin || profile?.role === 'super_admin' || (profile?.role === 'coach' && formation?.coach_id === profile?.id);
@@ -186,32 +184,6 @@ export function Course() {
       alert("Erreur lors de l'enregistrement: " + (error.message || JSON.stringify(error)));
     } finally {
       setSaving(false);
-    }
-  };
-
-  const generateBullets = async () => {
-    if (!editData.title || !editData.description) {
-      alert("Veuillez remplir le titre et la description courte.");
-      return;
-    }
-
-    setGenerating(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `Génère 5 points clés (bullet points) courts et percutants pour une formation de MMA intitulée "${editData.title}" avec cette description: "${editData.description}". Réponds uniquement avec une liste JSON de chaînes de caractères.`,
-        config: { responseMimeType: "application/json" }
-      });
-
-      const result = JSON.parse(response.text);
-      if (Array.isArray(result)) {
-        setEditData({ ...editData, bullets: result });
-      }
-    } catch (error) {
-      console.error("Error generating bullets:", error);
-    } finally {
-      setGenerating(false);
     }
   };
 
@@ -631,16 +603,6 @@ export function Course() {
               <div className="pt-12 border-t border-white/10">
                 <div className="flex items-center justify-between mb-8">
                   <h2 className="text-2xl font-display">Ce que vous allez apprendre</h2>
-                  {isEditing && editData && (
-                    <button 
-                      onClick={generateBullets}
-                      disabled={generating}
-                      className="flex items-center gap-2 px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-400 rounded-lg text-xs font-semibold transition-all border border-purple-600/30 disabled:opacity-50"
-                    >
-                      {generating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                      Générer via IA
-                    </button>
-                  )}
                 </div>
                 
                 <div className="grid grid-cols-1 gap-4">
