@@ -1,13 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 
-// ⚠️ UTILISEZ LES VARIABLES D'ENVIRONNEMENT DANS LES PARAMÈTRES (SETTINGS) ⚠️
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://tmmtabzxcgxlmsgfgxwx.supabase.co";
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtbXRhYnp4Y2d4bG1zZ2ZneHd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4OTMxNDMsImV4cCI6MjA4ODQ2OTE0M30.5qT_9Rijv59fYrU6P2mNqqS9GArDXfUTc5GqdmxbTbU";
+// Les identifiants Supabase proviennent uniquement des variables
+// d'environnement (VITE_*). La clé anon est publique par nature, mais
+// on la garde hors du code source pour permettre la rotation et éviter
+// de figer un projet en dur.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error(
+    "Configuration Supabase manquante : renseigne VITE_SUPABASE_URL et " +
+    "VITE_SUPABASE_ANON_KEY dans ton fichier .env (voir .env.example)."
+  );
+}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
-const isDefaultProject = !import.meta.env.VITE_SUPABASE_URL;
 
 // ── Auth Functions ──
 
@@ -73,9 +82,6 @@ export async function getSession() {
 // ── Storage Functions ──
 
 export async function uploadFile(bucket: string, file: File, accessToken?: string | null, customPath?: string) {
-  if (isDefaultProject) {
-    throw new Error("Vous utilisez le projet Supabase par défaut. Veuillez mettre vos propres clés.");
-  }
   const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
   const path = customPath || `${Date.now()}-${safeName}`;
   

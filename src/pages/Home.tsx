@@ -73,7 +73,7 @@ export function Home() {
         <div className="absolute inset-0 z-0">
           <EditableImage
             path="home.hero.main.bg"
-            defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/22.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvMjIucG5nIiwiaWF0IjoxNzczNTAyMjEyLCJleHAiOjQ5MjcxMDIyMTJ9.Q0RwDHhhZNWda8AQxy6Ly3IjvwuU9WyJNReRZU7nJIE"
+            defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/22.png"
             className="w-full h-full"
             imgClassName="w-full h-full object-cover object-center opacity-60"
           />
@@ -402,7 +402,7 @@ export function Home() {
                       <div className="absolute inset-0 bg-[var(--color-accent-energy)] rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity animate-aura-pulse"></div>
                       <div className="w-full h-full rounded-full overflow-hidden border-2 border-[var(--color-border)] group-hover:border-[var(--color-accent-energy)] transition-colors relative z-10">
                         {coach?.photo_url ? (
-                          <img
+                          <img loading="lazy"
                             src={coach.photo_url}
                             alt={coach.name}
                             className="w-full h-full object-cover object-center grayscale group-hover:grayscale-0 transition-all duration-500"
@@ -525,7 +525,7 @@ export function Home() {
                       <div className="absolute inset-0 bg-[var(--color-accent-primary)] rounded-xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity animate-aura-pulse"></div>
                       <div className="w-full h-full rounded-xl overflow-hidden border-2 border-[var(--color-border)] group-hover:border-[var(--color-accent-primary)] transition-colors relative z-10">
                         {formation?.thumbnail_url ? (
-                          <img
+                          <img loading="lazy"
                             src={formation.thumbnail_url}
                             alt={formation.title}
                             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
@@ -567,7 +567,7 @@ export function Home() {
                     <div className="grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-4 items-center">
                       <div className="flex flex-col items-center">
                         {(formationCoach?.photo_url || coach?.photo_url) ? (
-                          <img
+                          <img loading="lazy"
                             src={formationCoach?.photo_url || coach?.photo_url}
                             alt={formationCoach?.name || coach?.name || "Coach"}
                             className="w-10 h-10 rounded-full object-cover mb-1 border border-[var(--color-border)]"

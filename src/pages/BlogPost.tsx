@@ -116,7 +116,7 @@ export function BlogPost() {
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-[#0C0E18] border border-white/10 flex items-center justify-center overflow-hidden">
                 {post.coaches?.photo_url ? (
-                  <img src={post.coaches.photo_url} alt={post.coaches.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <img loading="lazy" src={post.coaches.photo_url} alt={post.coaches.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
                   <User size={16} />
                 )}
@@ -169,7 +169,7 @@ export function BlogPost() {
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
               <div className="w-full md:w-1/3 aspect-video bg-black rounded-xl overflow-hidden border border-white/5">
                 {relatedFormation.thumbnail_url ? (
-                  <img
+                  <img loading="lazy"
                     src={relatedFormation.thumbnail_url}
                     alt={relatedFormation.title}
                     className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
@@ -206,7 +206,7 @@ export function BlogPost() {
                 <Link key={p.id} to={`/blog/${p.slug}`} className="group">
                   <div className="aspect-video bg-[#0C0E18] rounded-xl overflow-hidden mb-4 border border-white/10 group-hover:border-[#7B2FFF]/30 transition-all">
                     {p.thumbnail_path ? (
-                      <img
+                      <img loading="lazy"
                         src={p.thumbnail_path}
                         alt={p.title}
                         className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"

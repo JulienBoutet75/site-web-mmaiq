@@ -92,16 +92,11 @@ export function Admin() {
   useEffect(() => {
     if (isAdmin && accessToken) {
       loadAllData();
-      
-      // Ensure the user has the super_admin role in the database
-      // This is necessary because RLS policies might check the role in the database
-      if (profile && profile.role !== 'super_admin') {
-        updateData("profiles", profile.id, { role: 'super_admin' }, accessToken)
-          .then(() => console.log("Profile role updated to super_admin"))
-          .catch(err => console.error("Failed to update profile role:", err));
-      }
     }
-  }, [isAdmin, accessToken, profile]);
+    // Note : le rôle super_admin doit être attribué en base (ou via
+    // l'email autorisé dans check_is_admin), jamais auto-écrit depuis le
+    // client — ce serait une escalade de privilège.
+  }, [isAdmin, accessToken]);
 
   const loadAllData = async () => {
     setLoading(true);
@@ -573,19 +568,13 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
     };
 
     try {
-      console.log("Saving formation, Data:", formationData);
       let formationId = editingFormation?.id;
       if (editingFormation) {
-        console.log("Updating formation", editingFormation.id);
         await updateData('formations', editingFormation.id, formationData, accessToken);
-        console.log("Updated formation successfully");
       } else {
-        console.log("Inserting new formation");
         const res = await insertData('formations', formationData, accessToken);
-        console.log("Inserted formation successfully, Result:", res);
         formationId = res[0]?.id;
       }
-      console.log("Processing chapters for formationId:", formationId);
       if (formationId) {
         await supabase.from('formation_chapters').delete().eq('formation_id', formationId);
         if (chapters.length > 0) {
@@ -711,7 +700,6 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
                   accept="video" 
                   bucket="formations-videos"
                   onUpload={(url) => {
-                    console.log("Teaser uploaded, URL:", url);
                     setTrailerUrl(url);
                   }} 
                   currentMedia={trailerUrl || undefined} 
@@ -1808,7 +1796,6 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
     }
 
     try {
-      console.log("Tentative d'insertion coachData:", coachData);
       
       if (editingCoach) {
         await updateData("coaches", editingCoach.id, coachData, accessToken);

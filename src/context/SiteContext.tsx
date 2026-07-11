@@ -41,8 +41,8 @@ const defaultSiteData: SiteData = {
     "app.cta.subtitle": "Télécharge gratuitement.",
   },
   images: {
-    "home.hero.left.bg": "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/22.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvMjIucG5nIiwiaWF0IjoxNzczNTAyMjEyLCJleHAiOjQ5MjcxMDIyMTJ9.Q0RwDHhhZNWda8AQxy6Ly3IjvwuU9WyJNReRZU7nJIE",
-    "home.hero.right.bg_v2": "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/Coach%20homepage%20rogna%202.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvQ29hY2ggaG9tZXBhZ2Ugcm9nbmEgMi5wbmciLCJpYXQiOjE3NzM1MDgxNjksImV4cCI6MzMzMDk1MDgxNjl9.OhlUEm8dLt28jNzlChjNQFK6jULrYcgzKrmeADMFuoI",
+    "home.hero.left.bg": "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/22.png",
+    "home.hero.right.bg_v2": "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/Coach%20homepage%20rogna%202.png",
   },
   videos: {},
   formations: [

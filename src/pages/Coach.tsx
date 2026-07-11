@@ -194,7 +194,7 @@ export function Coach() {
             className="w-full max-w-[320px] mx-auto lg:mx-0 lg:w-[400px] shrink-0"
           >
             <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-white/10 group bg-[#0C0E18] shadow-[0_0_50px_rgba(255,23,68,0.1)]">
-              <img 
+              <img loading="lazy" 
                 src={isEditing && editData ? editData.photo_url : coachData.photo_url} 
                 alt={coachData.name}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -374,7 +374,7 @@ export function Coach() {
                       className="cursor-pointer flex flex-col h-full"
                     >
                       <div className="aspect-video bg-[#12152A] relative overflow-hidden shrink-0">
-                        <img 
+                        <img loading="lazy" 
                           src={course.thumbnail_url || "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/default-formation.jpg"}
                           alt={course.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -403,7 +403,7 @@ export function Coach() {
                         <div className="flex items-center gap-3 mb-4">
                           <div className="flex items-center gap-2 relative z-30">
                             <div className="w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden border border-white/10 shrink-0">
-                              <img src={coachData.photo_url || coachData.image} alt={coachData.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                              <img loading="lazy" src={coachData.photo_url || coachData.image} alt={coachData.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                             </div>
                             <span className="font-ui text-xs md:text-sm font-semibold text-white/90">{coachData.name}</span>
                           </div>

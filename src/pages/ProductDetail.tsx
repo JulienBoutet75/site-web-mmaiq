@@ -96,7 +96,7 @@ export function ProductDetail() {
               className="aspect-square bg-[#0C0E18] rounded-[2rem] overflow-hidden border border-white/10 relative group"
             >
               {product.images && product.images.length > 0 ? (
-                <img 
+                <img loading="lazy" 
                   src={product.images[activeImage]} 
                   alt={product.name} 
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -125,7 +125,7 @@ export function ProductDetail() {
                       activeImage === idx ? "border-[#7B2FFF]" : "border-white/10 opacity-50 hover:opacity-100"
                     }`}
                   >
-                    <img src={img} alt={`${product.name} ${idx}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <img loading="lazy" src={img} alt={`${product.name} ${idx}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </button>
                 ))}
               </div>

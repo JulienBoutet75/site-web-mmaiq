@@ -103,7 +103,7 @@ export function Shop() {
                 <div className="h-full flex flex-col group bg-[#0C0E18] border border-white/10 hover:border-[#7B2FFF]/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(123,47,255,0.2)] rounded-[2rem] overflow-hidden backdrop-blur-sm">
                   <div className="aspect-square bg-[#04050A] relative overflow-hidden flex items-center justify-center">
                     {product.images && product.images.length > 0 ? (
-                      <img 
+                      <img loading="lazy" 
                         src={product.images[0]} 
                         alt={product.name} 
                         className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 

@@ -17,7 +17,7 @@ import { FormationModal } from "../components/admin/FormationModal";
 export function Instructional() {
   const navigate = useNavigate();
   const { isAdmin, openMediathequeForSelection } = useSite();
-  const { accessToken, profile } = useAuth();
+  const { accessToken } = useAuth();
   
   // Existing state
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,14 +44,6 @@ export function Instructional() {
   useEffect(() => {
     loadData();
   }, []);
-
-  useEffect(() => {
-    if (isAdmin && profile && profile.role !== 'super_admin') {
-      updateData("profiles", profile.id, { role: 'super_admin' }, accessToken)
-        .then(() => console.log("Profile role updated to super_admin"))
-        .catch(err => console.error("Failed to update profile role:", err));
-    }
-  }, [isAdmin, profile, accessToken]);
 
   const loadData = async () => {
     setLoading(true);
@@ -303,7 +295,7 @@ export function Instructional() {
                 ) : (
                   <div className="flex flex-col items-center w-full">
                     <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[#12152A] mb-6 shadow-xl shrink-0 pointer-events-none group-hover:border-[var(--color-accent-red)]/50 transition-colors duration-500">
-                      <img src={coach.photo_url || coach.image} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      <img loading="lazy" src={coach.photo_url || coach.image} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     </div>
                     <h3 className="font-display text-xl text-white mb-2">{coach.name}</h3>
                     <p className="text-[var(--color-accent-red)] font-ui text-xs font-bold uppercase tracking-widest mb-4">
@@ -417,7 +409,7 @@ export function Instructional() {
                       className="cursor-pointer flex flex-col h-full"
                     >
                       <div className="aspect-video bg-[#12152A] relative overflow-hidden shrink-0">
-                        <img 
+                        <img loading="lazy" 
                           src={course.thumbnail_url || "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/default-formation.jpg"}
                           alt={course.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
@@ -451,7 +443,7 @@ export function Instructional() {
                               onClick={(e) => e.stopPropagation()}
                             >
                               <div className="w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden border border-white/10 shrink-0">
-                                <img src={coach.photo_url || coach.image} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                <img loading="lazy" src={coach.photo_url || coach.image} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                               </div>
                               <span className="font-ui text-xs md:text-sm font-semibold text-white/90">{coach.name}</span>
                             </Link>
@@ -561,7 +553,7 @@ export function Instructional() {
           </div>
           <div className="w-full md:w-1/2">
             <div className="aspect-[4/5] bg-[#04050A] border border-[var(--color-accent-red)]/20 rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(255,23,68,0.15)]">
-              <img 
+              <img loading="lazy" 
                 src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/about/mission.jpg" 
                 alt="MMA IQ Setup"
                 className="w-full h-full object-cover mix-blend-luminosity opacity-70"

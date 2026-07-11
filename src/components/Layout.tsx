@@ -75,8 +75,8 @@ export function Layout({ children }: { children: ReactNode }) {
       >
         <div className="container mx-auto px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
-            <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/Logo%20a%20utiliser%202.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvTG9nbyBhIHV0aWxpc2VyIDIucG5nIiwiaWF0IjoxNzczNTAzMTcwLCJleHAiOjMzMzA5NTAzMTcwfQ.libjWsTPSMqdt8facRAR3rSjOqBWiqJfd2_F1zm-xQ8" alt="MMA IQ Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0" referrerPolicy="no-referrer" />
-            <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/mma%20iq%20ecriture%202.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvbW1hIGlxIGVjcml0dXJlIDIucG5nIiwiaWF0IjoxNzczNTAzMjAwLCJleHAiOjMzMzA5NTAzMjAwfQ.Rv6YtOoaKm2CWCP-WxX5Q2c2RUa_cqNaMl2Dpt8aFeE" alt="MMA IQ" className="h-3 md:h-[18px] object-contain" referrerPolicy="no-referrer" />
+            <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/Logo%20a%20utiliser%202.png" alt="MMA IQ Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0" referrerPolicy="no-referrer" />
+            <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/mma%20iq%20ecriture%202.png" alt="MMA IQ" className="h-3 md:h-[18px] object-contain" referrerPolicy="no-referrer" />
           </Link>
 
           {/* Desktop Nav */}
@@ -215,8 +215,8 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-16">
             <div className="lg:col-span-1 flex flex-col items-center md:items-start text-center md:text-left">
               <Link to="/" className="flex items-center gap-2 group mb-4 md:mb-6 inline-flex">
-                <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/Logo%20a%20utiliser%202.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvTG9nbyBhIHV0aWxpc2VyIDIucG5nIiwiaWF0IjoxNzczNTAzMTcwLCJleHAiOjMzMzA5NTAzMTcwfQ.libjWsTPSMqdt8facRAR3rSjOqBWiqJfd2_F1zm-xQ8" alt="MMA IQ Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0" referrerPolicy="no-referrer" />
-                <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/sign/images/mma%20iq%20ecriture%202.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yMDdhNGVkMS1lZTQ1LTQyYzItOTQ2YS0zYTZlOTZkOTliYjAiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJpbWFnZXMvbW1hIGlxIGVjcml0dXJlIDIucG5nIiwiaWF0IjoxNzczNTAzMjAwLCJleHAiOjMzMzA5NTAzMjAwfQ.Rv6YtOoaKm2CWCP-WxX5Q2c2RUa_cqNaMl2Dpt8aFeE" alt="MMA IQ" className="h-3 md:h-[18px] object-contain" referrerPolicy="no-referrer" />
+                <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/Logo%20a%20utiliser%202.png" alt="MMA IQ Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0" referrerPolicy="no-referrer" />
+                <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/mma%20iq%20ecriture%202.png" alt="MMA IQ" className="h-3 md:h-[18px] object-contain" referrerPolicy="no-referrer" />
               </Link>
               <p className="text-[var(--color-text-sec)] font-ui text-xs md:text-sm leading-relaxed max-w-xs mb-4">
                 La plateforme de performance MMA. Application de performance + coaching vidéo +

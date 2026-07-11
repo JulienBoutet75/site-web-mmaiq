@@ -38,10 +38,8 @@ export function Course() {
 
   const { isAdmin: isGlobalAdmin } = useAuth();
   const canEdit = isGlobalAdmin || profile?.role === 'super_admin' || (profile?.role === 'coach' && formation?.coach_id === profile?.id);
-  console.log("canEdit:", canEdit, "isGlobalAdmin:", isGlobalAdmin, "profile:", profile, "formation:", formation);
 
   const startEditing = () => {
-    console.log("startEditing called, formation:", formation);
     if (!formation) {
       console.error("No formation data found to edit!");
       return;
@@ -111,7 +109,6 @@ export function Course() {
         reviews_count: editData.reviews_count
       };
 
-      console.log("Saving formation payload:", formationPayload);
 
       const { error: fError } = await supabase
         .from('formations')
@@ -125,7 +122,6 @@ export function Course() {
 
       // Update Coach Bio/Tagline if edited
       if (formation.coaches) {
-        console.log("Saving coach bio/tagline:", { bio: editData.coach_bio, tagline: editData.coach_tagline });
         const { error: cError } = await supabase
           .from('coaches')
           .update({
@@ -140,7 +136,6 @@ export function Course() {
       }
 
       // 2. Update Chapters
-      console.log("Saving chapters, formation.id:", formation.id, "editChapters:", editChapters);
       // Delete existing
       await supabase.from('formation_chapters').delete().eq('formation_id', formation.id);
       
@@ -155,7 +150,6 @@ export function Course() {
           sort_order: idx,
           chapter_number: idx + 1
         }));
-        console.log("Chapters payload:", chaptersPayload);
         const { error: chError } = await supabase.from('formation_chapters').insert(chaptersPayload);
         if (chError) {
           console.error("Chapters insert error:", chError);
@@ -221,7 +215,6 @@ export function Course() {
         
         if (fError) throw fError;
         if (fData) {
-          console.log("Formation loaded:", fData);
           setFormation(fData);
 
           // 2. Load chapters
@@ -377,7 +370,7 @@ export function Course() {
           >
             {/* Coach Photo */}
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden shrink-0 border border-white/10">
-              <img src={coach?.photo_url} alt={coach?.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              <img loading="lazy" src={coach?.photo_url} alt={coach?.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             </div>
             
             {/* Coach Details */}
@@ -476,7 +469,7 @@ export function Course() {
                     </div>
                   </div>
                 ) : (
-                  <img 
+                  <img loading="lazy" 
                     src={formation.thumbnail_url || "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/default-formation.jpg"} 
                     alt={formation.title} 
                     className="w-full h-full object-cover"
