@@ -1,6 +1,6 @@
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
-import { ParticlesBackground } from "../components/ParticlesBackground";
+import { AmbientBackground } from '../components/AmbientBackground';
 
 export function About() {
   const heroWords1 = "LE MMA MÉRITAIT MIEUX.".split(" ");
@@ -42,7 +42,7 @@ export function About() {
 
   return (
     <div className="bg-[var(--color-bg-base)] text-[var(--color-text-primary)] min-h-screen font-body overflow-hidden relative">
-      <ParticlesBackground color="123, 47, 255" />
+      <AmbientBackground />
       {/* SECTION 1 — HERO STATEMENT */}
       <section className="relative w-full min-h-[80vh] flex flex-col items-center justify-center text-center px-4 pt-32 pb-10 md:pb-20">
         <div className="absolute inset-0 z-0 flex items-center justify-center opacity-20 pointer-events-none">
@@ -67,7 +67,7 @@ export function About() {
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: [0, 1.1, 1], opacity: 1 }}
                 transition={{ duration: 0.5, delay: i * 0.05 }}
-                className="font-display text-[7.5vw] sm:text-5xl md:text-[80px] text-white tracking-tight leading-none"
+                className="font-display text-display-2xl text-white tracking-tight leading-none"
               >
                 {word}
               </motion.span>
@@ -80,7 +80,7 @@ export function About() {
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: [0, 1.1, 1], opacity: 1 }}
                 transition={{ duration: 0.5, delay: (heroWords1.length + i) * 0.05 }}
-                className="font-display text-[7.5vw] sm:text-5xl md:text-[80px] text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-red)] tracking-tight leading-none"
+                className="font-display text-display-2xl text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-red)] tracking-tight leading-none"
               >
                 {word}
               </motion.span>
@@ -108,7 +108,7 @@ export function About() {
             className="w-full lg:w-[60%]"
           >
             <span className="text-[var(--color-accent-primary)] uppercase tracking-widest text-sm font-bold mb-4 block">POURQUOI <span className="font-days-one tracking-normal">MMA IQ</span></span>
-            <h2 className="font-display text-4xl md:text-[48px] leading-none mb-6 text-white">TROP DE CONTENU. PAS ASSEZ DE MÉTHODE.</h2>
+            <h2 className="font-display text-display-lg leading-none mb-6 text-white">TROP DE CONTENU. PAS ASSEZ DE MÉTHODE.</h2>
             <p className="text-[var(--color-text-primary)] text-base md:text-[16px] mb-8 leading-relaxed">
               <span className="font-days-one tracking-normal">MMA IQ</span> est né d'un constat simple : le MMA manque d'outils structurés pour progresser vraiment. Trop de contenu éparpillé, pas assez de méthode. On a construit la plateforme qu'on aurait voulu avoir — une app de performance digitale et un catalogue de formations premium, le tout connecté.
             </p>
@@ -144,7 +144,7 @@ export function About() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-display text-4xl md:text-[52px] text-center mb-10 md:mb-16 text-white"
+          className="font-display text-display-lg text-center mb-10 md:mb-16 text-white"
         >
           CE QUI NOUS DÉFINIT
         </motion.h2>
@@ -203,7 +203,7 @@ export function About() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="font-display text-4xl md:text-[52px] text-center mb-10 md:mb-16 text-white"
+          className="font-display text-display-lg text-center mb-10 md:mb-16 text-white"
         >
           LES DISCIPLINES QU'ON MAÎTRISE
         </motion.h2>
@@ -238,7 +238,7 @@ export function About() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="font-display text-5xl md:text-[64px] text-white mb-6"
+            className="font-display text-display-xl text-white mb-6"
           >
             ON CONSTRUIT CE QU'ON UTILISE.
           </motion.h2>

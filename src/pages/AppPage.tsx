@@ -5,7 +5,7 @@ import {
   CheckCircle2, X, ChevronRight, Timer, Users,
   Bell, Loader2, AlertCircle
 } from "lucide-react";
-import { ParticlesBackground } from '../components/ParticlesBackground';
+import { AmbientBackground } from '../components/AmbientBackground';
 import { PhoneFrame } from '../components/PhoneFrame';
 import { submitLead } from '../lib/supabase';
 
@@ -87,7 +87,7 @@ export function AppPage() {
         }
       `}} />
 
-      <ParticlesBackground />
+      <AmbientBackground />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(123,47,255,0.15)_0%,transparent_50%)] pointer-events-none z-0"></div>
 
       {/* ==========================================
@@ -101,7 +101,7 @@ export function AppPage() {
               <span className="w-2 h-2 rounded-full bg-[var(--color-accent-primary)] animate-pulse"></span>
               <span className="text-xs font-ui font-bold text-white tracking-widest uppercase">Bientôt sur iOS &amp; Android</span>
             </div>
-            <h1 className="font-display text-5xl sm:text-[72px] lg:text-[84px] leading-[0.92] uppercase tracking-wide text-white mb-5">
+            <h1 className="font-display text-display-2xl leading-[0.92] uppercase tracking-wide text-white mb-5">
               Il y a un avant<br/>et un après <span className="font-days-one tracking-normal text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)]">MMA IQ</span>.
             </h1>
             <p className="text-[var(--color-text-secondary)] text-base sm:text-xl font-body mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0">
@@ -139,7 +139,7 @@ export function AppPage() {
             <span className="w-2 h-2 rounded-full bg-[var(--color-accent-primary)] animate-pulse"></span>
             <span className="text-xs font-ui font-bold text-white tracking-widest uppercase">Évolue quel que soit ton niveau</span>
           </div>
-          <h2 className="text-5xl sm:text-[80px] font-display tracking-wide text-white mb-6 uppercase leading-[0.9] drop-shadow-[0_0_20px_rgba(255,255,255,0.1)] relative z-10">
+          <h2 className="text-display-2xl font-display tracking-wide text-white mb-6 uppercase leading-[0.9] drop-shadow-[0_0_20px_rgba(255,255,255,0.1)] relative z-10">
             L'APPLI QUI S'ADAPTE <br className="hidden sm:block"/>
             <span className="text-gradient-primary">À TON PROFIL.</span>
           </h2>
@@ -289,7 +289,7 @@ export function AppPage() {
             <div className="inline-flex items-center gap-2 border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)]">
               <Timer className="w-4 h-4" /> Fight Camp
             </div>
-            <h2 className="font-display text-4xl md:text-[52px] mb-6 uppercase leading-[0.92] tracking-wide">
+            <h2 className="font-display text-display-lg mb-6 uppercase leading-[0.92] tracking-wide">
               Une date de combat.<br/><span className="text-gradient-primary">Tout s'aligne.</span>
             </h2>
             <p className="text-lg text-[var(--color-text-secondary)] mb-8 leading-relaxed max-w-xl">
@@ -405,7 +405,7 @@ export function AppPage() {
           ========================================== */}
       <section className="relative z-10 pt-8 pb-12 sm:py-24 px-6 max-w-[1400px] mx-auto">
         <div className="text-center mb-10 sm:mb-16">
-          <h2 className="font-display text-4xl md:text-[52px] mb-4 uppercase tracking-wide leading-[0.9]">8 MODULES.<br className="block" /> UN SEUL OBJECTIF.</h2>
+          <h2 className="font-display text-display-lg mb-4 uppercase tracking-wide leading-[0.9]">8 MODULES.<br className="block" /> UN SEUL OBJECTIF.</h2>
           <p className="text-[var(--color-text-secondary)] text-sm sm:text-lg max-w-md sm:max-w-2xl mx-auto leading-tight sm:leading-relaxed">Le tableau de bord de l'app, tel que tu le retrouveras au premier lancement.</p>
         </div>
 
@@ -474,7 +474,7 @@ export function AppPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, type: "spring", delay: 0.2 }}
           >
-            <h2 className="font-display text-4xl md:text-[52px] mb-6 uppercase leading-[0.9] tracking-wide">
+            <h2 className="font-display text-display-lg mb-6 uppercase leading-[0.9] tracking-wide">
               ÉCRASE TON ADVERSAIRE <span className="text-white/30">PAR LA STRATÉGIE</span>
             </h2>
             <p className="text-lg text-[var(--color-text-secondary)] mb-8 leading-relaxed">
@@ -519,7 +519,7 @@ export function AppPage() {
           transition={{ duration: 0.8, type: "spring" }}
           className="max-w-4xl mx-auto"
         >
-          <h2 className="font-display text-5xl md:text-[64px] mb-6 uppercase leading-[0.9] text-white drop-shadow-[0_0_30px_rgba(123,47,255,0.5)]">
+          <h2 className="font-display text-display-xl mb-6 uppercase leading-[0.9] text-white drop-shadow-[0_0_30px_rgba(123,47,255,0.5)]">
             PRÊT À PASSER AU NIVEAU SUPÉRIEUR ?
           </h2>
           <p className="text-xl text-[var(--color-text-primary)]/80 mb-10 font-body">
