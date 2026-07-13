@@ -41,15 +41,15 @@ export function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#04050A] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7B2FFF]"></div>
+      <div className="min-h-screen bg-[var(--color-bg-base)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent-primary)]"></div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-[#04050A] flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-[var(--color-bg-base)] flex flex-col items-center justify-center p-6 text-center">
         <h2 className="text-3xl font-display mb-4">Produit introuvable</h2>
         <Link to="/shop">
           <Button variant="outline">Retour à la boutique</Button>
@@ -78,10 +78,10 @@ export function ProductDetail() {
   };
 
   return (
-    <div className="bg-[#04050A] text-white pt-32 pb-24 min-h-screen">
+    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 min-h-screen">
       <div className="px-6 max-w-7xl mx-auto">
         {/* Breadcrumbs */}
-        <div className="flex items-center gap-2 text-sm text-[#8892B0] mb-8">
+        <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)] mb-8">
           <Link to="/shop" className="hover:text-white transition-colors">Boutique</Link>
           <ChevronRight size={14} />
           <span className="text-white truncate">{product.name}</span>
@@ -93,7 +93,7 @@ export function ProductDetail() {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="aspect-square bg-[#0C0E18] rounded-[2rem] overflow-hidden border border-white/10 relative group"
+              className="aspect-square bg-[var(--color-bg-surface)] rounded-[2rem] overflow-hidden border border-white/10 relative group"
             >
               {product.images && product.images.length > 0 ? (
                 <img loading="lazy" 
@@ -122,7 +122,7 @@ export function ProductDetail() {
                     key={idx}
                     onClick={() => setActiveImage(idx)}
                     className={`aspect-square rounded-xl overflow-hidden border-2 transition-all ${
-                      activeImage === idx ? "border-[#7B2FFF]" : "border-white/10 opacity-50 hover:opacity-100"
+                      activeImage === idx ? "border-[var(--color-accent-primary)]" : "border-white/10 opacity-50 hover:opacity-100"
                     }`}
                   >
                     <img loading="lazy" src={img} alt={`${product.name} ${idx}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
@@ -140,28 +140,28 @@ export function ProductDetail() {
           >
             <div className="mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-xs font-bold uppercase tracking-widest text-[#7B2FFF] bg-[#7B2FFF]/10 px-3 py-1 rounded-full border border-[#7B2FFF]/20">
+                <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/10 px-3 py-1 rounded-full border border-[var(--color-accent-primary)]/20">
                   {product.collab || <><span className="font-days-one tracking-normal">MMA IQ</span> Official</>}
                 </span>
                 {product.category && (
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#8892B0] bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)] bg-white/5 px-3 py-1 rounded-full border border-white/10">
                     {product.category}
                   </span>
                 )}
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-display mb-4 leading-tight">{product.name}</h1>
-              <div className="text-3xl font-display text-[#7B2FFF]">
+              <div className="text-3xl font-display text-[var(--color-accent-primary)]">
                 {(product.price_cents / 100).toFixed(2)} €
               </div>
             </div>
 
             <div className="space-y-8 mb-10">
               <div className="prose prose-invert max-w-none">
-                <p className="text-lg text-[#8892B0] leading-relaxed">
+                <p className="text-lg text-[var(--color-text-secondary)] leading-relaxed">
                   {product.description}
                 </p>
                 {product.long_description && (
-                  <p className="text-[#8892B0] mt-4">
+                  <p className="text-[var(--color-text-secondary)] mt-4">
                     {product.long_description}
                   </p>
                 )}
@@ -171,7 +171,7 @@ export function ProductDetail() {
               {product.sizes && product.sizes.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <label className="text-sm font-bold uppercase tracking-widest text-[#8892B0]">Taille</label>
+                    <label className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Taille</label>
                   </div>
                   <div className="flex flex-wrap gap-3">
                     {product.sizes.map((size: string) => (
@@ -180,8 +180,8 @@ export function ProductDetail() {
                         onClick={() => setSelectedSize(size)}
                         className={`min-w-[50px] h-[50px] flex items-center justify-center rounded-xl font-bold transition-all border ${
                           selectedSize === size 
-                            ? "bg-[#7B2FFF] border-[#7B2FFF] text-white shadow-[0_0_20px_rgba(123,47,255,0.4)]" 
-                            : "bg-[#0C0E18] border-white/10 text-[#8892B0] hover:border-[#7B2FFF]/50"
+                            ? "bg-[var(--color-accent-primary)] border-[var(--color-accent-primary)] text-white shadow-[0_0_20px_rgba(123,47,255,0.4)]" 
+                            : "bg-[var(--color-bg-surface)] border-white/10 text-[var(--color-text-secondary)] hover:border-[var(--color-accent-primary)]/50"
                         }`}
                       >
                         {size}
@@ -193,9 +193,9 @@ export function ProductDetail() {
 
               {/* Quantity */}
               <div className="space-y-4">
-                <label className="text-sm font-bold uppercase tracking-widest text-[#8892B0]">Quantité</label>
+                <label className="text-sm font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Quantité</label>
                 <div className="flex items-center gap-4">
-                  <div className="flex items-center bg-[#0C0E18] border border-white/10 rounded-xl overflow-hidden">
+                  <div className="flex items-center bg-[var(--color-bg-surface)] border border-white/10 rounded-xl overflow-hidden">
                     <button 
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="w-12 h-12 flex items-center justify-center hover:bg-white/5 transition-colors"
@@ -228,17 +228,17 @@ export function ProductDetail() {
               <Button 
                 onClick={handleAddToCart}
                 disabled={product.stock === 0}
-                className="w-full py-6 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 bg-[#7B2FFF] hover:bg-[#8f4dff] shadow-[0_10px_30px_-10px_rgba(123,47,255,0.5)] disabled:opacity-50 disabled:hover:bg-[#7B2FFF]"
+                className="w-full py-6 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] shadow-[0_10px_30px_-10px_rgba(123,47,255,0.5)] disabled:opacity-50 disabled:hover:bg-[var(--color-accent-primary)]"
               >
                 <ShoppingBag size={20} />
                 {product.stock === 0 ? "Rupture de stock" : "Ajouter au panier"}
               </Button>
               
               <div className="flex items-center justify-center gap-3 pt-8 border-t border-white/10">
-                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[#7B2FFF]">
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-[var(--color-accent-primary)]">
                   <ShieldCheck size={18} />
                 </div>
-                <span className="text-xs uppercase tracking-widest text-[#8892B0] font-bold">Paiement sécurisé via Stripe</span>
+                <span className="text-xs uppercase tracking-widest text-[var(--color-text-secondary)] font-bold">Paiement sécurisé via Stripe</span>
               </div>
             </div>
           </motion.div>
@@ -260,19 +260,19 @@ export function ProductDetail() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-[#0C0E18] border border-[#7B2FFF]/30 rounded-[2rem] p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(123,47,255,0.2)]"
+              className="relative bg-[var(--color-bg-surface)] border border-[var(--color-accent-primary)]/30 rounded-[2rem] p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(123,47,255,0.2)]"
             >
-              <div className="w-20 h-20 bg-[#7B2FFF]/10 rounded-full flex items-center justify-center mx-auto mb-6 text-[#7B2FFF]">
+              <div className="w-20 h-20 bg-[var(--color-accent-primary)]/10 rounded-full flex items-center justify-center mx-auto mb-6 text-[var(--color-accent-primary)]">
                 <ShoppingBag size={40} />
               </div>
               <h3 className="text-2xl font-display mb-4">Paiement bientôt disponible</h3>
-              <p className="text-[#8892B0] mb-8 leading-relaxed">
+              <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
                 Nous finalisons actuellement notre système de paiement sécurisé. 
                 Revenez très bientôt pour commander vos articles <span className="font-days-one tracking-normal">MMA IQ</span> !
               </p>
               <Button 
                 onClick={() => setShowModal(false)}
-                className="w-full py-4 rounded-xl bg-[#7B2FFF] hover:bg-[#8f4dff]"
+                className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)]"
               >
                 Compris !
               </Button>

@@ -156,8 +156,8 @@ export function Admin() {
 
   if (authLoading || (isAdmin && loading)) {
     return (
-      <div className="min-h-screen bg-[#04050A] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7B2FFF]"></div>
+      <div className="min-h-screen bg-[var(--color-bg-base)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent-primary)]"></div>
       </div>
     );
   }
@@ -165,18 +165,18 @@ export function Admin() {
   if (!isAdmin) return null;
 
   return (
-    <div className="min-h-screen bg-[#04050A] text-white font-ui flex">
+    <div className="min-h-screen bg-[var(--color-bg-base)] text-white font-ui flex">
       {/* Sidebar */}
-      <aside className="w-72 fixed top-0 left-0 h-full bg-[#0C0E18] border-r border-white/10 flex flex-col z-50">
+      <aside className="w-72 fixed top-0 left-0 h-full bg-[var(--color-bg-surface)] border-r border-white/10 flex flex-col z-50">
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-4 mb-8">
-            <div className="w-12 h-12 bg-[#7B2FFF] rounded-xl flex items-center justify-center font-display text-2xl shrink-0 shadow-[0_0_20px_rgba(123,47,255,0.4)]">M</div>
+            <div className="w-12 h-12 bg-[var(--color-accent-primary)] rounded-xl flex items-center justify-center font-display text-2xl shrink-0 shadow-[0_0_20px_rgba(123,47,255,0.4)]">M</div>
             <div className="min-w-0 flex-1 cursor-pointer" onClick={() => setActiveTab("dashboard")}>
               <div className="font-days-one tracking-normal text-lg leading-none truncate text-white">MMA IQ</div>
-              <div className="text-[10px] text-[#7B2FFF] font-bold tracking-widest uppercase mt-1">Super Admin</div>
+              <div className="text-[10px] text-[var(--color-accent-primary)] font-bold tracking-widest uppercase mt-1">Super Admin</div>
             </div>
           </div>
-          <div className="text-[11px] text-[#8892B0] truncate bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">{profile?.email}</div>
+          <div className="text-[11px] text-[var(--color-text-secondary)] truncate bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">{profile?.email}</div>
         </div>
 
         <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
@@ -186,11 +186,11 @@ export function Admin() {
               onClick={() => setActiveTab(item.id)}
               className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all ${
                 activeTab === item.id
-                  ? "bg-[#7B2FFF] text-white shadow-[0_0_25px_rgba(123,47,255,0.4)] scale-[1.02]"
-                  : "text-[#8892B0] hover:bg-white/5 hover:text-white"
+                  ? "bg-[var(--color-accent-primary)] text-white shadow-[0_0_25px_rgba(123,47,255,0.4)] scale-[1.02]"
+                  : "text-[var(--color-text-secondary)] hover:bg-white/5 hover:text-white"
               }`}
             >
-              <span className={activeTab === item.id ? "text-white" : "text-[#7B2FFF]"}>{item.icon}</span>
+              <span className={activeTab === item.id ? "text-white" : "text-[var(--color-accent-primary)]"}>{item.icon}</span>
               {item.label}
             </button>
           ))}
@@ -199,13 +199,13 @@ export function Admin() {
         <div className="p-4 border-t border-white/10 space-y-2">
           <Link
             to="/"
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#8892B0] hover:bg-white/5 hover:text-white transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-text-secondary)] hover:bg-white/5 hover:text-white transition-all"
           >
             <ArrowLeft size={18} /> Voir le site
           </Link>
           <button
             onClick={signOut}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#FF1744] hover:bg-[#FF1744]/10 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[var(--color-accent-red)] hover:bg-[var(--color-accent-red)]/10 transition-all"
           >
             <LogOut size={18} /> Déconnexion
           </button>
@@ -215,7 +215,7 @@ export function Admin() {
       {/* Main Content */}
       <main className="flex-1 ml-72 min-h-screen flex flex-col">
         {/* Header */}
-        <header className="h-20 border-b border-white/10 bg-[#0C0E18]/50 backdrop-blur-md sticky top-0 z-40 px-10 flex items-center justify-between">
+        <header className="h-20 border-b border-white/10 bg-[var(--color-bg-surface)]/50 backdrop-blur-md sticky top-0 z-40 px-10 flex items-center justify-between">
           <h1 className="font-display text-2xl tracking-tight">
             {sidebarItems.find(i => i.id === activeTab)?.label}
           </h1>
@@ -233,11 +233,11 @@ export function Admin() {
                   setLoading(false);
                 }
               }}
-              className="text-[10px] text-[#8892B0] hover:text-white border border-white/10 px-3 py-1 rounded-full transition-all"
+              className="text-[10px] text-[var(--color-text-secondary)] hover:text-white border border-white/10 px-3 py-1 rounded-full transition-all"
             >
               Réparer Accès Admin
             </button>
-            <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-white/10 rounded-full text-[11px] text-[#8892B0] font-bold uppercase tracking-widest border border-white/5">
+            <div className="hidden md:flex items-center gap-3 px-4 py-2 bg-white/10 rounded-full text-[11px] text-[var(--color-text-secondary)] font-bold uppercase tracking-widest border border-white/5">
               <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
               Système opérationnel
             </div>
@@ -302,7 +302,7 @@ function Dashboard({ stats, sales, onNavigate }: { stats: any; sales: any[]; onN
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard label="Coaches" value={stats.coaches} icon={<Users className="text-[#7B2FFF]" />} />
+        <StatCard label="Coaches" value={stats.coaches} icon={<Users className="text-[var(--color-accent-primary)]" />} />
         <StatCard 
           label="Instructional" 
           value={`${stats.formations.published} / ${stats.formations.total}`} 
@@ -321,15 +321,15 @@ function Dashboard({ stats, sales, onNavigate }: { stats: any; sales: any[]; onN
           value={`${(stats.revenue / 100).toLocaleString()} €`} 
           icon={<DollarSign className="text-green-500" />} 
         />
-        <StatCard label="Abonnés Newsletter" value={stats.newsletter} icon={<Mail className="text-[#FF1744]" />} />
+        <StatCard label="Abonnés Newsletter" value={stats.newsletter} icon={<Mail className="text-[var(--color-accent-red)]" />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-[#0C0E18] border border-white/10 rounded-2xl p-6">
+        <div className="lg:col-span-2 bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6">
           <div className="flex justify-between items-center mb-6">
             <h3 className="font-display text-lg">Revenus (7 derniers jours)</h3>
-            <div className="flex items-center gap-2 text-xs text-[#8892B0]">
-              <div className="w-3 h-3 rounded-full bg-[#7B2FFF]"></div>
+            <div className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
+              <div className="w-3 h-3 rounded-full bg-[var(--color-accent-primary)]"></div>
               <span>Chiffre d'affaires (€)</span>
             </div>
           </div>
@@ -375,12 +375,12 @@ function Dashboard({ stats, sales, onNavigate }: { stats: any; sales: any[]; onN
         </div>
 
         <div className="space-y-6">
-          <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6">
             <h3 className="font-display text-lg mb-4">Actions rapides</h3>
             <div className="grid grid-cols-1 gap-3">
               <button 
                 onClick={() => onNavigate("coachs")}
-                className="flex items-center justify-between p-4 rounded-xl text-sm font-medium bg-[#7B2FFF]/10 text-[#8f4dff] border border-[#7B2FFF]/20 hover:bg-[#7B2FFF]/20 transition-all group"
+                className="flex items-center justify-between p-4 rounded-xl text-sm font-medium bg-[var(--color-accent-primary)]/10 text-[var(--color-violet-400)] border border-[var(--color-accent-primary)]/20 hover:bg-[var(--color-accent-primary)]/20 transition-all group"
               >
                 <div className="flex items-center gap-3">
                   <PlusCircle size={20} /> Nouveau Coach
@@ -417,7 +417,7 @@ function Dashboard({ stats, sales, onNavigate }: { stats: any; sales: any[]; onN
             </div>
           </div>
           
-          <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6">
+          <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6">
             <h3 className="font-display text-lg mb-4">État du système</h3>
             <div className="space-y-4">
               <SystemStatus label="Supabase Auth" status="online" />
@@ -434,14 +434,14 @@ function Dashboard({ stats, sales, onNavigate }: { stats: any; sales: any[]; onN
 
 function StatCard({ label, value, subLabel, icon }: any) {
   return (
-    <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6 flex items-center gap-6">
-      <div className="w-14 h-14 bg-[#04050A] rounded-2xl flex items-center justify-center text-2xl border border-white/10">
+    <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6 flex items-center gap-6">
+      <div className="w-14 h-14 bg-[var(--color-bg-base)] rounded-2xl flex items-center justify-center text-2xl border border-white/10">
         {icon}
       </div>
       <div>
         <div className="text-3xl font-display text-white">{value}</div>
-        <div className="text-sm text-[#8892B0]">{label}</div>
-        {subLabel && <div className="text-[10px] text-[#8892B0] uppercase tracking-wider mt-1">{subLabel}</div>}
+        <div className="text-sm text-[var(--color-text-secondary)]">{label}</div>
+        {subLabel && <div className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-wider mt-1">{subLabel}</div>}
       </div>
     </div>
   );
@@ -449,8 +449,8 @@ function StatCard({ label, value, subLabel, icon }: any) {
 
 function SystemStatus({ label, status }: any) {
   return (
-    <div className="flex items-center justify-between p-3 bg-[#04050A] rounded-xl border border-white/10">
-      <span className="text-sm text-[#8892B0]">{label}</span>
+    <div className="flex items-center justify-between p-3 bg-[var(--color-bg-base)] rounded-xl border border-white/10">
+      <span className="text-sm text-[var(--color-text-secondary)]">{label}</span>
       <div className="flex items-center gap-2">
         <div className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-green-500' : 'bg-red-500'}`}></div>
         <span className="text-[10px] uppercase font-bold tracking-widest">{status}</span>
@@ -615,10 +615,10 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
       </div>
 
       {(isAdding || editingFormation) && (
-        <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
+        <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
           <div className="flex justify-between items-center mb-6">
             <h4 className="font-display text-lg">{editingFormation ? "Modifier la formation" : "Nouvelle formation"}</h4>
-            <button onClick={() => { setIsAdding(false); setEditingFormation(null); }} className="text-[#8892B0] hover:text-white">
+            <button onClick={() => { setIsAdding(false); setEditingFormation(null); }} className="text-[var(--color-text-secondary)] hover:text-white">
               <X size={20} />
             </button>
           </div>
@@ -632,15 +632,15 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
             {errorMessage && <div className="bg-red-500/10 text-red-500 p-4 rounded-xl text-sm">{errorMessage}</div>}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Titre</label>
-                <input name="title" defaultValue={editingFormation?.title} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Titre</label>
+                <input name="title" defaultValue={editingFormation?.title} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Description Courte</label>
-                <textarea name="description" defaultValue={editingFormation?.description} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" rows={3} />
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Description Courte</label>
+                <textarea name="description" defaultValue={editingFormation?.description} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" rows={3} />
               </div>
               <div className="space-y-2 md:col-span-3">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Description Longue</label>
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Description Longue</label>
                 <textarea 
                   name="long_description" 
                   defaultValue={typeof editingFormation?.long_description === 'string' && editingFormation?.long_description?.startsWith('{') 
@@ -648,25 +648,25 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
                     : (typeof editingFormation?.long_description === 'object' && editingFormation?.long_description !== null)
                       ? editingFormation.long_description.content || ""
                       : editingFormation?.long_description || ""} 
-                  className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" 
+                  className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" 
                   rows={6} 
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Prix (€)</label>
-                <input name="price" type="number" step="0.01" defaultValue={editingFormation ? editingFormation.price_cents / 100 : 0} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Prix (€)</label>
+                <input name="price" type="number" step="0.01" defaultValue={editingFormation ? editingFormation.price_cents / 100 : 0} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Niveau</label>
-                <select name="level" defaultValue={editingFormation?.level} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all">
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Niveau</label>
+                <select name="level" defaultValue={editingFormation?.level} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all">
                   <option value="debutant">Débutant</option>
                   <option value="amateur">Amateur</option>
                   <option value="pro">Pro</option>
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Discipline</label>
-                <select name="discipline" defaultValue={editingFormation?.discipline} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all">
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Discipline</label>
+                <select name="discipline" defaultValue={editingFormation?.discipline} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all">
                   <option value="striking">Striking</option>
                   <option value="grappling">Grappling</option>
                   <option value="mma-gameplan">MMA Gameplan</option>
@@ -676,8 +676,8 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Coach</label>
-                <select name="coach_id" defaultValue={editingFormation?.coach_id} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all">
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Coach</label>
+                <select name="coach_id" defaultValue={editingFormation?.coach_id} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all">
                   <option value="">Sélectionner un coach</option>
                   {coachs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
@@ -721,10 +721,10 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
               </div>
               <div className="space-y-4">
                 {chapters.map((ch, idx) => (
-                  <div key={ch.id} className="bg-[#04050A] border border-white/10 rounded-xl p-4 space-y-4">
+                  <div key={ch.id} className="bg-[var(--color-bg-base)] border border-white/10 rounded-xl p-4 space-y-4">
                     <div className="flex gap-4">
                       <div className="flex-1 space-y-2">
-                        <label className="text-[10px] text-[#8892B0] uppercase font-bold tracking-widest">Titre du chapitre</label>
+                        <label className="text-[10px] text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Titre du chapitre</label>
                         <input 
                           value={ch.title} 
                           onChange={(e) => {
@@ -734,7 +734,7 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
                               return newChs;
                             });
                           }}
-                          className="w-full bg-[#0C0E18] border border-white/10 rounded-lg px-3 py-2 text-sm outline-none" 
+                          className="w-full bg-[var(--color-bg-surface)] border border-white/10 rounded-lg px-3 py-2 text-sm outline-none" 
                         />
                       </div>
                       <div className="flex-1 space-y-2">
@@ -765,16 +765,16 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
                                 return newChs;
                               });
                             }}
-                            className="w-4 h-4 rounded border-white/10 bg-[#0C0E18] text-[#7B2FFF]" 
+                            className="w-4 h-4 rounded border-white/10 bg-[var(--color-bg-surface)] text-[var(--color-accent-primary)]" 
                           />
-                          <span className="text-xs text-[#8892B0]">Aperçu</span>
+                          <span className="text-xs text-[var(--color-text-secondary)]">Aperçu</span>
                         </label>
                       </div>
                       <div className="flex items-end pb-1">
                         <button 
                           type="button"
                           onClick={() => setChapters(prev => prev.filter((_, i) => i !== idx))}
-                          className="p-2 text-[#8892B0] hover:text-[#FF1744]"
+                          className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-accent-red)]"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -796,17 +796,17 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
         </div>
       )}
 
-      <div className="bg-[#0C0E18] border border-white/10 rounded-2xl overflow-hidden">
+      <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-[#04050A] border-b border-white/10">
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8892B0]">Formation</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8892B0]">Coach</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8892B0]">Code d'accès</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8892B0]">Prix</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8892B0]">Niveau</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8892B0]">Statut</th>
-              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#8892B0] text-right">Actions</th>
+            <tr className="bg-[var(--color-bg-base)] border-b border-white/10">
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Formation</th>
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Coach</th>
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Code d'accès</th>
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Prix</th>
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Niveau</th>
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Statut</th>
+              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-secondary)] text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -821,9 +821,9 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
               <tr key={f.id} className="border-b border-white/10 hover:bg-white/5 transition-all">
                 <td className="px-6 py-4">
                   <div className="font-medium">{f.title}</div>
-                  <div className="text-[10px] text-[#8892B0]">{f.slug}</div>
+                  <div className="text-[10px] text-[var(--color-text-secondary)]">{f.slug}</div>
                 </td>
-                <td className="px-6 py-4 text-sm text-[#8892B0]">
+                <td className="px-6 py-4 text-sm text-[var(--color-text-secondary)]">
                   {coachs.find(c => c.id === f.coach_id)?.name || "Inconnu"}
                 </td>
                 <td className="px-6 py-4">
@@ -833,19 +833,19 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
                         navigator.clipboard.writeText(accessCode);
                         showToast("Code copié !");
                       }}
-                      className="cursor-pointer text-[#7B2FFF] font-ui font-bold bg-[#7B2FFF]/10 px-2 py-1 rounded inline-block hover:bg-[#7B2FFF]/20 transition-colors"
+                      className="cursor-pointer text-[var(--color-accent-primary)] font-ui font-bold bg-[var(--color-accent-primary)]/10 px-2 py-1 rounded inline-block hover:bg-[var(--color-accent-primary)]/20 transition-colors"
                     >
                       {accessCode}
                     </div>
                   ) : (
-                    <span className="text-[10px] text-[#8892B0] italic">Aucun code (éditez pour générer)</span>
+                    <span className="text-[10px] text-[var(--color-text-secondary)] italic">Aucun code (éditez pour générer)</span>
                   )}
                 </td>
                 <td className="px-6 py-4 text-sm font-display">
                   {f.price_cents / 100} €
                 </td>
                 <td className="px-6 py-4">
-                  <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-[#8892B0]">{f.level}</span>
+                  <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-[var(--color-text-secondary)]">{f.level}</span>
                 </td>
                 <td className="px-6 py-4">
                   <button 
@@ -858,8 +858,8 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => setEditingFormation(f)} className="p-2 hover:bg-white/5 rounded-lg text-[#8892B0] hover:text-white"><Edit2 size={16} /></button>
-                    <button onClick={async () => { if(await customConfirm('Supprimer cette formation ?')) { await deleteData('formations', f.id, accessToken); onUpdate(); } }} className="p-2 hover:bg-red-500/10 rounded-lg text-[#8892B0] hover:text-[#FF1744]"><Trash2 size={16} /></button>
+                    <button onClick={() => setEditingFormation(f)} className="p-2 hover:bg-white/5 rounded-lg text-[var(--color-text-secondary)] hover:text-white"><Edit2 size={16} /></button>
+                    <button onClick={async () => { if(await customConfirm('Supprimer cette formation ?')) { await deleteData('formations', f.id, accessToken); onUpdate(); } }} className="p-2 hover:bg-red-500/10 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-accent-red)]"><Trash2 size={16} /></button>
                   </div>
                 </td>
               </tr>
@@ -921,7 +921,7 @@ function Mediatheque({ medias, setMedias, onSelect }: { medias: any[]; setMedias
               key={f}
               onClick={() => setFilter(f)}
               className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                filter === f ? "bg-[#7B2FFF] text-white" : "text-[#8892B0] hover:text-white"
+                filter === f ? "bg-[var(--color-accent-primary)] text-white" : "text-[var(--color-text-secondary)] hover:text-white"
               }`}
             >
               {f === "all" ? "Tous" : f === "video" ? "Vidéos" : "Images"}
@@ -934,16 +934,16 @@ function Mediatheque({ medias, setMedias, onSelect }: { medias: any[]; setMedias
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-[#111120] border border-[#1e1e34] rounded-xl p-6">
             <h3 className="font-display text-lg mb-4 flex items-center gap-2">
-              <Video size={20} className="text-[#7B2FFF]" /> Upload Vidéo
+              <Video size={20} className="text-[var(--color-accent-primary)]" /> Upload Vidéo
             </h3>
-            <p className="text-xs text-[#8892B0] mb-4">Bucket: formations-videos</p>
+            <p className="text-xs text-[var(--color-text-secondary)] mb-4">Bucket: formations-videos</p>
             <Uploader bucket="formations-videos" accept="video/*" onUploadSuccess={handleUploadSuccess} />
           </div>
           <div className="bg-[#111120] border border-[#1e1e34] rounded-xl p-6">
             <h3 className="font-display text-lg mb-4 flex items-center gap-2">
-              <ImageIcon size={20} className="text-[#7B2FFF]" /> Upload Image
+              <ImageIcon size={20} className="text-[var(--color-accent-primary)]" /> Upload Image
             </h3>
-            <p className="text-xs text-[#8892B0] mb-4">Bucket: images</p>
+            <p className="text-xs text-[var(--color-text-secondary)] mb-4">Bucket: images</p>
             <Uploader bucket="images" accept="image/*" onUploadSuccess={handleUploadSuccess} />
           </div>
         </div>
@@ -953,7 +953,7 @@ function Mediatheque({ medias, setMedias, onSelect }: { medias: any[]; setMedias
         {filteredMedias.map((m) => (
           <div 
             key={m.id} 
-            className={`bg-[#111120] border border-[#1e1e34] rounded-xl overflow-hidden group relative ${onSelect ? 'cursor-pointer hover:border-[#7B2FFF]' : ''}`}
+            className={`bg-[#111120] border border-[#1e1e34] rounded-xl overflow-hidden group relative ${onSelect ? 'cursor-pointer hover:border-[var(--color-accent-primary)]' : ''}`}
             onClick={() => onSelect?.(m.url)}
           >
             <div className="aspect-square bg-[#0a0a16] relative">
@@ -965,7 +965,7 @@ function Mediatheque({ medias, setMedias, onSelect }: { medias: any[]; setMedias
               
               <div className={`absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 ${onSelect ? 'bg-black/40' : ''}`}>
                 {onSelect ? (
-                  <div className="bg-[#7B2FFF] text-white px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest">Sélectionner</div>
+                  <div className="bg-[var(--color-accent-primary)] text-white px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest">Sélectionner</div>
                 ) : (
                   <>
                     <button
@@ -977,7 +977,7 @@ function Mediatheque({ medias, setMedias, onSelect }: { medias: any[]; setMedias
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(m); }}
-                      className="p-2 bg-[#FF1744]/80 hover:bg-[#FF1744] rounded-full text-white transition-colors"
+                      className="p-2 bg-[var(--color-accent-red)]/80 hover:bg-[var(--color-accent-red)] rounded-full text-white transition-colors"
                       title="Supprimer"
                     >
                       <Trash2 size={18} />
@@ -991,8 +991,8 @@ function Mediatheque({ medias, setMedias, onSelect }: { medias: any[]; setMedias
                 {m.name}
               </p>
               <div className="flex justify-between items-center mt-1">
-                <span className="text-xs text-[#8892B0]">{m.size}</span>
-                <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-[#8892B0]">
+                <span className="text-xs text-[var(--color-text-secondary)]">{m.size}</span>
+                <span className="text-[10px] bg-white/5 px-2 py-0.5 rounded text-[var(--color-text-secondary)]">
                   {m.bucket}
                 </span>
               </div>
@@ -1021,7 +1021,7 @@ function MediathequeDrawer({ isOpen, onClose, onSelect, medias, setMedias }: any
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-full max-w-4xl bg-[#04050A] border-l border-[#1e1e34] z-[201] shadow-2xl flex flex-col"
+            className="fixed top-0 right-0 bottom-0 w-full max-w-4xl bg-[var(--color-bg-base)] border-l border-[#1e1e34] z-[201] shadow-2xl flex flex-col"
           >
             <div className="p-6 border-b border-[#1e1e34] flex justify-between items-center bg-[#111120]">
               <h3 className="font-display text-xl">Sélectionner un média</h3>
@@ -1093,23 +1093,23 @@ function Uploader({ bucket, accept, onUploadSuccess }: { bucket: string; accept?
       />
       <div
         className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
-          uploading ? "border-[#7B2FFF] bg-[#7B2FFF]/5" : "border-[#1e1e34] hover:border-[#8892B0] bg-[#0a0a16]"
+          uploading ? "border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/5" : "border-[#1e1e34] hover:border-[var(--color-text-secondary)] bg-[#0a0a16]"
         }`}
       >
         {uploading ? (
           <div className="space-y-3">
             <div className="w-full bg-[#111120] rounded-full h-2 overflow-hidden">
               <div
-                className="bg-[#7B2FFF] h-full transition-all duration-200"
+                className="bg-[var(--color-accent-primary)] h-full transition-all duration-200"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="text-sm text-[#7B2FFF] font-medium">Upload en cours... {progress}%</p>
+            <p className="text-sm text-[var(--color-accent-primary)] font-medium">Upload en cours... {progress}%</p>
           </div>
         ) : (
           <div className="space-y-2">
-            <UploadCloud size={24} className="mx-auto text-[#8892B0]" />
-            <p className="text-sm text-[#8892B0]">
+            <UploadCloud size={24} className="mx-auto text-[var(--color-text-secondary)]" />
+            <p className="text-sm text-[var(--color-text-secondary)]">
               Glissez-déposez ou cliquez pour uploader
             </p>
           </div>
@@ -1246,16 +1246,16 @@ function EditeurVideo({ medias }: { medias: any[] }) {
     return (
       <div className="space-y-6 animate-in fade-in duration-500">
         <h2 className="font-display text-3xl">Éditeur Vidéo</h2>
-        <p className="text-[#8892B0]">Sélectionnez une vidéo de la médiathèque à éditer :</p>
+        <p className="text-[var(--color-text-secondary)]">Sélectionnez une vidéo de la médiathèque à éditer :</p>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {videos.length === 0 ? (
-            <p className="text-[#8892B0] col-span-full">Aucune vidéo disponible.</p>
+            <p className="text-[var(--color-text-secondary)] col-span-full">Aucune vidéo disponible.</p>
           ) : (
             videos.map((v) => (
               <div
                 key={v.id}
                 onClick={() => setSelectedVideo(v)}
-                className="bg-[#111120] border border-[#1e1e34] rounded-xl overflow-hidden cursor-pointer hover:border-[#7B2FFF] transition-colors"
+                className="bg-[#111120] border border-[#1e1e34] rounded-xl overflow-hidden cursor-pointer hover:border-[var(--color-accent-primary)] transition-colors"
               >
                 <div className="aspect-video bg-black relative">
                   <video src={v.url} className="w-full h-full object-cover opacity-50" />
@@ -1291,7 +1291,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
               setTrimStart(0);
               setCurrentMarkIn(null);
             }}
-            className="text-sm text-[#8892B0] hover:text-white transition-colors mt-1"
+            className="text-sm text-[var(--color-text-secondary)] hover:text-white transition-colors mt-1"
           >
             ← Retour à la sélection
           </button>
@@ -1313,12 +1313,12 @@ function EditeurVideo({ medias }: { medias: any[] }) {
           <div className="flex items-center gap-4">
             <button
               onClick={togglePlay}
-              className="w-12 h-12 rounded-full bg-[#7B2FFF] hover:bg-[#8f4dff] text-white flex items-center justify-center transition-colors"
+              className="w-12 h-12 rounded-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white flex items-center justify-center transition-colors"
             >
               {isPlaying ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
             </button>
             <div className="font-ui text-lg">
-              {formatTime(currentTime)} <span className="text-[#8892B0]">/ {formatTime(duration)}</span>
+              {formatTime(currentTime)} <span className="text-[var(--color-text-secondary)]">/ {formatTime(duration)}</span>
             </div>
           </div>
 
@@ -1326,7 +1326,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
             {currentMarkIn !== null && (
               <button
                 onClick={() => setCurrentMarkIn(null)}
-                className="px-4 py-2 rounded-lg border border-[#1e1e34] text-[#8892B0] hover:text-white hover:bg-white/5 transition-colors text-sm"
+                className="px-4 py-2 rounded-lg border border-[#1e1e34] text-[var(--color-text-secondary)] hover:text-white hover:bg-white/5 transition-colors text-sm"
               >
                 Annuler marque
               </button>
@@ -1369,7 +1369,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
           {cuts.map((cut, i) => (
             <div
               key={i}
-              className="absolute top-0 bottom-0 bg-[#FF1744]/30 border-x border-[#FF1744] z-20"
+              className="absolute top-0 bottom-0 bg-[var(--color-accent-red)]/30 border-x border-[var(--color-accent-red)] z-20"
               style={{
                 left: `${(cut.in / duration) * 100}%`,
                 width: `${((cut.out - cut.in) / duration) * 100}%`,
@@ -1387,10 +1387,10 @@ function EditeurVideo({ medias }: { medias: any[] }) {
 
           {/* Playhead */}
           <div
-            className="absolute top-0 bottom-0 w-[2px] bg-[#7B2FFF] z-40 pointer-events-none"
+            className="absolute top-0 bottom-0 w-[2px] bg-[var(--color-accent-primary)] z-40 pointer-events-none"
             style={{ left: `${(currentTime / duration) * 100}%` }}
           >
-            <div className="absolute -top-1 -translate-x-1/2 w-3 h-3 rounded-full bg-[#8f4dff] shadow-[0_0_10px_#7B2FFF]" />
+            <div className="absolute -top-1 -translate-x-1/2 w-3 h-3 rounded-full bg-[var(--color-violet-400)] shadow-[0_0_10px_var(--color-accent-primary)]" />
           </div>
         </div>
 
@@ -1398,7 +1398,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-[#8892B0]">Début (Trim In)</span>
+              <span className="text-[var(--color-text-secondary)]">Début (Trim In)</span>
               <span className="font-ui">{formatTime(trimStart)}</span>
             </div>
             <div className="flex gap-2">
@@ -1409,7 +1409,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
                 step={0.1}
                 value={trimStart}
                 onChange={(e) => setTrimStart(parseFloat(e.target.value))}
-                className="flex-1 accent-[#7B2FFF]"
+                className="flex-1 accent-[var(--color-accent-primary)]"
               />
               <button
                 onClick={() => setTrimStart(currentTime)}
@@ -1421,7 +1421,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
           </div>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-[#8892B0]">Fin (Trim Out)</span>
+              <span className="text-[var(--color-text-secondary)]">Fin (Trim Out)</span>
               <span className="font-ui">{formatTime(trimEnd)}</span>
             </div>
             <div className="flex gap-2">
@@ -1432,7 +1432,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
                 step={0.1}
                 value={trimEnd}
                 onChange={(e) => setTrimEnd(parseFloat(e.target.value))}
-                className="flex-1 accent-[#7B2FFF]"
+                className="flex-1 accent-[var(--color-accent-primary)]"
               />
               <button
                 onClick={() => setTrimEnd(currentTime)}
@@ -1452,11 +1452,11 @@ function EditeurVideo({ medias }: { medias: any[] }) {
               {cuts.map((cut, i) => (
                 <div key={i} className="flex items-center justify-between bg-[#0a0a16] p-2 rounded-lg border border-[#1e1e34]">
                   <span className="text-sm font-ui">
-                    ✂️ {formatTime(cut.in)} → {formatTime(cut.out)} <span className="text-[#8892B0]">({formatTime(cut.out - cut.in)} supprimé)</span>
+                    ✂️ {formatTime(cut.in)} → {formatTime(cut.out)} <span className="text-[var(--color-text-secondary)]">({formatTime(cut.out - cut.in)} supprimé)</span>
                   </span>
                   <button
                     onClick={() => setCuts(cuts.filter((_, idx) => idx !== i))}
-                    className="text-xs text-[#8892B0] hover:text-white flex items-center gap-1"
+                    className="text-xs text-[var(--color-text-secondary)] hover:text-white flex items-center gap-1"
                   >
                     <RotateCcw size={14} /> Restaurer
                   </button>
@@ -1467,10 +1467,10 @@ function EditeurVideo({ medias }: { medias: any[] }) {
         )}
 
         {/* Summary */}
-        <div className="bg-gradient-to-br from-[#7B2FFF]/20 to-[#111120] border border-[#7B2FFF]/30 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-gradient-to-br from-[var(--color-accent-primary)]/20 to-[#111120] border border-[var(--color-accent-primary)]/30 rounded-xl p-4 flex items-center justify-between">
           <div className="space-y-1 text-sm">
-            <p className="text-[#8892B0]">Original : <span className="text-white font-ui">{formatTime(duration)}</span></p>
-            <p className="text-[#8892B0]">Coupes : <span className="text-white font-ui">{cuts.length} ({formatTime(totalCutDuration)})</span></p>
+            <p className="text-[var(--color-text-secondary)]">Original : <span className="text-white font-ui">{formatTime(duration)}</span></p>
+            <p className="text-[var(--color-text-secondary)]">Coupes : <span className="text-white font-ui">{cuts.length} ({formatTime(totalCutDuration)})</span></p>
             <p className="text-lg font-bold text-[#22c55e] mt-2">Final : <span className="font-ui">{formatTime(finalDuration)}</span></p>
           </div>
           <button
@@ -1484,7 +1484,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
               navigator.clipboard.writeText(JSON.stringify(plan, null, 2));
               // showToast("Plan de coupe copié !");
             }}
-            className="bg-[#7B2FFF] hover:bg-[#8f4dff] text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+            className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
           >
             <Copy size={18} /> Copier plan (JSON)
           </button>
@@ -1563,33 +1563,33 @@ function BlogCRUD({ data, coachs, formations, onUpdate, onOpenMedia }: { data: a
         <h3 className="text-xl font-display">Gestion du Blog</h3>
         <button 
           onClick={() => setIsAdding(true)}
-          className="bg-[#7B2FFF] text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"
+          className="bg-[var(--color-accent-primary)] text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"
         >
           <Plus size={18} /> Nouvel article
         </button>
       </div>
 
       {(isAdding || editingPost) && (
-        <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
+        <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
           <div className="flex justify-between items-center mb-6">
             <h4 className="font-display text-lg">{editingPost ? "Modifier l'article" : "Nouvel article"}</h4>
-            <button onClick={() => { setIsAdding(false); setEditingPost(null); }} className="text-[#8892B0] hover:text-white">
+            <button onClick={() => { setIsAdding(false); setEditingPost(null); }} className="text-[var(--color-text-secondary)] hover:text-white">
               <X size={20} />
             </button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Titre</label>
-                <input name="title" defaultValue={editingPost?.title} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Titre</label>
+                <input name="title" defaultValue={editingPost?.title} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Slug</label>
-                <input name="slug" defaultValue={editingPost?.slug} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Slug</label>
+                <input name="slug" defaultValue={editingPost?.slug} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Catégorie</label>
-                <select name="category" defaultValue={editingPost?.category} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all">
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Catégorie</label>
+                <select name="category" defaultValue={editingPost?.category} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all">
                   <option value="ANALYSE">ANALYSE</option>
                   <option value="TECHNIQUE">TECHNIQUE</option>
                   <option value="RÉCUPÉRATION">RÉCUPÉRATION</option>
@@ -1598,19 +1598,19 @@ function BlogCRUD({ data, coachs, formations, onUpdate, onOpenMedia }: { data: a
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Tags (virgules)</label>
-                <input name="tags" defaultValue={editingPost?.tags?.join(', ')} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Tags (virgules)</label>
+                <input name="tags" defaultValue={editingPost?.tags?.join(', ')} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Coach Auteur</label>
-                <select name="coach_id" defaultValue={editingPost?.coach_id} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all">
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Coach Auteur</label>
+                <select name="coach_id" defaultValue={editingPost?.coach_id} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all">
                   <option value="">Sélectionner un coach</option>
                   {coachs.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Formation liée</label>
-                <select name="formation_id" defaultValue={editingPost?.formation_id} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all">
+                <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Formation liée</label>
+                <select name="formation_id" defaultValue={editingPost?.formation_id} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all">
                   <option value="">Aucune formation liée</option>
                   {formations.map(f => <option key={f.id} value={f.id}>{f.title}</option>)}
                 </select>
@@ -1620,17 +1620,17 @@ function BlogCRUD({ data, coachs, formations, onUpdate, onOpenMedia }: { data: a
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">URL YouTube principale</label>
+                  <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">URL YouTube principale</label>
                   <input 
                     value={mainVideoUrl}
                     onChange={(e) => setMainVideoUrl(e.target.value)}
                     placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" 
+                    className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" 
                   />
                 </div>
                 {mainVideoUrl && (
                   <div className="space-y-2">
-                    <label className="text-[10px] text-[#8892B0] uppercase font-bold tracking-widest">Aperçu vidéo principale</label>
+                    <label className="text-[10px] text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Aperçu vidéo principale</label>
                     <YouTubeEmbed url={mainVideoUrl} />
                   </div>
                 )}
@@ -1638,18 +1638,18 @@ function BlogCRUD({ data, coachs, formations, onUpdate, onOpenMedia }: { data: a
 
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">URLs YouTube additionnelles (une par ligne)</label>
+                  <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">URLs YouTube additionnelles (une par ligne)</label>
                   <textarea 
                     value={additionalVideos || ""}
                     onChange={(e) => setAdditionalVideos(e.target.value)}
                     rows={4}
                     placeholder="https://www.youtube.com/watch?v=..."
-                    className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all resize-none font-ui" 
+                    className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all resize-none font-ui" 
                   />
                 </div>
                 {additionalVideos && (
                   <div className="space-y-2">
-                    <label className="text-[10px] text-[#8892B0] uppercase font-bold tracking-widest">Aperçus vidéos additionnelles</label>
+                    <label className="text-[10px] text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Aperçus vidéos additionnelles</label>
                     <div className="grid grid-cols-2 gap-2">
                       {additionalVideos.split('\n').filter(v => v.trim()).map((url, i) => (
                         <YouTubeEmbed key={i} url={url} />
@@ -1673,18 +1673,18 @@ function BlogCRUD({ data, coachs, formations, onUpdate, onOpenMedia }: { data: a
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Extrait (Excerpt)</label>
-              <textarea name="excerpt" defaultValue={editingPost?.excerpt || ""} rows={2} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all resize-none" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Extrait (Excerpt)</label>
+              <textarea name="excerpt" defaultValue={editingPost?.excerpt || ""} rows={2} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all resize-none" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Contenu (Markdown)</label>
-              <textarea name="content" defaultValue={editingPost?.content || ""} rows={12} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all resize-none font-ui" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Contenu (Markdown)</label>
+              <textarea name="content" defaultValue={editingPost?.content || ""} rows={12} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all resize-none font-ui" />
             </div>
 
             <div className="flex justify-end gap-4 pt-6 border-t border-white/10">
               <button type="button" onClick={() => { setIsAdding(false); setEditingPost(null); }} className="px-6 py-3 rounded-xl text-sm font-medium bg-white/10 hover:bg-[#2a2a44] transition-all">Annuler</button>
-              <button type="submit" disabled={loading} className="px-6 py-3 rounded-xl text-sm font-medium bg-[#7B2FFF] hover:bg-[#8f4dff] transition-all disabled:opacity-50">
+              <button type="submit" disabled={loading} className="px-6 py-3 rounded-xl text-sm font-medium bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] transition-all disabled:opacity-50">
                 {loading ? "Chargement..." : editingPost ? "Mettre à jour" : "Publier l'article"}
               </button>
             </div>
@@ -1694,8 +1694,8 @@ function BlogCRUD({ data, coachs, formations, onUpdate, onOpenMedia }: { data: a
 
       <div className="grid grid-cols-1 gap-4">
         {data.map((post) => (
-          <div key={post.id} className="bg-[#0C0E18] border border-white/10 rounded-2xl p-4 flex items-center gap-6 group">
-            <div className="w-32 h-20 bg-[#04050A] rounded-xl overflow-hidden shrink-0">
+          <div key={post.id} className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-4 flex items-center gap-6 group">
+            <div className="w-32 h-20 bg-[var(--color-bg-base)] rounded-xl overflow-hidden shrink-0">
               {post.thumbnail_path || post.cover_image ? (
                 <img src={post.thumbnail_path || post.cover_image} alt={post.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               ) : (
@@ -1705,17 +1705,17 @@ function BlogCRUD({ data, coachs, formations, onUpdate, onOpenMedia }: { data: a
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-1">
                 <h4 className="font-bold truncate">{post.title}</h4>
-                <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-[#8892B0]">{post.category}</span>
+                <span className="text-[10px] bg-white/10 px-2 py-1 rounded text-[var(--color-text-secondary)]">{post.category}</span>
               </div>
-              <div className="text-xs text-[#8892B0] flex gap-3">
+              <div className="text-xs text-[var(--color-text-secondary)] flex gap-3">
                 <span>{new Date(post.published_at || post.created_at).toLocaleDateString()}</span>
                 <span>•</span>
                 <span className="truncate">{post.tags?.join(', ')}</span>
               </div>
             </div>
             <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
-              <button onClick={() => setEditingPost(post)} className="p-2 hover:bg-white/5 rounded-lg text-[#8892B0] hover:text-white"><Edit2 size={18} /></button>
-              <button onClick={async () => { if(await customConfirm('Supprimer cet article ?')) { await deleteData('blog_posts', post.id, accessToken); onUpdate(); } }} className="p-2 hover:bg-red-500/10 rounded-lg text-[#8892B0] hover:text-[#FF1744]"><Trash2 size={18} /></button>
+              <button onClick={() => setEditingPost(post)} className="p-2 hover:bg-white/5 rounded-lg text-[var(--color-text-secondary)] hover:text-white"><Edit2 size={18} /></button>
+              <button onClick={async () => { if(await customConfirm('Supprimer cet article ?')) { await deleteData('blog_posts', post.id, accessToken); onUpdate(); } }} className="p-2 hover:bg-red-500/10 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-accent-red)]"><Trash2 size={18} /></button>
             </div>
           </div>
         ))}
@@ -1849,17 +1849,17 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
         <h3 className="text-xl font-display">Gestion des Coaches</h3>
         <button 
           onClick={() => setIsAdding(true)}
-          className="bg-[#7B2FFF] text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"
+          className="bg-[var(--color-accent-primary)] text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"
         >
           <Plus size={18} /> Ajouter un coach
         </button>
       </div>
 
       {(isAdding || editingCoach) && (
-        <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
+        <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
           <div className="flex justify-between items-center mb-6">
             <h4 className="font-display text-lg">{editingCoach ? "Modifier le coach" : "Nouveau coach"}</h4>
-            <button onClick={() => { setIsAdding(false); setEditingCoach(null); }} className="text-[#8892B0] hover:text-white">
+            <button onClick={() => { setIsAdding(false); setEditingCoach(null); }} className="text-[var(--color-text-secondary)] hover:text-white">
               <X size={20} />
             </button>
           </div>
@@ -1876,7 +1876,7 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
             )}
             {editingCoach && (
               <div className="md:col-span-2 space-y-4 bg-[#1e1e34]/30 p-4 rounded-xl border border-white/10">
-                <div className="flex items-center gap-2 text-[#7B2FFF]">
+                <div className="flex items-center gap-2 text-[var(--color-accent-primary)]">
                   <Shield size={16} />
                   <span className="text-xs font-bold uppercase tracking-widest">Clé d'accès Coach</span>
                 </div>
@@ -1887,7 +1887,7 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
                       type="text" 
                       value={editingCoach?.access_key || ""} 
                       readOnly 
-                      className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none font-ui" 
+                      className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none font-ui" 
                     />
                     {editingCoach?.access_key && (
                       <button
@@ -1896,7 +1896,7 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
                           navigator.clipboard.writeText(editingCoach.access_key);
                           showToast("Clé copiée !");
                         }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8892B0] hover:text-white p-1"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-secondary)] hover:text-white p-1"
                         title="Copier la clé"
                       >
                         <Copy size={16} />
@@ -1907,35 +1907,35 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
                     type="button"
                     onClick={generateAccessKeyForExistingCoach}
                     disabled={loading}
-                    className="px-6 py-3 bg-[#7B2FFF] hover:bg-[#8f4dff] rounded-xl text-xs font-bold text-white transition-all shadow-lg shadow-[#7B2FFF]/20 disabled:opacity-50"
+                    className="px-6 py-3 bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] rounded-xl text-xs font-bold text-white transition-all shadow-lg shadow-[color:var(--color-accent-primary)]/20 disabled:opacity-50"
                   >
                     {loading ? "Génération..." : "Générer une clé"}
                   </button>
                 </div>
-                <p className="text-[10px] text-[#8892B0]">
+                <p className="text-[10px] text-[var(--color-text-secondary)]">
                   Cette clé permet au coach de se connecter directement à son espace sans mot de passe.
                 </p>
               </div>
             )}
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Nom complet</label>
-              <input name="name" defaultValue={editingCoach?.name} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Nom complet</label>
+              <input name="name" defaultValue={editingCoach?.name} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Slug URL (ex: johnny-frachey)</label>
-              <input name="slug" defaultValue={editingCoach?.slug} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Slug URL (ex: johnny-frachey)</label>
+              <input name="slug" defaultValue={editingCoach?.slug} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Spécialités (séparées par des virgules)</label>
-              <input name="specialties" defaultValue={editingCoach?.specialties?.join(', ')} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Spécialités (séparées par des virgules)</label>
+              <input name="specialties" defaultValue={editingCoach?.specialties?.join(', ')} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Tagline (ex: L'expert du striking)</label>
-              <input name="tagline" defaultValue={editingCoach?.tagline} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Tagline (ex: L'expert du striking)</label>
+              <input name="tagline" defaultValue={editingCoach?.tagline} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Biographie complète</label>
-              <textarea name="bio" defaultValue={editingCoach?.bio || ""} rows={4} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all resize-none" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Biographie complète</label>
+              <textarea name="bio" defaultValue={editingCoach?.bio || ""} rows={4} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all resize-none" />
             </div>
             <div className="space-y-2 md:col-span-2">
               <input type="hidden" name="photo_url" value={photoUrl} />
@@ -1962,7 +1962,7 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
             </div>
             <div className="md:col-span-2 flex justify-end gap-4">
               <button type="button" onClick={() => { setIsAdding(false); setEditingCoach(null); }} className="px-6 py-3 rounded-xl text-sm font-medium bg-white/10 hover:bg-[#2a2a44] transition-all">Annuler</button>
-              <button type="submit" disabled={loading} className="px-6 py-3 rounded-xl text-sm font-medium bg-[#7B2FFF] hover:bg-[#8f4dff] transition-all disabled:opacity-50">
+              <button type="submit" disabled={loading} className="px-6 py-3 rounded-xl text-sm font-medium bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] transition-all disabled:opacity-50">
                 {loading ? "Chargement..." : editingCoach ? "Mettre à jour" : "Créer le coach"}
               </button>
             </div>
@@ -1972,8 +1972,8 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {data.map((coach) => (
-          <div key={coach.id} className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6 flex flex-col items-center text-center gap-4">
-            <div className="w-24 h-24 rounded-full bg-[#04050A] border border-white/10 overflow-hidden mb-2">
+          <div key={coach.id} className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6 flex flex-col items-center text-center gap-4">
+            <div className="w-24 h-24 rounded-full bg-[var(--color-bg-base)] border border-white/10 overflow-hidden mb-2">
               {coach.photo_url ? (
                 <img src={coach.photo_url} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               ) : (
@@ -1982,7 +1982,7 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
             </div>
             <div>
               <div className="font-display text-xl">{coach.name}</div>
-              <div className="text-xs text-[#8892B0] mt-1">
+              <div className="text-xs text-[var(--color-text-secondary)] mt-1">
                 {coach.access_key ? (
                   <span className="text-purple-400 font-ui font-bold bg-purple-500/10 px-2 py-0.5 rounded">Clé: {coach.access_key}</span>
                 ) : (
@@ -1990,14 +1990,14 @@ function CoachsCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: ()
                 )}
               </div>
             </div>
-            <div className="text-sm text-[#8892B0] italic">"{coach.tagline || 'Pas de tagline'}"</div>
+            <div className="text-sm text-[var(--color-text-secondary)] italic">"{coach.tagline || 'Pas de tagline'}"</div>
             <div className="w-full flex justify-between items-center pt-4 border-t border-white/10 mt-auto">
               <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${coach.is_active !== false ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
                 {coach.is_active !== false ? 'Actif' : 'Inactif'}
               </span>
               <div className="flex gap-2">
-                <button onClick={() => setEditingCoach(coach)} className="p-2 hover:bg-white/5 rounded-lg text-[#8892B0] hover:text-white transition-all"><Edit2 size={16} /></button>
-                <button onClick={async () => { if(await customConfirm('Supprimer ce coach ?')) { await deleteData('coaches', coach.id, accessToken); onUpdate(); } }} className="p-2 hover:bg-red-500/10 rounded-lg text-[#8892B0] hover:text-[#FF1744] transition-all"><Trash2 size={16} /></button>
+                <button onClick={() => setEditingCoach(coach)} className="p-2 hover:bg-white/5 rounded-lg text-[var(--color-text-secondary)] hover:text-white transition-all"><Edit2 size={16} /></button>
+                <button onClick={async () => { if(await customConfirm('Supprimer ce coach ?')) { await deleteData('coaches', coach.id, accessToken); onUpdate(); } }} className="p-2 hover:bg-red-500/10 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-accent-red)] transition-all"><Trash2 size={16} /></button>
               </div>
             </div>
           </div>
@@ -2071,44 +2071,44 @@ function ShopCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: () =
         <h3 className="text-xl font-display">Gestion de la Boutique</h3>
         <button 
           onClick={() => setIsAdding(true)}
-          className="bg-[#7B2FFF] text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"
+          className="bg-[var(--color-accent-primary)] text-white px-4 py-2 rounded-xl text-sm font-medium flex items-center gap-2"
         >
           <Plus size={18} /> Nouveau produit
         </button>
       </div>
 
       {(isAdding || editingProduct) && (
-        <div className="bg-[#0C0E18] border border-white/10 rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
+        <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
           <div className="flex justify-between items-center mb-6">
             <h4 className="font-display text-lg">{editingProduct ? "Modifier le produit" : "Nouveau produit"}</h4>
-            <button onClick={() => { setIsAdding(false); setEditingProduct(null); }} className="text-[#8892B0] hover:text-white">
+            <button onClick={() => { setIsAdding(false); setEditingProduct(null); }} className="text-[var(--color-text-secondary)] hover:text-white">
               <X size={20} />
             </button>
           </div>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Nom du produit</label>
-              <input name="name" defaultValue={editingProduct?.name} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Nom du produit</label>
+              <input name="name" defaultValue={editingProduct?.name} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Prix (€)</label>
-              <input name="price_euro" type="number" step="0.01" defaultValue={editingProduct ? editingProduct.price_cents / 100 : 0} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Prix (€)</label>
+              <input name="price_euro" type="number" step="0.01" defaultValue={editingProduct ? editingProduct.price_cents / 100 : 0} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Catégorie</label>
-              <select name="category" defaultValue={editingProduct?.category} className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all">
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Catégorie</label>
+              <select name="category" defaultValue={editingProduct?.category} className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all">
                 <option value="Equipement">Equipement</option>
                 <option value="Vêtements">Vêtements</option>
                 <option value="Accessoires">Accessoires</option>
               </select>
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Stock</label>
-              <input name="stock" type="number" defaultValue={editingProduct?.stock} required className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Stock</label>
+              <input name="stock" type="number" defaultValue={editingProduct?.stock} required className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-xs text-[#8892B0] uppercase font-bold tracking-widest">Tailles (séparées par des virgules)</label>
-              <input name="sizes" defaultValue={editingProduct?.sizes?.join(', ')} placeholder="S, M, L, XL" className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all" />
+              <label className="text-xs text-[var(--color-text-secondary)] uppercase font-bold tracking-widest">Tailles (séparées par des virgules)</label>
+              <input name="sizes" defaultValue={editingProduct?.sizes?.join(', ')} placeholder="S, M, L, XL" className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all" />
             </div>
             <div className="space-y-2 md:col-span-2">
               <input type="hidden" name="image_url" value={imageUrl} />
@@ -2124,7 +2124,7 @@ function ShopCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: () =
             </div>
             <div className="md:col-span-2 flex justify-end gap-4">
               <button type="button" onClick={() => { setIsAdding(false); setEditingProduct(null); }} className="px-6 py-3 rounded-xl text-sm font-medium bg-white/10 hover:bg-[#2a2a44] transition-all">Annuler</button>
-              <button type="submit" disabled={loading} className="px-6 py-3 rounded-xl text-sm font-medium bg-[#7B2FFF] hover:bg-[#8f4dff] transition-all disabled:opacity-50">
+              <button type="submit" disabled={loading} className="px-6 py-3 rounded-xl text-sm font-medium bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] transition-all disabled:opacity-50">
                 {loading ? "Chargement..." : editingProduct ? "Mettre à jour" : "Créer le produit"}
               </button>
             </div>
@@ -2134,25 +2134,25 @@ function ShopCRUD({ data, onUpdate, onOpenMedia }: { data: any[]; onUpdate: () =
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {data.map((product) => (
-          <div key={product.id} className="bg-[#0C0E18] border border-white/10 rounded-2xl overflow-hidden group">
-            <div className="aspect-square bg-[#04050A] relative">
+          <div key={product.id} className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl overflow-hidden group">
+            <div className="aspect-square bg-[var(--color-bg-base)] relative">
               {product.image_url ? (
                 <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-4xl opacity-20">👕</div>
               )}
               <div className="absolute top-2 right-2 flex gap-1">
-                <button onClick={() => setEditingProduct(product)} className="p-2 bg-black/50 backdrop-blur-md rounded-lg text-white hover:bg-[#7B2FFF] transition-all"><Edit2 size={14} /></button>
+                <button onClick={() => setEditingProduct(product)} className="p-2 bg-black/50 backdrop-blur-md rounded-lg text-white hover:bg-[var(--color-accent-primary)] transition-all"><Edit2 size={14} /></button>
                 <button onClick={async () => { if(await customConfirm('Supprimer ce produit ?')) { await deleteData('products', product.id, accessToken); onUpdate(); } }} className="p-2 bg-black/50 backdrop-blur-md rounded-lg text-white hover:bg-red-500 transition-all"><Trash2 size={14} /></button>
               </div>
             </div>
             <div className="p-4 space-y-2">
               <div className="flex justify-between items-start">
                 <div className="font-bold text-sm truncate flex-1">{product.name}</div>
-                <div className="text-[#7B2FFF] font-display text-sm ml-2">{product.price}€</div>
+                <div className="text-[var(--color-accent-primary)] font-display text-sm ml-2">{product.price}€</div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-[10px] text-[#8892B0] uppercase tracking-widest">{product.category}</span>
+                <span className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-widest">{product.category}</span>
                 <span className={`text-[10px] font-bold ${product.stock > 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {product.stock > 0 ? `${product.stock} en stock` : 'Rupture'}
                 </span>
@@ -2173,30 +2173,30 @@ function SalesTable({ data }: { data: any[] }) {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#1e1e34] bg-[#0a0a16]">
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0]">Date</th>
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0]">Client</th>
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0]">Produit</th>
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0]">Montant</th>
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0]">Statut</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Date</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Client</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Produit</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Montant</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Statut</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#1e1e34]">
             {data.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-12 text-center text-[#8892B0]">Aucune vente enregistrée.</td>
+                <td colSpan={5} className="px-6 py-12 text-center text-[var(--color-text-secondary)]">Aucune vente enregistrée.</td>
               </tr>
             ) : (
               data.map((sale) => (
                 <tr key={sale.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 text-sm font-ui text-[#8892B0]">
+                  <td className="px-6 py-4 text-sm font-ui text-[var(--color-text-secondary)]">
                     {new Date(sale.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm font-medium">{sale.profiles?.full_name || 'Client inconnu'}</div>
-                    <div className="text-[10px] text-[#8892B0]">{sale.profiles?.email}</div>
+                    <div className="text-[10px] text-[var(--color-text-secondary)]">{sale.profiles?.email}</div>
                   </td>
                   <td className="px-6 py-4 text-sm">{sale.product_name || 'Produit'}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-[#7B2FFF]">{(sale.amount_cents / 100).toFixed(2)}€</td>
+                  <td className="px-6 py-4 text-sm font-bold text-[var(--color-accent-primary)]">{(sale.amount_cents / 100).toFixed(2)}€</td>
                   <td className="px-6 py-4">
                     <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full ${
                       sale.status === 'completed' ? 'bg-green-500/10 text-green-500' : 
@@ -2234,22 +2234,22 @@ function NewsletterTable({ data, onUpdate }: { data: any[]; onUpdate: () => void
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#1e1e34] bg-[#0a0a16]">
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0]">Email</th>
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0]">Date d'inscription</th>
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0]">Statut</th>
-              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[#8892B0] text-right">Actions</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Email</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Date d'inscription</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)]">Statut</th>
+              <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-[var(--color-text-secondary)] text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#1e1e34]">
             {data.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-12 text-center text-[#8892B0]">Aucun abonné.</td>
+                <td colSpan={4} className="px-6 py-12 text-center text-[var(--color-text-secondary)]">Aucun abonné.</td>
               </tr>
             ) : (
               data.map((sub) => (
                 <tr key={sub.id} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 text-sm font-medium">{sub.email}</td>
-                  <td className="px-6 py-4 text-sm text-[#8892B0]">
+                  <td className="px-6 py-4 text-sm text-[var(--color-text-secondary)]">
                     {new Date(sub.subscribed_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4">
@@ -2262,14 +2262,14 @@ function NewsletterTable({ data, onUpdate }: { data: any[]; onUpdate: () => void
                   <td className="px-6 py-4 text-right">
                     <button 
                       onClick={() => toggleStatus(sub)}
-                      className={`p-2 rounded-lg transition-colors ${sub.is_active ? 'hover:bg-red-500/10 text-[#8892B0] hover:text-red-500' : 'hover:bg-green-500/10 text-[#8892B0] hover:text-green-500'}`}
+                      className={`p-2 rounded-lg transition-colors ${sub.is_active ? 'hover:bg-red-500/10 text-[var(--color-text-secondary)] hover:text-red-500' : 'hover:bg-green-500/10 text-[var(--color-text-secondary)] hover:text-green-500'}`}
                       title={sub.is_active ? "Désactiver" : "Réactiver"}
                     >
                       {sub.is_active ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                     <button 
                       onClick={async () => { if(await customConfirm('Supprimer cet abonné ?')) { await deleteData('newsletter_subscribers', sub.id, accessToken); onUpdate(); } }}
-                      className="p-2 hover:bg-red-500/10 rounded-lg text-[#8892B0] hover:text-[#FF1744] transition-all ml-2"
+                      className="p-2 hover:bg-red-500/10 rounded-lg text-[var(--color-text-secondary)] hover:text-[var(--color-accent-red)] transition-all ml-2"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -2289,7 +2289,7 @@ function AppPerformanceEditor({ data, onUpdate, onOpenMedia }: { data: any; onUp
   const [editValue, setEditValue] = useState("");
   const { accessToken } = useAuth();
 
-  if (!data || !data.content) return <div className="p-12 text-center text-[#8892B0]">Aucun contenu d'application trouvé.</div>;
+  if (!data || !data.content) return <div className="p-12 text-center text-[var(--color-text-secondary)]">Aucun contenu d'application trouvé.</div>;
 
   const handleSave = async () => {
     if (!editingKey) return;
@@ -2309,14 +2309,14 @@ function AppPerformanceEditor({ data, onUpdate, onOpenMedia }: { data: any; onUp
   
   return (
     <div className="space-y-10">
-      <div className="flex justify-between items-center bg-[#0C0E18] p-8 rounded-3xl border border-white/10 shadow-xl">
+      <div className="flex justify-between items-center bg-[var(--color-bg-surface)] p-8 rounded-3xl border border-white/10 shadow-xl">
         <div>
           <h2 className="text-3xl font-display tracking-tight">Éditeur Application de Performance</h2>
-          <p className="text-[#8892B0] text-sm mt-2 max-w-xl leading-relaxed">
+          <p className="text-[var(--color-text-secondary)] text-sm mt-2 max-w-xl leading-relaxed">
             Personnalisez l'expérience de vos combattants. Modifiez les textes, les titres et les descriptions de la page application.
           </p>
         </div>
-        <div className="w-16 h-16 bg-[#7B2FFF]/10 rounded-2xl flex items-center justify-center text-[#7B2FFF]">
+        <div className="w-16 h-16 bg-[var(--color-accent-primary)]/10 rounded-2xl flex items-center justify-center text-[var(--color-accent-primary)]">
           <Smartphone size={32} />
         </div>
       </div>
@@ -2325,18 +2325,18 @@ function AppPerformanceEditor({ data, onUpdate, onOpenMedia }: { data: any; onUp
         {appKeys.map((key) => {
           const value = data.content[key];
           return (
-            <div key={key} className="bg-[#111120] border border-[#1e1e34] rounded-3xl p-8 flex flex-col gap-6 group hover:border-[#7B2FFF]/50 transition-all shadow-2xl hover:shadow-[#7B2FFF]/10 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#7B2FFF] opacity-0 group-hover:opacity-100 transition-all"></div>
+            <div key={key} className="bg-[#111120] border border-[#1e1e34] rounded-3xl p-8 flex flex-col gap-6 group hover:border-[var(--color-accent-primary)]/50 transition-all shadow-2xl hover:shadow-[color:var(--color-accent-primary)]/10 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1 h-full bg-[var(--color-accent-primary)] opacity-0 group-hover:opacity-100 transition-all"></div>
               <div className="flex justify-between items-start">
                 <div className="space-y-3 flex-1 min-w-0">
-                  <div className="inline-flex px-3 py-1 rounded-full bg-[#7B2FFF]/10 text-[10px] font-bold uppercase tracking-widest text-[#7B2FFF] border border-[#7B2FFF]/20">
+                  <div className="inline-flex px-3 py-1 rounded-full bg-[var(--color-accent-primary)]/10 text-[10px] font-bold uppercase tracking-widest text-[var(--color-accent-primary)] border border-[var(--color-accent-primary)]/20">
                     {key.replace('app.', '').replace(/\./g, ' ')}
                   </div>
-                  <p className="text-sm text-[#8892B0] font-medium line-clamp-5 leading-relaxed italic">"{value}"</p>
+                  <p className="text-sm text-[var(--color-text-secondary)] font-medium line-clamp-5 leading-relaxed italic">"{value}"</p>
                 </div>
                 <button 
                   onClick={() => { setEditingKey(key); setEditValue(value); }}
-                  className="p-3.5 bg-white/5 hover:bg-[#7B2FFF] rounded-2xl text-[#8892B0] hover:text-white transition-all shrink-0 ml-4 shadow-xl border border-white/5"
+                  className="p-3.5 bg-white/5 hover:bg-[var(--color-accent-primary)] rounded-2xl text-[var(--color-text-secondary)] hover:text-white transition-all shrink-0 ml-4 shadow-xl border border-white/5"
                 >
                   <Edit2 size={20} />
                 </button>
@@ -2351,18 +2351,18 @@ function AppPerformanceEditor({ data, onUpdate, onOpenMedia }: { data: any; onUp
           <motion.div 
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            className="bg-[#0C0E18] border border-white/10 rounded-[2.5rem] p-10 max-w-3xl w-full shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden"
+            className="bg-[var(--color-bg-surface)] border border-white/10 rounded-[2.5rem] p-10 max-w-3xl w-full shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden"
           >
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-[#7B2FFF] to-transparent"></div>
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-transparent via-[var(--color-accent-primary)] to-transparent"></div>
             
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h3 className="text-2xl font-display mb-1">Modifier le contenu</h3>
-                <p className="text-[#8892B0] text-xs uppercase tracking-widest font-bold">{editingKey}</p>
+                <p className="text-[var(--color-text-secondary)] text-xs uppercase tracking-widest font-bold">{editingKey}</p>
               </div>
               <button 
                 onClick={() => setEditingKey(null)}
-                className="p-3 hover:bg-white/5 rounded-2xl text-[#8892B0] transition-all"
+                className="p-3 hover:bg-white/5 rounded-2xl text-[var(--color-text-secondary)] transition-all"
               >
                 <X size={24} />
               </button>
@@ -2370,11 +2370,11 @@ function AppPerformanceEditor({ data, onUpdate, onOpenMedia }: { data: any; onUp
 
             <div className="space-y-6">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-[#7B2FFF] ml-4">Texte</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-accent-primary)] ml-4">Texte</label>
                 <textarea
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
-                  className="w-full h-64 bg-[#04050A] border border-white/10 rounded-3xl p-6 text-white focus:border-[#7B2FFF] outline-none transition-all resize-none leading-relaxed shadow-inner"
+                  className="w-full h-64 bg-[var(--color-bg-base)] border border-white/10 rounded-3xl p-6 text-white focus:border-[var(--color-accent-primary)] outline-none transition-all resize-none leading-relaxed shadow-inner"
                   placeholder="Entrez votre texte ici..."
                 />
               </div>
@@ -2383,13 +2383,13 @@ function AppPerformanceEditor({ data, onUpdate, onOpenMedia }: { data: any; onUp
             <div className="flex justify-end gap-4 mt-10">
               <button 
                 onClick={() => setEditingKey(null)}
-                className="px-8 py-4 rounded-2xl hover:bg-white/5 transition-all text-[#8892B0] font-bold"
+                className="px-8 py-4 rounded-2xl hover:bg-white/5 transition-all text-[var(--color-text-secondary)] font-bold"
               >
                 Annuler
               </button>
               <button 
                 onClick={handleSave}
-                className="px-12 py-4 bg-[#7B2FFF] rounded-2xl font-bold hover:scale-105 transition-all shadow-[0_0_30px_rgba(123,47,255,0.4)] text-white"
+                className="px-12 py-4 bg-[var(--color-accent-primary)] rounded-2xl font-bold hover:scale-105 transition-all shadow-[0_0_30px_rgba(123,47,255,0.4)] text-white"
               >
                 Sauvegarder les modifications
               </button>
@@ -2407,7 +2407,7 @@ function SiteContentEditor({ data, onUpdate }: { data: any; onUpdate: () => void
   const [editValue, setEditValue] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (!data || !data.content) return <div className="p-12 text-center text-[#8892B0]">Chargement du contenu...</div>;
+  if (!data || !data.content) return <div className="p-12 text-center text-[var(--color-text-secondary)]">Chargement du contenu...</div>;
 
   const handleSave = async () => {
     if (!editingKey) return;
@@ -2429,20 +2429,20 @@ function SiteContentEditor({ data, onUpdate }: { data: any; onUpdate: () => void
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex justify-between items-center">
         <h2 className="font-display text-3xl">Contenu du Site</h2>
-        <div className="text-xs text-[#8892B0] uppercase tracking-widest">Table: site_content</div>
+        <div className="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest">Table: site_content</div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {Object.entries(data.content || {}).map(([key, value]: [string, any]) => (
-          <div key={key} className="bg-[#111120] border border-[#1e1e34] rounded-xl p-6 flex flex-col gap-4 group hover:border-[#7B2FFF]/50 transition-all">
+          <div key={key} className="bg-[#111120] border border-[#1e1e34] rounded-xl p-6 flex flex-col gap-4 group hover:border-[var(--color-accent-primary)]/50 transition-all">
             <div className="flex justify-between items-start">
               <div className="space-y-1.5 flex-1 min-w-0">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#7B2FFF]">{key}</h4>
-                <p className="text-sm text-[#8892B0] line-clamp-3 leading-relaxed">{typeof value === 'string' ? value : JSON.stringify(value)}</p>
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-accent-primary)]">{key}</h4>
+                <p className="text-sm text-[var(--color-text-secondary)] line-clamp-3 leading-relaxed">{typeof value === 'string' ? value : JSON.stringify(value)}</p>
               </div>
               <button 
                 onClick={() => { setEditingKey(key); setEditValue(typeof value === 'string' ? value : JSON.stringify(value, null, 2)); }}
-                className="p-2.5 bg-white/5 hover:bg-[#7B2FFF] rounded-xl text-[#8892B0] hover:text-white transition-all shrink-0 ml-4"
+                className="p-2.5 bg-white/5 hover:bg-[var(--color-accent-primary)] rounded-xl text-[var(--color-text-secondary)] hover:text-white transition-all shrink-0 ml-4"
               >
                 <Edit2 size={18} />
               </button>
@@ -2453,24 +2453,24 @@ function SiteContentEditor({ data, onUpdate }: { data: any; onUpdate: () => void
 
       {editingKey && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-          <div className="bg-[#0C0E18] border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-white/10 flex justify-between items-center">
               <h3 className="font-display text-xl">Modifier : {editingKey}</h3>
-              <button onClick={() => setEditingKey(null)} className="text-[#8892B0] hover:text-white"><X size={24} /></button>
+              <button onClick={() => setEditingKey(null)} className="text-[var(--color-text-secondary)] hover:text-white"><X size={24} /></button>
             </div>
             <div className="p-6 space-y-4">
               <textarea 
                 value={editValue || ""}
                 onChange={(e) => setEditValue(e.target.value)}
                 rows={12}
-                className="w-full bg-[#04050A] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[#7B2FFF] outline-none transition-all resize-none font-ui"
+                className="w-full bg-[var(--color-bg-base)] border border-white/10 rounded-xl px-4 py-3 text-sm focus:border-[var(--color-accent-primary)] outline-none transition-all resize-none font-ui"
               />
               <div className="flex justify-end gap-4">
                 <button onClick={() => setEditingKey(null)} className="px-6 py-3 rounded-xl text-sm font-medium bg-white/10 hover:bg-[#2a2a44] transition-all">Annuler</button>
                 <button 
                   onClick={handleSave}
                   disabled={loading}
-                  className="px-6 py-3 rounded-xl text-sm font-medium bg-[#7B2FFF] hover:bg-[#8f4dff] transition-all disabled:opacity-50 flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl text-sm font-medium bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] transition-all disabled:opacity-50 flex items-center gap-2"
                 >
                   {loading ? "Enregistrement..." : <><Save size={18} /> Enregistrer</>}
                 </button>

@@ -110,7 +110,7 @@ export function VideoEditorModal({ videoUrl, onClose }: { videoUrl: string; onCl
   };
 
   return (
-    <div className="fixed inset-0 z-[10001] bg-[#04050A] flex flex-col">
+    <div className="fixed inset-0 z-[10001] bg-[var(--color-bg-base)] flex flex-col">
       {/* Header */}
       <div className="h-16 border-b border-[#1e1e34] flex items-center justify-between px-6 shrink-0">
         <h2 className="text-white font-days-one text-lg truncate flex-1 mr-4">

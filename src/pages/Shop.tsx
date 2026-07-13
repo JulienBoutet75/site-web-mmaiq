@@ -34,7 +34,7 @@ export function Shop() {
     : products.filter(p => p.category === category);
 
   return (
-    <div className="bg-[#04050A] text-white pt-32 pb-24 selection:bg-[#7B2FFF] selection:text-white min-h-screen">
+    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 selection:bg-[var(--color-accent-primary)] selection:text-white min-h-screen">
       {/* Hero */}
       <section className="px-6 max-w-7xl mx-auto text-center mb-24 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.08)_0%,transparent_50%)] pointer-events-none blur-3xl"></div>
@@ -50,11 +50,11 @@ export function Shop() {
           </Badge>
           <h1 className="font-display text-5xl md:text-6xl lg:text-7xl mb-8 max-w-4xl mx-auto leading-[1.1] tracking-tighter drop-shadow-2xl">
             Équipement{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF] font-days-one tracking-normal">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] font-days-one tracking-normal">
               MMA IQ
             </span>
           </h1>
-          <p className="font-body text-lg md:text-xl text-[#8892B0] max-w-3xl mx-auto mb-12 leading-relaxed">
+          <p className="font-body text-lg md:text-xl text-[var(--color-text-secondary)] max-w-3xl mx-auto mb-12 leading-relaxed">
             Collection exclusive Bar Tack x <span className="font-days-one tracking-normal">MMA IQ</span>. Performance, style, identité.
           </p>
         </motion.div>
@@ -69,8 +69,8 @@ export function Shop() {
               onClick={() => setCategory(cat)}
               className={`px-6 py-2 rounded-full text-sm font-bold transition-all border ${
                 category === cat 
-                  ? "bg-[#7B2FFF] border-[#7B2FFF] text-white shadow-[0_0_20px_rgba(123,47,255,0.3)]" 
-                  : "bg-white/5 border-white/10 text-[#8892B0] hover:border-white/20 hover:bg-white/10"
+                  ? "bg-[var(--color-accent-primary)] border-[var(--color-accent-primary)] text-white shadow-[0_0_20px_rgba(123,47,255,0.3)]" 
+                  : "bg-white/5 border-white/10 text-[var(--color-text-secondary)] hover:border-white/20 hover:bg-white/10"
               }`}
             >
               {cat}
@@ -83,11 +83,11 @@ export function Shop() {
       <section className="px-6 max-w-7xl mx-auto">
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7B2FFF]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent-primary)]"></div>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="text-center py-20 bg-white/5 rounded-[2rem] border border-white/10">
-            <p className="text-[#8892B0] text-lg">Aucun produit trouvé dans cette catégorie.</p>
+            <p className="text-[var(--color-text-secondary)] text-lg">Aucun produit trouvé dans cette catégorie.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -100,8 +100,8 @@ export function Shop() {
                 transition={{ duration: 0.8, delay: (i % 3) * 0.1, ease: [0.23, 1, 0.32, 1] }}
                 className="h-full"
               >
-                <div className="h-full flex flex-col group bg-[#0C0E18] border border-white/10 hover:border-[#7B2FFF]/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(123,47,255,0.2)] rounded-[2rem] overflow-hidden backdrop-blur-sm">
-                  <div className="aspect-square bg-[#04050A] relative overflow-hidden flex items-center justify-center">
+                <div className="h-full flex flex-col group bg-[var(--color-bg-surface)] border border-white/10 hover:border-[var(--color-accent-primary)]/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(123,47,255,0.2)] rounded-[2rem] overflow-hidden backdrop-blur-sm">
+                  <div className="aspect-square bg-[var(--color-bg-base)] relative overflow-hidden flex items-center justify-center">
                     {product.images && product.images.length > 0 ? (
                       <img loading="lazy" 
                         src={product.images[0]} 
@@ -133,24 +133,24 @@ export function Shop() {
                   
                   <div className="p-8 flex flex-col flex-grow relative">
                     <div className="flex justify-between items-center mb-6">
-                      <span className="text-[10px] font-bold tracking-widest uppercase text-[#7B2FFF] bg-[#7B2FFF]/10 px-3 py-1.5 rounded-full border border-[#7B2FFF]/20">
+                      <span className="text-[10px] font-bold tracking-widest uppercase text-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/10 px-3 py-1.5 rounded-full border border-[var(--color-accent-primary)]/20">
                         {product.collab || <>Bar Tack x <span className="font-days-one tracking-normal">MMA IQ</span></>}
                       </span>
                       <div className="flex gap-1">
                         {product.sizes?.slice(0, 3).map((s: string) => (
-                          <span key={s} className="text-[10px] font-medium text-[#8892B0] border border-white/10 px-2 py-1 rounded bg-white/5">
+                          <span key={s} className="text-[10px] font-medium text-[var(--color-text-secondary)] border border-white/10 px-2 py-1 rounded bg-white/5">
                             {s}
                           </span>
                         ))}
-                        {product.sizes?.length > 3 && <span className="text-[10px] text-[#8892B0]">...</span>}
+                        {product.sizes?.length > 3 && <span className="text-[10px] text-[var(--color-text-secondary)]">...</span>}
                       </div>
                     </div>
                     
-                    <h3 className="font-display text-2xl mb-4 text-white group-hover:text-[#7B2FFF] transition-colors">
+                    <h3 className="font-display text-2xl mb-4 text-white group-hover:text-[var(--color-accent-primary)] transition-colors">
                       {product.name}
                     </h3>
                     
-                    <p className="font-body text-[#8892B0] text-sm mb-8 flex-grow leading-relaxed line-clamp-2">
+                    <p className="font-body text-[var(--color-text-secondary)] text-sm mb-8 flex-grow leading-relaxed line-clamp-2">
                       {product.description}
                     </p>
                     
@@ -162,7 +162,7 @@ export function Shop() {
                         onClick={() => setShowModal(true)}
                         disabled={product.stock === 0}
                         variant="outline" 
-                        className="px-6 py-3 rounded-full text-sm hover:bg-[#7B2FFF] hover:text-white hover:border-[#7B2FFF] transition-colors flex items-center gap-2 border-white/10 disabled:opacity-50"
+                        className="px-6 py-3 rounded-full text-sm hover:bg-[var(--color-accent-primary)] hover:text-white hover:border-[var(--color-accent-primary)] transition-colors flex items-center gap-2 border-white/10 disabled:opacity-50"
                       >
                         <ShoppingBag className="w-4 h-4" /> Ajouter
                       </Button>
@@ -190,19 +190,19 @@ export function Shop() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-[#0C0E18] border border-[#7B2FFF]/30 rounded-[2rem] p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(123,47,255,0.2)]"
+              className="relative bg-[var(--color-bg-surface)] border border-[var(--color-accent-primary)]/30 rounded-[2rem] p-10 max-w-md w-full text-center shadow-[0_0_50px_rgba(123,47,255,0.2)]"
             >
-              <div className="w-20 h-20 bg-[#7B2FFF]/10 rounded-full flex items-center justify-center mx-auto mb-6 text-[#7B2FFF]">
+              <div className="w-20 h-20 bg-[var(--color-accent-primary)]/10 rounded-full flex items-center justify-center mx-auto mb-6 text-[var(--color-accent-primary)]">
                 <ShoppingBag size={40} />
               </div>
               <h3 className="text-2xl font-display mb-4">Paiement bientôt disponible</h3>
-              <p className="text-[#8892B0] mb-8 leading-relaxed">
+              <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
                 Nous finalisons actuellement notre système de paiement sécurisé. 
                 Revenez très bientôt pour commander vos articles <span className="font-days-one tracking-normal">MMA IQ</span> !
               </p>
               <Button 
                 onClick={() => setShowModal(false)}
-                className="w-full py-4 rounded-xl bg-[#7B2FFF] hover:bg-[#8f4dff]"
+                className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)]"
               >
                 Compris !
               </Button>

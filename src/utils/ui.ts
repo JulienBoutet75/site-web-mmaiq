@@ -16,7 +16,7 @@ export const customConfirm = (message: string): Promise<boolean> => {
     overlay.className = 'fixed inset-0 bg-black/80 z-[9999] flex items-center justify-center backdrop-blur-sm';
     
     const modal = document.createElement('div');
-    modal.className = 'bg-[#0C0E18] border border-white/10 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl';
+    modal.className = 'bg-[var(--color-bg-surface)] border border-white/10 p-6 rounded-2xl max-w-md w-full mx-4 shadow-2xl';
     
     const text = document.createElement('p');
     text.className = 'text-white mb-6 font-medium';
@@ -34,7 +34,7 @@ export const customConfirm = (message: string): Promise<boolean> => {
     };
     
     const confirmBtn = document.createElement('button');
-    confirmBtn.className = 'px-4 py-2 rounded-xl text-sm font-medium bg-[#7B2FFF] text-white hover:bg-[#8f4dff] transition-all';
+    confirmBtn.className = 'px-4 py-2 rounded-xl text-sm font-medium bg-[var(--color-accent-primary)] text-white hover:bg-[var(--color-violet-400)] transition-all';
     confirmBtn.innerText = 'Confirmer';
     confirmBtn.onclick = () => {
       document.body.removeChild(overlay);

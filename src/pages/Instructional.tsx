@@ -203,17 +203,17 @@ export function Instructional() {
   ];
 
   return (
-    <div className="bg-[#04050A] text-white selection:bg-[var(--color-accent-red)] selection:text-white min-h-screen font-body">
+    <div className="bg-[var(--color-bg-base)] text-white selection:bg-[var(--color-accent-red)] selection:text-white min-h-screen font-body">
       
       {/* BLOC 1 — HERO */}
       <section className="relative w-full min-h-[85vh] flex flex-col items-center justify-center text-center overflow-hidden pt-32 pb-16">
-        <div className="absolute inset-0 z-0 bg-[#04050A]">
+        <div className="absolute inset-0 z-0 bg-[var(--color-bg-base)]">
           <video
             autoPlay loop muted playsInline
             className="w-full h-full object-cover opacity-50 relative"
             src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/formations-videos/BMPCC%204K%20_%20Jessie%20Wilcox%20Boxing.mp4"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#04050A]/70 via-[#04050A]/40 to-[#04050A]"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-base)]/70 via-[var(--color-bg-base)]/40 to-[var(--color-bg-base)]"></div>
         </div>
         
         <motion.div
@@ -244,7 +244,7 @@ export function Instructional() {
       </section>
 
       {/* BLOC 2 — COACHS / EXPERTS (DÉPLACÉ ICI) */}
-      <section className="px-6 py-24 md:py-32 bg-[#04050A] relative z-10 border-t border-white/5">
+      <section className="px-6 py-24 md:py-32 bg-[var(--color-bg-base)] relative z-10 border-t border-white/5">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
             <div className="max-w-2xl">
@@ -254,7 +254,7 @@ export function Instructional() {
             {isAdmin && (
               <button
                 onClick={handleAddCoach}
-                className="flex items-center gap-2 bg-[var(--color-accent-primary)] hover:bg-[#8f4dff] text-white px-6 py-3 rounded-full text-sm font-bold transition-all shrink-0"
+                className="flex items-center gap-2 bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white px-6 py-3 rounded-full text-sm font-bold transition-all shrink-0"
               >
                 <Plus size={18} /> Ajouter un coach
               </button>
@@ -269,7 +269,7 @@ export function Instructional() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="relative group bg-[#0C0E18] border border-white/5 hover:border-white/20 rounded-3xl p-6 md:p-8 flex flex-col items-center text-center transition-all duration-300"
+                className="relative group bg-[var(--color-bg-surface)] border border-white/5 hover:border-white/20 rounded-3xl p-6 md:p-8 flex flex-col items-center text-center transition-all duration-300"
               >
                 {isAdmin && (
                   <div className="absolute top-3 right-3 z-30 flex gap-2">
@@ -284,17 +284,17 @@ export function Instructional() {
 
                 {editingCoachId === coach.id ? (
                   <div className="w-full flex flex-col gap-3 text-left relative z-20" onClick={(e) => e.stopPropagation()}>
-                    <input className="bg-[#12152A] border border-white/10 rounded-xl p-3 text-sm text-white" value={coach.name} onChange={(e) => handleUpdateCoach(coach.id, { name: e.target.value })} placeholder="Nom du coach" />
-                    <input className="bg-[#12152A] border border-white/10 rounded-xl p-3 text-sm text-white" value={coach.specialties?.join(', ') || ""} onChange={(e) => handleUpdateCoach(coach.id, { specialties: e.target.value.split(',').map((s: string) => s.trim()) })} placeholder="Spécialités" />
-                    <textarea className="bg-[#12152A] border border-white/10 rounded-xl p-3 text-sm text-white h-24 resize-none" value={coach.bio} onChange={(e) => handleUpdateCoach(coach.id, { bio: e.target.value })} placeholder="Biographie" />
+                    <input className="bg-[var(--color-bg-elevated)] border border-white/10 rounded-xl p-3 text-sm text-white" value={coach.name} onChange={(e) => handleUpdateCoach(coach.id, { name: e.target.value })} placeholder="Nom du coach" />
+                    <input className="bg-[var(--color-bg-elevated)] border border-white/10 rounded-xl p-3 text-sm text-white" value={coach.specialties?.join(', ') || ""} onChange={(e) => handleUpdateCoach(coach.id, { specialties: e.target.value.split(',').map((s: string) => s.trim()) })} placeholder="Spécialités" />
+                    <textarea className="bg-[var(--color-bg-elevated)] border border-white/10 rounded-xl p-3 text-sm text-white h-24 resize-none" value={coach.bio} onChange={(e) => handleUpdateCoach(coach.id, { bio: e.target.value })} placeholder="Biographie" />
                     <div className="flex gap-2">
-                      <input className="bg-[#12152A] border border-white/10 rounded-xl p-3 text-white flex-1 text-xs" value={coach.photo_url || ""} onChange={(e) => handleUpdateCoach(coach.id, { photo_url: e.target.value })} placeholder="URL Photo" />
-                      <button onClick={() => openMediathequeForSelection((url) => handleUpdateCoach(coach.id, { photo_url: url }))} className="px-4 bg-[#12152A] rounded-xl border border-white/10 hover:bg-white/5"><ImageIcon size={16} /></button>
+                      <input className="bg-[var(--color-bg-elevated)] border border-white/10 rounded-xl p-3 text-white flex-1 text-xs" value={coach.photo_url || ""} onChange={(e) => handleUpdateCoach(coach.id, { photo_url: e.target.value })} placeholder="URL Photo" />
+                      <button onClick={() => openMediathequeForSelection((url) => handleUpdateCoach(coach.id, { photo_url: url }))} className="px-4 bg-[var(--color-bg-elevated)] rounded-xl border border-white/10 hover:bg-white/5"><ImageIcon size={16} /></button>
                     </div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center w-full">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[#12152A] mb-6 shadow-xl shrink-0 pointer-events-none group-hover:border-[var(--color-accent-red)]/50 transition-colors duration-500">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-[var(--color-bg-elevated)] mb-6 shadow-xl shrink-0 pointer-events-none group-hover:border-[var(--color-accent-red)]/50 transition-colors duration-500">
                       <img loading="lazy" src={coach.photo_url || coach.image} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     </div>
                     <h3 className="font-display text-xl text-white mb-2">{coach.name}</h3>
@@ -319,7 +319,7 @@ export function Instructional() {
       </section>
 
       {/* STICKY SEARCH & FILTERS */}
-      <div id="instructionals" className="sticky top-[56px] md:top-[80px] z-40 bg-[#04050A]/95 backdrop-blur-xl border-y border-white/5 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.8)] scroll-mt-[180px]">
+      <div id="instructionals" className="sticky top-[56px] md:top-[80px] z-40 bg-[var(--color-bg-base)]/95 backdrop-blur-xl border-y border-white/5 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.8)] scroll-mt-[180px]">
         <div className="px-6 max-w-7xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative w-full md:w-96 shrink-0">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
@@ -328,7 +328,7 @@ export function Instructional() {
               aria-label="Rechercher une technique ou un coach" placeholder="Rechercher une technique, un coach..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#12152A] border border-white/10 rounded-full py-3 pl-11 pr-4 text-sm text-white placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-accent-red)]/50 focus:bg-white/5 transition-all"
+              className="w-full bg-[var(--color-bg-elevated)] border border-white/10 rounded-full py-3 pl-11 pr-4 text-sm text-white placeholder:text-[var(--color-text-secondary)] focus:outline-none focus:border-[var(--color-accent-red)]/50 focus:bg-white/5 transition-all"
             />
           </div>
           
@@ -336,7 +336,7 @@ export function Instructional() {
             <div className="flex flex-row gap-2 w-full md:justify-end overflow-x-auto pb-2 md:pb-0 scrollbar-hide" ref={scrollRef}>
               <select 
                 aria-label="Filtrer par niveau"
-                className="bg-[#12152A] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
+                className="bg-[var(--color-bg-elevated)] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
                 onChange={(e) => setLevelFilter(e.target.value)}
                 value={levelFilter}
               >
@@ -347,7 +347,7 @@ export function Instructional() {
               </select>
 
               <select 
-                className="bg-[#12152A] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
+                className="bg-[var(--color-bg-elevated)] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
                 aria-label="Filtrer par spécificité MMA" onChange={(e) => setMmaFilter(e.target.value)}
                 value={mmaFilter}
               >
@@ -360,7 +360,7 @@ export function Instructional() {
               </select>
 
               <select 
-                className="bg-[#12152A] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
+                className="bg-[var(--color-bg-elevated)] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
                 aria-label="Filtrer par discipline" onChange={(e) => setDisciplineFilter(e.target.value)}
                 value={disciplineFilter}
               >
@@ -376,7 +376,7 @@ export function Instructional() {
       </div>
 
       {/* BLOC 4 — INSTRUCTIONALS GRILLE */}
-      <section className="px-6 py-16 bg-[#04050A] relative z-10 min-h-[50vh]">
+      <section className="px-6 py-16 bg-[var(--color-bg-base)] relative z-10 min-h-[50vh]">
         <div className="max-w-7xl mx-auto">
           <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence mode="popLayout">
@@ -408,14 +408,14 @@ export function Instructional() {
                       onClick={() => navigate(`/course/${course.slug || course.id}`)}
                       className="cursor-pointer flex flex-col h-full"
                     >
-                      <div className="aspect-video bg-[#12152A] relative overflow-hidden shrink-0">
+                      <div className="aspect-video bg-[var(--color-bg-elevated)] relative overflow-hidden shrink-0">
                         <img loading="lazy" 
                           src={course.thumbnail_url || "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/default-formation.jpg"}
                           alt={course.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           referrerPolicy="no-referrer"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E18] via-[#0C0E18]/20 to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-surface)] via-[var(--color-bg-surface)]/20 to-transparent"></div>
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500 z-10"></div>
                         
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
@@ -504,7 +504,7 @@ export function Instructional() {
             <div className="mt-12">
               <motion.button 
                 onClick={handleAddFormation}
-                className="w-full py-8 rounded-3xl border-2 border-dashed border-white/10 hover:border-white/30 bg-[#12152A]/50 hover:bg-[#12152A] transition-all group relative overflow-hidden flex flex-col items-center gap-3"
+                className="w-full py-8 rounded-3xl border-2 border-dashed border-white/10 hover:border-white/30 bg-[var(--color-bg-elevated)]/50 hover:bg-[var(--color-bg-elevated)] transition-all group relative overflow-hidden flex flex-col items-center gap-3"
               >
                 <div className="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform group-hover:bg-[var(--color-accent-red)]/20">
                   <Plus className="w-6 h-6 text-white group-hover:text-[var(--color-accent-red)] transition-colors" />
@@ -525,7 +525,7 @@ export function Instructional() {
       </section>
 
       {/* BLOC 5 — POURQUOI MMA IQ ACADEMY */}
-      <section className="px-6 py-24 md:py-32 bg-[#12152A] relative z-10 border-t border-[var(--color-border)]">
+      <section className="px-6 py-24 md:py-32 bg-[var(--color-bg-elevated)] relative z-10 border-t border-[var(--color-border)]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
           <div className="w-full md:w-1/2">
             <h2 className="font-display text-3xl md:text-5xl text-white mb-6 leading-tight">
@@ -542,7 +542,7 @@ export function Instructional() {
                 "Des formats plus justes, à des prix raisonnables.",
                 "Totalement intégré à l'écosystème MMA IQ."
               ].map((benefit, i) => (
-                <div key={i} className="flex items-center gap-4 bg-[#0C0E18] border border-white/5 p-4 rounded-2xl">
+                <div key={i} className="flex items-center gap-4 bg-[var(--color-bg-surface)] border border-white/5 p-4 rounded-2xl">
                   <div className="w-8 h-8 shrink-0 rounded-full bg-[var(--color-accent-red)]/20 flex items-center justify-center text-[var(--color-accent-red)]">
                     <CheckCircle size={16} />
                   </div>
@@ -552,14 +552,14 @@ export function Instructional() {
             </div>
           </div>
           <div className="w-full md:w-1/2">
-            <div className="aspect-[4/5] bg-[#04050A] border border-[var(--color-accent-red)]/20 rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(255,23,68,0.15)]">
+            <div className="aspect-[4/5] bg-[var(--color-bg-base)] border border-[var(--color-accent-red)]/20 rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(255,23,68,0.15)]">
               <img loading="lazy" 
                 src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/about/mission.jpg" 
                 alt="MMA IQ Setup"
                 className="w-full h-full object-cover mix-blend-luminosity opacity-70"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E18] to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-surface)] to-transparent"></div>
               <div className="absolute bottom-10 left-10 right-10">
                 <p className="font-display text-3xl text-white italic">"Plus ciblé. Plus utile. Plus juste."</p>
               </div>
@@ -571,14 +571,14 @@ export function Instructional() {
 
 
       {/* BLOC 8 — FAQ */}
-      <section className="px-6 py-24 md:py-32 bg-[#04050A] relative z-10 border-t border-white/5">
+      <section className="px-6 py-24 md:py-32 bg-[var(--color-bg-base)] relative z-10 border-t border-white/5">
         <div className="max-w-3xl mx-auto">
           <h2 className="font-display text-3xl md:text-5xl text-white mb-12 text-center">Vos questions, nos réponses.</h2>
           <div className="space-y-4">
             {faqItems.map((item, i) => (
               <div 
                 key={i} 
-                className="bg-[#0C0E18] border border-white/5 hover:border-white/10 rounded-2xl overflow-hidden transition-all duration-300"
+                className="bg-[var(--color-bg-surface)] border border-white/5 hover:border-white/10 rounded-2xl overflow-hidden transition-all duration-300"
               >
                 <button 
                   onClick={() => setActiveFaq(activeFaq === i ? null : i)}

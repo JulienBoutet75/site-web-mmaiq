@@ -66,7 +66,7 @@ export function Home() {
   };
 
   return (
-    <div className="bg-[#04050A] text-white selection:bg-[var(--color-accent-purple)] selection:text-white">
+    <div className="bg-[var(--color-bg-base)] text-white selection:bg-[var(--color-accent-purple)] selection:text-white">
       {/* HERO — PROPOSITION DE VALEUR */}
       <section className="relative min-h-[88vh] md:min-h-[92vh] flex items-center overflow-hidden w-full">
         {/* Fond photo + voile sombre lisible */}
@@ -165,7 +165,7 @@ export function Home() {
             >
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-primary)] transition-colors relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-primary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-primary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-primary)]/40 transition-colors"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
@@ -182,7 +182,7 @@ export function Home() {
 
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-gold)] transition-colors relative overflow-hidden lg:mt-6">
                 <div className="absolute inset-0 bg-gradient-to-tl from-[var(--color-accent-gold)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(255,214,0,0.1)] group-hover:shadow-[0_0_30px_rgba(255,214,0,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(255,214,0,0.1)] group-hover:shadow-[0_0_30px_rgba(255,214,0,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-gold)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-gold)]/40 transition-colors"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,214,0,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
@@ -229,7 +229,7 @@ export function Home() {
             >
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-primary)] transition-colors relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-bl from-[var(--color-accent-primary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-primary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-primary)]/40 transition-colors"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
@@ -245,7 +245,7 @@ export function Home() {
               </div>
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-secondary)] transition-colors relative overflow-hidden lg:mt-6">
                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-secondary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(0,229,255,0.1)] group-hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(0,229,255,0.1)] group-hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-secondary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-secondary)]/40 transition-colors"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
@@ -304,7 +304,7 @@ export function Home() {
                   variants={i % 2 === 0 ? speedImpactVariant : speedImpactRightVariant}
                   className="w-full md:w-1/2 relative"
                 >
-                  <div className="aspect-square w-full max-w-[200px] md:max-w-[300px] mx-auto bg-[#0C0E18] border border-[var(--color-border)] rounded-full overflow-hidden relative group p-2">
+                  <div className="aspect-square w-full max-w-[200px] md:max-w-[300px] mx-auto bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-full overflow-hidden relative group p-2">
                     <div className="absolute inset-0 border border-[var(--color-accent-energy)]/20 m-4 rounded-full pointer-events-none z-20"></div>
                     
                     <EditableImage 
@@ -313,7 +313,7 @@ export function Home() {
                       className="w-full h-full relative z-10 rounded-full overflow-hidden method-image-container"
                       imgClassName="w-full h-full object-cover object-center transition-all duration-700 rounded-full"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E18] to-transparent opacity-80 z-10 pointer-events-none rounded-full"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-surface)] to-transparent opacity-80 z-10 pointer-events-none rounded-full"></div>
                   </div>
                   {/* Step Number Overlay */}
                   <div className={`absolute ${i % 2 === 0 ? '-right-4 md:-right-8' : '-left-4 md:-left-8'} -top-8 md:-top-12 text-6xl md:text-[150px] font-accent font-black text-white/5 select-none pointer-events-none`}>

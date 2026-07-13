@@ -52,7 +52,7 @@ export function CropModal({ image, onClose, onCrop, aspect = 16/9 }: CropModalPr
 
   return createPortal(
     <div className="fixed inset-0 z-[999999] bg-black/80 flex items-center justify-center p-4">
-      <div className="bg-[#0C0E18] rounded-2xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden shadow-2xl border border-white/10">
+      <div className="bg-[var(--color-bg-surface)] rounded-2xl w-full max-w-2xl h-[80vh] flex flex-col overflow-hidden shadow-2xl border border-white/10">
         <div className="flex justify-between items-center p-4 border-b border-white/10">
           <h3 className="text-white font-bold">Recadrer l'image</h3>
           <button onClick={onClose} className="text-white/50 hover:text-white"><X /></button>

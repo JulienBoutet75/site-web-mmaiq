@@ -28,7 +28,7 @@ export function Contact() {
   };
 
   return (
-    <div className="bg-[#04050A] text-white pt-32 pb-24 min-h-screen selection:bg-[var(--color-accent-purple)] selection:text-white">
+    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 min-h-screen selection:bg-[var(--color-accent-purple)] selection:text-white">
       {/* Hero */}
       <section className="px-6 max-w-3xl mx-auto text-center mb-16 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.08)_0%,transparent_50%)] pointer-events-none blur-3xl"></div>
@@ -98,7 +98,7 @@ export function Contact() {
                       required
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-[#04050A]/50 border border-white/10 rounded-xl px-5 py-4 font-ui text-white/90 focus:outline-none focus:border-[var(--color-accent-purple)] focus:ring-1 focus:ring-[var(--color-accent-purple)]/50 transition-all duration-300 placeholder:text-white/40"
+                      className="w-full bg-[var(--color-bg-base)]/50 border border-white/10 rounded-xl px-5 py-4 font-ui text-white/90 focus:outline-none focus:border-[var(--color-accent-purple)] focus:ring-1 focus:ring-[var(--color-accent-purple)]/50 transition-all duration-300 placeholder:text-white/40"
                       placeholder="Ton nom"
                     />
                   </div>
@@ -118,7 +118,7 @@ export function Contact() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full bg-[#04050A]/50 border border-white/10 rounded-xl px-5 py-4 font-ui text-white/90 focus:outline-none focus:border-[var(--color-accent-purple)] focus:ring-1 focus:ring-[var(--color-accent-purple)]/50 transition-all duration-300 placeholder:text-white/40"
+                      className="w-full bg-[var(--color-bg-base)]/50 border border-white/10 rounded-xl px-5 py-4 font-ui text-white/90 focus:outline-none focus:border-[var(--color-accent-purple)] focus:ring-1 focus:ring-[var(--color-accent-purple)]/50 transition-all duration-300 placeholder:text-white/40"
                       placeholder="ton@email.com"
                     />
                   </div>
@@ -138,7 +138,7 @@ export function Contact() {
                       required
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      className="w-full bg-[#04050A]/50 border border-white/10 rounded-xl px-5 py-4 font-ui text-white/90 focus:outline-none focus:border-[var(--color-accent-purple)] focus:ring-1 focus:ring-[var(--color-accent-purple)]/50 transition-all duration-300 resize-none placeholder:text-white/40"
+                      className="w-full bg-[var(--color-bg-base)]/50 border border-white/10 rounded-xl px-5 py-4 font-ui text-white/90 focus:outline-none focus:border-[var(--color-accent-purple)] focus:ring-1 focus:ring-[var(--color-accent-purple)]/50 transition-all duration-300 resize-none placeholder:text-white/40"
                       placeholder="Comment peut-on t'aider ?"
                     ></textarea>
                   </div>

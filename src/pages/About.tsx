@@ -32,16 +32,16 @@ export function About() {
 
   const getTagStyle = (color: string) => {
     switch (color) {
-      case 'violet': return 'hover:bg-[#7B2FFF] hover:shadow-[0_0_15px_#7B2FFF]';
-      case 'rouge': return 'hover:bg-[#FF1744] hover:shadow-[0_0_15px_#FF1744]';
-      case 'cyan': return 'hover:bg-[#00E5FF] hover:shadow-[0_0_15px_#00E5FF]';
-      case 'or': return 'hover:bg-[#FFD600] hover:shadow-[0_0_15px_#FFD600]';
+      case 'violet': return 'hover:bg-[var(--color-accent-primary)] hover:shadow-[0_0_15px_var(--color-accent-primary)]';
+      case 'rouge': return 'hover:bg-[var(--color-accent-red)] hover:shadow-[0_0_15px_var(--color-accent-red)]';
+      case 'cyan': return 'hover:bg-[var(--color-accent-energy)] hover:shadow-[0_0_15px_var(--color-accent-energy)]';
+      case 'or': return 'hover:bg-[var(--color-accent-gold)] hover:shadow-[0_0_15px_var(--color-accent-gold)]';
       default: return '';
     }
   };
 
   return (
-    <div className="bg-[#04050A] text-[#F0F4FF] min-h-screen font-body overflow-hidden relative">
+    <div className="bg-[var(--color-bg-base)] text-[var(--color-text-primary)] min-h-screen font-body overflow-hidden relative">
       <ParticlesBackground color="123, 47, 255" />
       {/* SECTION 1 — HERO STATEMENT */}
       <section className="relative w-full min-h-[80vh] flex flex-col items-center justify-center text-center px-4 pt-32 pb-10 md:pb-20">
@@ -80,7 +80,7 @@ export function About() {
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: [0, 1.1, 1], opacity: 1 }}
                 transition={{ duration: 0.5, delay: (heroWords1.length + i) * 0.05 }}
-                className="font-display text-[7.5vw] sm:text-5xl md:text-[80px] text-transparent bg-clip-text bg-gradient-to-r from-[#7B2FFF] to-[#FF1744] tracking-tight leading-none"
+                className="font-display text-[7.5vw] sm:text-5xl md:text-[80px] text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-red)] tracking-tight leading-none"
               >
                 {word}
               </motion.span>
@@ -90,7 +90,7 @@ export function About() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="text-[#8892B0] text-base md:text-[20px] max-w-2xl mx-auto px-4"
+            className="text-[var(--color-text-secondary)] text-base md:text-[20px] max-w-2xl mx-auto px-4"
           >
             <span className="font-days-one tracking-normal">MMA IQ</span> est né d'un constat simple : le MMA manque d'outils structurés pour progresser vraiment.
           </motion.p>
@@ -107,12 +107,12 @@ export function About() {
             transition={{ duration: 0.6 }}
             className="w-full lg:w-[60%]"
           >
-            <span className="text-[#7B2FFF] uppercase tracking-widest text-sm font-bold mb-4 block">POURQUOI <span className="font-days-one tracking-normal">MMA IQ</span></span>
+            <span className="text-[var(--color-accent-primary)] uppercase tracking-widest text-sm font-bold mb-4 block">POURQUOI <span className="font-days-one tracking-normal">MMA IQ</span></span>
             <h2 className="font-display text-4xl md:text-[48px] leading-none mb-6 text-white">TROP DE CONTENU. PAS ASSEZ DE MÉTHODE.</h2>
-            <p className="text-[#F0F4FF] text-base md:text-[16px] mb-8 leading-relaxed">
+            <p className="text-[var(--color-text-primary)] text-base md:text-[16px] mb-8 leading-relaxed">
               <span className="font-days-one tracking-normal">MMA IQ</span> est né d'un constat simple : le MMA manque d'outils structurés pour progresser vraiment. Trop de contenu éparpillé, pas assez de méthode. On a construit la plateforme qu'on aurait voulu avoir — une app de performance digitale et un catalogue de formations premium, le tout connecté.
             </p>
-            <div className="border-l-[3px] border-[#7B2FFF] bg-[#7B2FFF]/[0.08] p-5 rounded-r-lg">
+            <div className="border-l-[3px] border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/[0.08] p-5 rounded-r-lg">
               <p className="italic text-[18px] text-white">"On a construit la plateforme qu'on aurait voulu avoir."</p>
             </div>
           </motion.div>
@@ -129,9 +129,9 @@ export function About() {
               { title: "Des cours vidéo", desc: "Des coachs reconnus qui transmettent leur méthode, à l'essentiel." },
               { title: "Un écosystème connecté", desc: "Combattants, coachs et clubs sur la même plateforme." },
             ].map((item, i) => (
-              <div key={i} className="bg-[#0C0E18] border border-white/5 rounded-2xl p-5">
+              <div key={i} className="bg-[var(--color-bg-surface)] border border-white/5 rounded-2xl p-5">
                 <div className="font-display text-xl text-white mb-1">{item.title}</div>
-                <div className="text-sm text-[#8892B0] leading-relaxed">{item.desc}</div>
+                <div className="text-sm text-[var(--color-text-secondary)] leading-relaxed">{item.desc}</div>
               </div>
             ))}
           </motion.div>
@@ -156,13 +156,13 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="group relative bg-[#0C0E18]/80 backdrop-blur-md p-6 rounded-2xl border border-white/5 overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
+            className="group relative bg-[var(--color-bg-surface)]/80 backdrop-blur-md p-6 rounded-2xl border border-white/5 overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
           >
             <h3 className="font-display text-2xl md:text-[28px] mb-3 text-white">NOTRE VISION</h3>
-            <p className="text-[#8892B0] text-[15px] leading-relaxed">
+            <p className="text-[var(--color-text-secondary)] text-[15px] leading-relaxed">
               Démocratiser l'accès à un coaching structuré et data-driven. Du débutant au pro, chacun mérite une méthode.
             </p>
-            <div className="absolute bottom-0 left-0 h-[3px] w-full bg-[#7B2FFF] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
+            <div className="absolute bottom-0 left-0 h-[3px] w-full bg-[var(--color-accent-primary)] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
           </motion.div>
 
           {/* Card 2 */}
@@ -171,13 +171,13 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="group relative bg-[#0C0E18]/80 backdrop-blur-md p-6 rounded-2xl border border-white/5 overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
+            className="group relative bg-[var(--color-bg-surface)]/80 backdrop-blur-md p-6 rounded-2xl border border-white/5 overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
           >
             <h3 className="font-display text-2xl md:text-[28px] mb-3 text-white">NOTRE MÉTHODE</h3>
-            <p className="text-[#8892B0] text-[15px] leading-relaxed">
+            <p className="text-[var(--color-text-secondary)] text-[15px] leading-relaxed">
               Anti-blabla. Chaque contenu est concret, actionnable, testé terrain. Structure + répétition + feedback = progression.
             </p>
-            <div className="absolute bottom-0 left-0 h-[3px] w-full bg-[#7B2FFF] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
+            <div className="absolute bottom-0 left-0 h-[3px] w-full bg-[var(--color-accent-primary)] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
           </motion.div>
 
           {/* Card 3 */}
@@ -186,13 +186,13 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="group relative bg-[#0C0E18]/80 backdrop-blur-md p-6 rounded-2xl border border-white/5 overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
+            className="group relative bg-[var(--color-bg-surface)]/80 backdrop-blur-md p-6 rounded-2xl border border-white/5 overflow-hidden hover:-translate-y-1.5 transition-transform duration-300"
           >
             <h3 className="font-display text-2xl md:text-[28px] mb-3 text-white">NOTRE ÉQUIPE</h3>
-            <p className="text-[#8892B0] text-[15px] leading-relaxed">
+            <p className="text-[var(--color-text-secondary)] text-[15px] leading-relaxed">
               Coachs reconnus, développeurs passionnés de MMA, experts en performance. On construit ce qu'on utilise.
             </p>
-            <div className="absolute bottom-0 left-0 h-[3px] w-full bg-[#7B2FFF] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
+            <div className="absolute bottom-0 left-0 h-[3px] w-full bg-[var(--color-accent-primary)] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></div>
           </motion.div>
         </div>
       </section>
@@ -218,7 +218,7 @@ export function About() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.03 }}
                 className={`
-                  px-4 py-2 rounded-full border border-white/10 bg-[#0C0E18] text-[#8892B0]
+                  px-4 py-2 rounded-full border border-white/10 bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)]
                   transition-all duration-300 hover:text-white hover:scale-110 z-10 hover:z-20
                   ${tag.size} ${getTagStyle(tag.color)}
                 `}
@@ -231,8 +231,8 @@ export function About() {
       </section>
 
       {/* SECTION 5 — MANIFESTE FINAL */}
-      <section className="w-full bg-[#0C0E18] py-24 md:py-32 px-6 relative overflow-hidden border-t border-white/5">
-        <div className="absolute inset-0 bg-[#7B2FFF]/5 blur-[100px] rounded-full"></div>
+      <section className="w-full bg-[var(--color-bg-surface)] py-24 md:py-32 px-6 relative overflow-hidden border-t border-white/5">
+        <div className="absolute inset-0 bg-[var(--color-accent-primary)]/5 blur-[100px] rounded-full"></div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <motion.h2 
             initial={{ opacity: 0, y: 30 }}
@@ -247,7 +247,7 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-[#F0F4FF] text-lg md:text-[20px] mb-12"
+            className="text-[var(--color-text-primary)] text-lg md:text-[20px] mb-12"
           >
             Pas une startup tech qui regarde le MMA de loin.<br className="hidden md:block" />
             Des gens du milieu, pour le milieu.
@@ -260,7 +260,7 @@ export function About() {
             transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-6"
           >
-            <Link to="/app" className="w-full sm:w-auto px-8 py-4 bg-[#7B2FFF] hover:bg-[#6520d9] text-white rounded-full font-bold transition-colors text-center">
+            <Link to="/app" className="w-full sm:w-auto px-8 py-4 bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] text-white rounded-full font-bold transition-colors text-center">
               Découvrir l'app
             </Link>
             <Link to="/instructional" className="w-full sm:w-auto px-8 py-4 bg-transparent border border-white text-white hover:bg-white/10 rounded-full font-bold transition-colors text-center">
@@ -274,7 +274,7 @@ export function About() {
               whileInView={{ x: "0%" }}
               viewport={{ once: true }}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="absolute inset-0 bg-gradient-to-r from-[#7B2FFF] to-[#FF1744]"
+              className="absolute inset-0 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-accent-red)]"
             ></motion.div>
           </div>
         </div>

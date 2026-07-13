@@ -255,15 +255,15 @@ export function Course() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#04050A] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7B2FFF]"></div>
+      <div className="min-h-screen bg-[var(--color-bg-base)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent-primary)]"></div>
       </div>
     );
   }
 
   if (!formation) {
     return (
-      <div className="min-h-screen bg-[#04050A] flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-[var(--color-bg-base)] flex flex-col items-center justify-center p-6 text-center">
         <h2 className="text-3xl font-display mb-4 text-white">Formation introuvable</h2>
         <Link to="/instructional">
           <Button variant="outline" className="text-white border-white/20">Retour à l'Academy</Button>
@@ -317,7 +317,7 @@ export function Course() {
   };
 
   return (
-    <div className="bg-[#04050A] text-white pt-32 pb-24 min-h-screen selection:bg-[#7B2FFF] selection:text-white">
+    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 min-h-screen selection:bg-[var(--color-accent-primary)] selection:text-white">
       {/* Admin Toolbar */}
       {canEdit && (
         <div className="fixed top-24 left-0 right-0 z-[60] px-6">
@@ -343,7 +343,7 @@ export function Course() {
             ) : (
               <Button 
                 onClick={startEditing}
-                className="bg-[#7B2FFF] hover:bg-[#8f4dff] text-white font-bold"
+                className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold"
               >
                 <Edit2 size={20} className="mr-2" /> Modifier la page
               </Button>
@@ -356,7 +356,7 @@ export function Course() {
       <section className="relative pt-20 pb-24 overflow-hidden">
         {/* Background effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl opacity-20 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#7B2FFF] blur-[150px] rounded-full"></div>
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[var(--color-accent-primary)] blur-[150px] rounded-full"></div>
           <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-red-500 blur-[150px] rounded-full"></div>
         </div>
 
@@ -403,7 +403,7 @@ export function Course() {
                   ) : formation.level}
                 </Badge>
               </div>
-              <div className="text-xs md:text-sm text-[#7B2FFF] font-bold uppercase tracking-[0.2em]">Profil du Coach</div>
+              <div className="text-xs md:text-sm text-[var(--color-accent-primary)] font-bold uppercase tracking-[0.2em]">Profil du Coach</div>
               <h1 className="text-2xl md:text-5xl font-display leading-[0.85] tracking-tighter">
                 {coach?.name}
               </h1>
@@ -412,10 +412,10 @@ export function Course() {
                   value={editData.coach_tagline}
                   onChange={(e) => setEditData({...editData, coach_tagline: e.target.value})}
                   placeholder="Tagline du coach"
-                  className="text-sm md:text-lg text-[#7B2FFF] font-display italic bg-white/5 border border-white/10 rounded-xl px-3 py-1 w-full outline-none focus:border-[#7B2FFF]"
+                  className="text-sm md:text-lg text-[var(--color-accent-primary)] font-display italic bg-white/5 border border-white/10 rounded-xl px-3 py-1 w-full outline-none focus:border-[var(--color-accent-primary)]"
                 />
               ) : (
-                <p className="text-sm md:text-lg text-[#7B2FFF] font-display italic">
+                <p className="text-sm md:text-lg text-[var(--color-accent-primary)] font-display italic">
                   {coach?.tagline}
                 </p>
               )}
@@ -426,7 +426,7 @@ export function Course() {
                     value={editData.coach_bio}
                     onChange={(e) => setEditData({...editData, coach_bio: e.target.value})}
                     placeholder="Bio du coach"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs md:text-sm text-white/70 outline-none focus:border-[#7B2FFF] h-20"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs md:text-sm text-white/70 outline-none focus:border-[var(--color-accent-primary)] h-20"
                   />
                 ) : (
                   <p className="text-xs md:text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
@@ -481,12 +481,12 @@ export function Course() {
               {/* Formation Actuelle */}
               <div className="w-full text-center md:text-left space-y-6 pt-4 border-t border-white/10">
                 <div>
-                  <div className="text-sm text-[#8892B0] uppercase tracking-widest font-bold mb-4">Formation Actuelle</div>
+                  <div className="text-sm text-[var(--color-text-secondary)] uppercase tracking-widest font-bold mb-4">Formation Actuelle</div>
                   {isEditing && editData ? (
                     <input 
                       value={editData.title}
                       onChange={(e) => setEditData({...editData, title: e.target.value})}
-                      className="text-3xl md:text-4xl font-display bg-white/5 border border-white/10 rounded-2xl px-4 py-2 w-full outline-none focus:border-[#7B2FFF] transition-colors text-center md:text-left"
+                      className="text-3xl md:text-4xl font-display bg-white/5 border border-white/10 rounded-2xl px-4 py-2 w-full outline-none focus:border-[var(--color-accent-primary)] transition-colors text-center md:text-left"
                     />
                   ) : (
                     <h2 className="text-3xl md:text-4xl font-display leading-tight">{formation.title}</h2>
@@ -495,12 +495,12 @@ export function Course() {
 
                 <div className="flex flex-wrap justify-center md:justify-start items-center gap-6">
                   <div className="flex items-center gap-2 text-white/60">
-                    <Clock size={20} className="text-[#7B2FFF]" />
+                    <Clock size={20} className="text-[var(--color-accent-primary)]" />
                     {isEditing && editData ? (
                       <input 
                         value={editData.duration || ""}
                         onChange={(e) => setEditData({...editData, duration: e.target.value})}
-                        className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-24 outline-none focus:border-[#7B2FFF]"
+                        className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-24 outline-none focus:border-[var(--color-accent-primary)]"
                       />
                     ) : (
                       <span className="text-base font-bold">{formation.duration || "—"}</span>
@@ -518,7 +518,7 @@ export function Course() {
                               const val = parseFloat(e.target.value);
                               setEditData({...editData, rating: isNaN(val) ? 0 : val});
                             }}
-                            className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-16 outline-none focus:border-[#7B2FFF]"
+                            className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-16 outline-none focus:border-[var(--color-accent-primary)]"
                             placeholder="Note"
                           />
                           <input
@@ -528,7 +528,7 @@ export function Course() {
                               const val = parseInt(e.target.value);
                               setEditData({...editData, reviews_count: isNaN(val) ? 0 : val});
                             }}
-                            className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-20 outline-none focus:border-[#7B2FFF]"
+                            className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-20 outline-none focus:border-[var(--color-accent-primary)]"
                             placeholder="Nb avis"
                           />
                         </div>
@@ -546,7 +546,7 @@ export function Course() {
                     <textarea 
                       value={editData.description}
                       onChange={(e) => setEditData({...editData, description: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-[#7B2FFF] h-32 text-center md:text-left"
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-[var(--color-accent-primary)] h-32 text-center md:text-left"
                     />
                   ) : (
                     <p className="text-sm text-white/70 leading-relaxed">
@@ -565,7 +565,7 @@ export function Course() {
                 <div className="w-full aspect-video bg-white/5 border border-white/10 rounded-3xl overflow-hidden relative flex flex-col items-center justify-center">
                   <div className="absolute inset-0 z-20 flex items-center justify-center p-8 bg-black/60 backdrop-blur-md">
                     <div className="w-full space-y-2">
-                      <label className="block text-xs font-bold uppercase tracking-widest text-[#7B2FFF] text-center mb-4">
+                      <label className="block text-xs font-bold uppercase tracking-widest text-[var(--color-accent-primary)] text-center mb-4">
                         Teaser de la formation (Public)
                       </label>
                       {editData && (
@@ -613,7 +613,7 @@ export function Course() {
                               newBullets[i] = e.target.value;
                               setEditData({...editData, bullets: newBullets});
                             }}
-                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-sm text-white outline-none focus:border-[#7B2FFF]"
+                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-sm text-white outline-none focus:border-[var(--color-accent-primary)]"
                           />
                           <button 
                             onClick={() => setEditData({...editData, bullets: editData.bullets.filter((_: any, idx: number) => idx !== i)})}
@@ -630,7 +630,7 @@ export function Course() {
                   {isEditing && editData && (
                     <button 
                       onClick={() => setEditData({...editData, bullets: [...editData.bullets, ""]})}
-                      className="flex items-center gap-2 p-3 rounded-xl border-2 border-dashed border-white/10 text-white/40 hover:text-white hover:border-[#7B2FFF] transition-all text-sm"
+                      className="flex items-center gap-2 p-3 rounded-xl border-2 border-dashed border-white/10 text-white/40 hover:text-white hover:border-[var(--color-accent-primary)] transition-all text-sm"
                     >
                       <Plus size={16} /> Ajouter un point
                     </button>
@@ -648,13 +648,13 @@ export function Course() {
           <section className="space-y-8">
             <div className="flex items-center justify-between">
               <h2 className="text-3xl font-display flex items-center gap-4">
-                <PlayCircle size={32} className="text-[#7B2FFF]" />
+                <PlayCircle size={32} className="text-[var(--color-accent-primary)]" />
                 {activeChapter ? `Chapitre : ${activeChapter.title}` : (isEditing && editData ? editData.title : formation.title)}
               </h2>
               {activeChapter && (
                 <button 
                   onClick={() => setActiveChapter(null)}
-                  className="text-sm font-bold text-[#8892B0] hover:text-white transition-colors uppercase tracking-widest"
+                  className="text-sm font-bold text-[var(--color-text-secondary)] hover:text-white transition-colors uppercase tracking-widest"
                 >
                   Retour à la vue globale
                 </button>
@@ -686,7 +686,7 @@ export function Course() {
                   />
                   {!hasPurchased && (
                     <div className="absolute inset-0 z-30 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
-                      <Lock className="text-[#7B2FFF] mb-4" size={48} />
+                      <Lock className="text-[var(--color-accent-primary)] mb-4" size={48} />
                       <h3 className="text-2xl font-display mb-2">Contenu verrouillé</h3>
                       <p className="text-white/70 mb-6 max-w-sm">Entrez votre code d'accès pour débloquer cette vidéo.</p>
                       <form onSubmit={handleCodeSubmit} className="flex gap-2 w-full max-w-xs">
@@ -695,9 +695,9 @@ export function Course() {
                           placeholder="Entrez votre code"
                           value={enteredCode}
                           onChange={(e) => setEnteredCode(e.target.value)}
-                          className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white outline-none focus:border-[#7B2FFF]"
+                          className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
                         />
-                        <Button type="submit" className="bg-[#7B2FFF] hover:bg-[#8f4dff]">
+                        <Button type="submit" className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)]">
                           Débloquer
                         </Button>
                       </form>
@@ -719,7 +719,7 @@ export function Course() {
 
         {/* Chapters Section */}
         <div className="w-full">
-          <div className="bg-[#0C0E18] border border-white/5 rounded-[3rem] p-10 shadow-2xl">
+          <div className="bg-[var(--color-bg-surface)] border border-white/5 rounded-[3rem] p-10 shadow-2xl">
             <div className="flex items-center justify-between mb-10">
               <h3 className="text-2xl font-display">Programme</h3>
               <div className="flex items-center gap-3">
@@ -727,7 +727,7 @@ export function Course() {
                 {isEditing && editData && (
                   <button 
                     onClick={addChapter}
-                    className="p-2 bg-[#7B2FFF]/20 text-[#7B2FFF] rounded-xl hover:bg-[#7B2FFF]/30 transition-colors"
+                    className="p-2 bg-[var(--color-accent-primary)]/20 text-[var(--color-accent-primary)] rounded-xl hover:bg-[var(--color-accent-primary)]/30 transition-colors"
                   >
                     <Plus size={20} />
                   </button>
@@ -754,21 +754,21 @@ export function Course() {
                           value={ch.title}
                           onChange={(e) => updateChapter(idx, 'title', e.target.value)}
                           placeholder="Titre du chapitre"
-                          className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-[#7B2FFF]"
+                          className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
                         />
                         <div className="flex flex-wrap gap-2 items-center text-sm">
                           <input 
                             value={ch.timestamp || "00:00-00:00"}
                             onChange={(e) => updateChapter(idx, 'timestamp', e.target.value)}
                             placeholder="00:00-00:00"
-                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-[#7B2FFF]"
+                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
                           />
                         </div>
                         <textarea 
                           value={ch.description || ""}
                           onChange={(e) => updateChapter(idx, 'description', e.target.value)}
                           placeholder="Description..."
-                          className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[#7B2FFF] h-24"
+                          className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[var(--color-accent-primary)] h-24"
                         />
                         <div className="space-y-2">
                           <label className="text-xs text-white/50 uppercase tracking-widest font-bold">Vidéo du chapitre</label>
@@ -797,21 +797,21 @@ export function Course() {
                     }}
                     className={`w-full flex items-center gap-5 p-5 rounded-[1.5rem] transition-all text-left border group ${
                       isActive 
-                        ? "bg-[#7B2FFF]/10 border-[#7B2FFF]/30 text-white" 
+                        ? "bg-[var(--color-accent-primary)]/10 border-[var(--color-accent-primary)]/30 text-white" 
                         : "bg-white/[0.02] border-transparent hover:bg-white/5 hover:border-white/10"
                     }`}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
-                      isActive ? "bg-[#7B2FFF] text-white" : "bg-black/40 text-[#8892B0] group-hover:text-white"
+                      isActive ? "bg-[var(--color-accent-primary)] text-white" : "bg-black/40 text-[var(--color-text-secondary)] group-hover:text-white"
                     }`}>
                       {idx + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-base font-bold truncate ${isActive ? "text-white" : "text-[#8892B0] group-hover:text-white"}`}>
+                      <div className={`text-base font-bold truncate ${isActive ? "text-white" : "text-[var(--color-text-secondary)] group-hover:text-white"}`}>
                         {ch.title}
                       </div>
                       <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[10px] text-[#8892B0] uppercase tracking-widest font-black">
+                        <span className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-widest font-black">
                           {ch.timestamp || "00:00-00:00"}
                         </span>
                       </div>
@@ -827,15 +827,15 @@ export function Course() {
       {/* Price Section at the bottom */}
       {!hasPurchased && (
         <section className="px-6 max-w-7xl mx-auto py-12 md:py-16 border-t border-white/5">
-          <div className="bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-[#7B2FFF]/30 rounded-[2rem] p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_0_50px_rgba(123,47,255,0.1)]">
+          <div className="bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-[var(--color-accent-primary)]/30 rounded-[2rem] p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_0_50px_rgba(123,47,255,0.1)]">
             <div className="text-center md:text-left">
               <h2 className="text-2xl md:text-3xl font-display mb-2">Prêt à passer au niveau supérieur ?</h2>
-              <p className="text-base text-[#8892B0] max-w-lg">
+              <p className="text-base text-[var(--color-text-secondary)] max-w-lg">
                 Débloquez l'accès complet à cette formation et apprenez les techniques des meilleurs coachs MMA.
               </p>
             </div>
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-6 text-center min-w-[250px] w-full md:w-auto">
-              <div className="text-xs text-[#8892B0] uppercase tracking-widest font-bold mb-2">Prix de la formation</div>
+              <div className="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold mb-2">Prix de la formation</div>
               <div className="text-4xl font-display mb-6 text-white">
                 {isEditing && editData ? (
                   <div className="flex items-center justify-center gap-2">
@@ -853,21 +853,21 @@ export function Course() {
                 <div className="space-y-4">
                   <Button 
                     onClick={handlePurchase}
-                    className="w-full py-4 rounded-xl bg-[#7B2FFF] hover:bg-[#8f4dff] text-white font-bold text-base shadow-[0_10px_20px_-10px_rgba(123,47,255,0.5)] transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold text-base shadow-[0_10px_20px_-10px_rgba(123,47,255,0.5)] transition-all flex items-center justify-center gap-2"
                   >
                     <ShoppingCart size={18} />
                     Acheter maintenant
                   </Button>
                   
                   <div className="pt-4 border-t border-white/10">
-                    <p className="text-xs text-[#8892B0] mb-3">Vous avez un code d'accès ?</p>
+                    <p className="text-xs text-[var(--color-text-secondary)] mb-3">Vous avez un code d'accès ?</p>
                     <form onSubmit={handleCodeSubmit} className="flex gap-2">
                       <input 
                         type="text" 
                         placeholder="Entrez votre code"
                         value={enteredCode}
                         onChange={(e) => setEnteredCode(e.target.value)}
-                        className={`flex-1 bg-[#04050A] border rounded-lg px-3 py-2 text-sm outline-none transition-colors ${codeError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-[#7B2FFF]'}`}
+                        className={`flex-1 bg-[var(--color-bg-base)] border rounded-lg px-3 py-2 text-sm outline-none transition-colors ${codeError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-[var(--color-accent-primary)]'}`}
                       />
                       <button type="submit" className="border border-white/20 hover:bg-white/10 text-xs px-3 rounded-lg text-white font-semibold transition-colors">
                         Valider
@@ -897,19 +897,19 @@ export function Course() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-[#0C0E18] border border-[#7B2FFF]/30 rounded-[3rem] p-12 max-w-lg w-full text-center shadow-[0_0_100px_rgba(123,47,255,0.3)]"
+              className="relative bg-[var(--color-bg-surface)] border border-[var(--color-accent-primary)]/30 rounded-[3rem] p-12 max-w-lg w-full text-center shadow-[0_0_100px_rgba(123,47,255,0.3)]"
             >
-              <div className="w-24 h-24 bg-[#7B2FFF]/10 rounded-full flex items-center justify-center mx-auto mb-8 text-[#7B2FFF]">
+              <div className="w-24 h-24 bg-[var(--color-accent-primary)]/10 rounded-full flex items-center justify-center mx-auto mb-8 text-[var(--color-accent-primary)]">
                 <AlertCircle size={48} />
               </div>
               <h3 className="text-3xl font-display mb-6">Paiement bientôt disponible</h3>
-              <p className="text-lg text-[#8892B0] mb-10 leading-relaxed">
+              <p className="text-lg text-[var(--color-text-secondary)] mb-10 leading-relaxed">
                 Nous finalisons actuellement notre système de paiement sécurisé. 
                 Revenez très bientôt pour débloquer vos formations <span className="font-days-one tracking-normal">MMA IQ</span>!
               </p>
               <Button 
                 onClick={() => setShowPurchaseModal(false)}
-                className="w-full py-5 rounded-2xl bg-[#7B2FFF] hover:bg-[#8f4dff] font-bold text-lg"
+                className="w-full py-5 rounded-2xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] font-bold text-lg"
               >
                 Compris !
               </Button>

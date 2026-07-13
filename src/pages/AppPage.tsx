@@ -77,10 +77,10 @@ export function AppPage() {
   }, [location]);
 
   return (
-    <div className="bg-[#04050A] text-[#F0F4FF] min-h-screen relative overflow-hidden selection:bg-[#7B2FFF] selection:text-white font-body">
+    <div className="bg-[var(--color-bg-base)] text-[var(--color-text-primary)] min-h-screen relative overflow-hidden selection:bg-[var(--color-accent-primary)] selection:text-white font-body">
       <style dangerouslySetInnerHTML={{__html: `
         .text-gradient-primary {
-          background: linear-gradient(to right, #7B2FFF, #B28DFF);
+          background: linear-gradient(to right, var(--color-accent-primary), var(--color-violet-300));
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
@@ -98,18 +98,18 @@ export function AppPage() {
           {/* Left Content */}
           <div className="lg:col-span-7 flex flex-col justify-center z-10 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6 mx-auto lg:mx-0 shadow-[0_0_20px_rgba(123,47,255,0.15)] w-fit">
-              <span className="w-2 h-2 rounded-full bg-[#7B2FFF] animate-pulse"></span>
+              <span className="w-2 h-2 rounded-full bg-[var(--color-accent-primary)] animate-pulse"></span>
               <span className="text-xs font-ui font-bold text-white tracking-widest uppercase">Bientôt sur iOS &amp; Android</span>
             </div>
             <h1 className="font-display text-5xl sm:text-[72px] lg:text-[84px] leading-[0.92] uppercase tracking-wide text-white mb-5">
-              Il y a un avant<br/>et un après <span className="font-days-one tracking-normal text-transparent bg-clip-text bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF]">MMA IQ</span>.
+              Il y a un avant<br/>et un après <span className="font-days-one tracking-normal text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)]">MMA IQ</span>.
             </h1>
-            <p className="text-[#8892B0] text-base sm:text-xl font-body mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0">
+            <p className="text-[var(--color-text-secondary)] text-base sm:text-xl font-body mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0">
               L'app tout-en-un du combattant : entraînement, nutrition, cutting, gameplan et analyse vidéo IA.
               Pour les <span className="font-bold text-white">débutants</span>, les <span className="font-bold text-white">amateurs</span>, les <span className="font-bold text-white">pros</span> et les <span className="font-bold text-white">coachs</span>.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a href="#download" className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF] text-white rounded-full font-body font-bold text-sm sm:text-base hover:scale-105 transition-all shadow-[0_0_30px_rgba(123,47,255,0.4)]">
+              <a href="#download" className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] text-white rounded-full font-body font-bold text-sm sm:text-base hover:scale-105 transition-all shadow-[0_0_30px_rgba(123,47,255,0.4)]">
                 <Bell className="w-5 h-5" /> Être prévenu du lancement
               </a>
             </div>
@@ -123,7 +123,7 @@ export function AppPage() {
               label="Le module Performance de MMA IQ : score global et courbes d'évolution"
               eager
             />
-            <p className="text-center text-[10px] uppercase tracking-widest text-[#8892B0]/70 font-ui mt-4">Capture réelle de l'application</p>
+            <p className="text-center text-[10px] uppercase tracking-widest text-[var(--color-text-secondary)]/70 font-ui mt-4">Capture réelle de l'application</p>
           </div>
         </div>
       </section>
@@ -134,16 +134,16 @@ export function AppPage() {
       <section className="relative z-10 py-12 sm:py-32 px-4 sm:px-6 max-w-[1400px] mx-auto space-y-16 sm:space-y-40">
         {/* Intro */}
         <div className="text-center max-w-4xl mx-auto flex flex-col justify-center snap-center mb-8 sm:mb-0 relative py-12">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] h-[300px] bg-[#7B2FFF]/30 blur-[120px] rounded-full pointer-events-none"></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] h-[300px] bg-[var(--color-accent-primary)]/30 blur-[120px] rounded-full pointer-events-none"></div>
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mx-auto mb-6 relative z-10 shadow-[0_0_20px_rgba(123,47,255,0.15)]">
-            <span className="w-2 h-2 rounded-full bg-[#7B2FFF] animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-[var(--color-accent-primary)] animate-pulse"></span>
             <span className="text-xs font-ui font-bold text-white tracking-widest uppercase">Évolue quel que soit ton niveau</span>
           </div>
           <h2 className="text-5xl sm:text-[80px] font-display tracking-wide text-white mb-6 uppercase leading-[0.9] drop-shadow-[0_0_20px_rgba(255,255,255,0.1)] relative z-10">
             L'APPLI QUI S'ADAPTE <br className="hidden sm:block"/>
             <span className="text-gradient-primary">À TON PROFIL.</span>
           </h2>
-          <p className="text-[#8892B0] text-sm sm:text-lg font-body max-w-2xl mx-auto leading-relaxed relative z-10">
+          <p className="text-[var(--color-text-secondary)] text-sm sm:text-lg font-body max-w-2xl mx-auto leading-relaxed relative z-10">
             Du premier cours sur les tatamis jusqu'aux cages de professionnels, notre plateforme t'accompagne avec des outils pensés pour ton stade de développement.
           </p>
         </div>
@@ -158,18 +158,18 @@ export function AppPage() {
             />
           </div>
           <div className="order-1 lg:order-2 text-center lg:text-left px-2 sm:px-0 flex flex-col justify-end">
-            <div className="inline-flex items-center justify-center border border-[#7B2FFF]/30 bg-[#7B2FFF]/10 text-[#7B2FFF] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES DÉBUTANTS</div>
+            <div className="inline-flex items-center justify-center border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES DÉBUTANTS</div>
             <h3 className="text-3xl sm:text-5xl font-body font-bold text-white mb-3 sm:mb-6 leading-tight">Les fondations, <br className="hidden sm:block"/>sans frustration.</h3>
             <p className="text-white/70 text-sm sm:text-lg mb-4 sm:mb-8 leading-relaxed font-body max-w-sm mx-auto lg:mx-0">
               Ne te perds plus sur YouTube. MMA IQ structure ton apprentissage avec un programme étape par étape.
             </p>
             <ul className="space-y-2 sm:space-y-4 text-left inline-block lg:block max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
               <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[#7B2FFF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
                 <span className="text-white/80 font-body">Programmes de démarrage complets.</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[#7B2FFF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
                 <span className="text-white/80 font-body">Vidéos techniques par discipline et par thème.</span>
               </li>
             </ul>
@@ -179,18 +179,18 @@ export function AppPage() {
         {/* Amateurs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16 items-center snap-center py-6 sm:py-0">
           <div className="text-center lg:text-left px-2 sm:px-0 flex flex-col justify-end">
-            <div className="inline-flex items-center justify-center border border-[#7B2FFF]/30 bg-[#7B2FFF]/10 text-[#7B2FFF] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES AMATEURS</div>
+            <div className="inline-flex items-center justify-center border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES AMATEURS</div>
             <h3 className="text-3xl sm:text-5xl font-body font-bold text-white mb-3 sm:mb-6 leading-tight">Nutrition &<br className="hidden sm:block"/>Cutting.</h3>
             <p className="text-white/70 text-sm sm:text-lg mb-4 sm:mb-8 leading-relaxed font-body max-w-sm mx-auto lg:mx-0">
               Prépare tes combats avec la rigueur d'un pro. Prends ton assiette en photo : l'IA détecte les aliments et remplit tes macros.
             </p>
             <ul className="space-y-2 sm:space-y-4 text-left inline-block lg:block max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
               <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[#7B2FFF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
                 <span className="text-white/80 font-body">Scan de repas IA &amp; suivi des macros.</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[#7B2FFF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
                 <span className="text-white/80 font-body">Protocole de fight week et déshydratation encadrée.</span>
               </li>
             </ul>
@@ -214,18 +214,18 @@ export function AppPage() {
             />
           </div>
           <div className="order-1 lg:order-2 text-center lg:text-left px-2 sm:px-0 flex flex-col justify-end">
-            <div className="inline-flex items-center justify-center border border-[#7B2FFF]/30 bg-[#7B2FFF]/10 text-[#7B2FFF] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES PROS</div>
+            <div className="inline-flex items-center justify-center border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES PROS</div>
             <h3 className="text-3xl sm:text-5xl font-body font-bold text-white mb-3 sm:mb-6 leading-tight">L'avantage <br className="hidden sm:block"/>statistique.</h3>
             <p className="text-white/70 text-sm sm:text-lg mb-4 sm:mb-8 leading-relaxed font-body max-w-sm mx-auto lg:mx-0">
               Le détail fait la différence. Importe un combat (fichier ou lien YouTube) et l'IA en décortique les patterns.
             </p>
             <ul className="space-y-2 sm:space-y-4 text-left inline-block lg:block max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
               <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[#7B2FFF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
                 <span className="text-white/80 font-body">Analyse vidéo IA : striking, wrestling, cardio, défense.</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[#7B2FFF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
                 <span className="text-white/80 font-body">Dossier médical &amp; données santé connectées.</span>
               </li>
             </ul>
@@ -235,44 +235,44 @@ export function AppPage() {
         {/* Coachs — offre réelle Coach Suite, sans faux écran */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16 items-center snap-center py-6 sm:py-0">
           <div className="text-center lg:text-left px-2 sm:px-0 flex flex-col justify-end mt-4 sm:mt-0">
-            <div className="inline-flex items-center justify-center border border-[#7B2FFF]/30 bg-[#7B2FFF]/10 text-[#7B2FFF] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES COACHS</div>
+            <div className="inline-flex items-center justify-center border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES COACHS</div>
             <h3 className="text-3xl sm:text-5xl font-body font-bold text-white mb-3 sm:mb-6 leading-tight">Tout ton roster <br className="hidden sm:block"/>dans la poche.</h3>
             <p className="text-white/70 text-sm sm:text-lg mb-4 sm:mb-8 leading-relaxed font-body max-w-sm mx-auto lg:mx-0">
               Gagne du temps en automatisant ta planification et en surveillant tes athlètes à distance.
             </p>
             <ul className="space-y-2 sm:space-y-4 text-left inline-block lg:block max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
               <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[#7B2FFF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
                 <span className="text-white/80 font-body">Tableau de bord multi-athlètes.</span>
               </li>
               <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[#7B2FFF] shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
                 <span className="text-white/80 font-body">Messagerie et mise en relation avec les pratiquants.</span>
               </li>
             </ul>
           </div>
           <div className="flex justify-center w-full mt-4 sm:mt-0">
-            <div className="relative w-full max-w-[420px] rounded-[24px] border border-[#9B7EFF]/30 bg-[#0C0E18] p-6 sm:p-8 overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-[#9B7EFF]/15 blur-[60px] pointer-events-none"></div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-4 text-[#9B7EFF] bg-[#9B7EFF]/10 border border-[#9B7EFF]/30">
+            <div className="relative w-full max-w-[420px] rounded-[24px] border border-[var(--color-tier-coach)]/30 bg-[var(--color-bg-surface)] p-6 sm:p-8 overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--color-tier-coach)]/15 blur-[60px] pointer-events-none"></div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-4 text-[var(--color-tier-coach)] bg-[var(--color-tier-coach)]/10 border border-[var(--color-tier-coach)]/30">
                 <Users className="w-3 h-3" /> Offre dédiée
               </div>
               <h4 className="font-display text-2xl sm:text-3xl uppercase tracking-wide text-white mb-1">
                 <span className="font-days-one text-base sm:text-lg tracking-normal mr-2">MMA IQ</span>
-                <span className="text-[#9B7EFF]">Coach Suite</span>
+                <span className="text-[var(--color-tier-coach)]">Coach Suite</span>
               </h4>
               <div className="flex items-baseline gap-1 mb-5">
                 <span className="font-accent text-3xl text-white">19,99€</span>
-                <span className="text-[#8892B0] text-sm font-body">/ mois</span>
+                <span className="text-[var(--color-text-secondary)] text-sm font-body">/ mois</span>
               </div>
               <ul className="space-y-2.5 mb-6">
                 {['Outils coach complets', 'Suivi de performance des athlètes', 'Tableau de bord multi-athlètes', '150 crédits IA / mois'].map((f, i) => (
                   <li key={i} className="flex items-center gap-2 text-sm text-white/80 font-body">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-[#9B7EFF]" /> {f}
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-[var(--color-tier-coach)]" /> {f}
                   </li>
                 ))}
               </ul>
-              <Link to="/tarifs" className="inline-flex items-center gap-2 text-sm font-ui font-bold text-white bg-[#7B2FFF]/20 hover:bg-[#7B2FFF]/30 border border-[#7B2FFF]/30 px-5 py-3 rounded-xl transition-colors">
+              <Link to="/tarifs" className="inline-flex items-center gap-2 text-sm font-ui font-bold text-white bg-[var(--color-accent-primary)]/20 hover:bg-[var(--color-accent-primary)]/30 border border-[var(--color-accent-primary)]/30 px-5 py-3 rounded-xl transition-colors">
                 Voir l'offre coach <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
@@ -283,16 +283,16 @@ export function AppPage() {
       {/* ==========================================
           SECTION 2 — FIGHT CAMP
           ========================================== */}
-      <section className="relative z-10 py-20 sm:py-28 border-y border-white/5 bg-gradient-to-b from-transparent via-[#12152A]/40 to-transparent">
+      <section className="relative z-10 py-20 sm:py-28 border-y border-white/5 bg-gradient-to-b from-transparent via-[var(--color-bg-elevated)]/40 to-transparent">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center">
           <div>
-            <div className="inline-flex items-center gap-2 border border-[#7B2FFF]/30 bg-[#7B2FFF]/10 text-[#7B2FFF] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)]">
+            <div className="inline-flex items-center gap-2 border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)]">
               <Timer className="w-4 h-4" /> Fight Camp
             </div>
             <h2 className="font-display text-4xl md:text-[52px] mb-6 uppercase leading-[0.92] tracking-wide">
               Une date de combat.<br/><span className="text-gradient-primary">Tout s'aligne.</span>
             </h2>
-            <p className="text-lg text-[#8892B0] mb-8 leading-relaxed max-w-xl">
+            <p className="text-lg text-[var(--color-text-secondary)] mb-8 leading-relaxed max-w-xl">
               Renseigne ta date de combat, ta discipline et ton poids cible : MMA IQ évalue la faisabilité de ta coupe,
               planifie les phases du camp — perte de gras, fight week, refuel post-pesée — et réaligne automatiquement
               tes plans d'entraînement et de nutrition. Le compte à rebours <span className="text-white font-bold">J-X</span> vit sur ton tableau de bord.
@@ -304,15 +304,15 @@ export function AppPage() {
                 "Fiche adversaire & gameplan intégrés",
                 "Garde-fous santé à chaque phase"
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm font-ui font-bold tracking-wide text-[#F0F4FF]">
-                  <div className="w-6 h-6 rounded-full bg-[#7B2FFF]/20 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#7B2FFF]" />
+                <li key={i} className="flex items-center gap-3 text-sm font-ui font-bold tracking-wide text-[var(--color-text-primary)]">
+                  <div className="w-6 h-6 rounded-full bg-[var(--color-accent-primary)]/20 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-accent-primary)]" />
                   </div>
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
-            <a href="#download" className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 hover:bg-[#7B2FFF] text-white rounded-full font-ui font-bold text-lg transition-all hover:shadow-[0_0_40px_rgba(123,47,255,0.5)] hover:scale-[1.02]">
+            <a href="#download" className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 hover:bg-[var(--color-accent-primary)] text-white rounded-full font-ui font-bold text-lg transition-all hover:shadow-[0_0_40px_rgba(123,47,255,0.5)] hover:scale-[1.02]">
               Préparer mon prochain combat <ChevronRight className="w-5 h-5" />
             </a>
           </div>
@@ -334,7 +334,7 @@ export function AppPage() {
           <h2 className="font-display text-4xl md:text-5xl mb-4 uppercase tracking-wide">
             L'AVANT / APRÈS EST <motion.span animate={{ color: ["#F0F4FF", "#FF1744", "#F0F4FF"], scale: [1, 1.05, 1] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block text-white/30 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">BRUTAL</motion.span>
           </h2>
-          <p className="text-[#8892B0] text-sm sm:text-lg max-w-2xl mx-auto">La différence entre ceux qui stagnent et ceux qui performent.</p>
+          <p className="text-[var(--color-text-secondary)] text-sm sm:text-lg max-w-2xl mx-auto">La différence entre ceux qui stagnent et ceux qui performent.</p>
         </div>
 
         <div className="relative grid grid-cols-2 gap-2 sm:gap-16 items-start">
@@ -358,12 +358,12 @@ export function AppPage() {
               <motion.div
                 key={i}
                 variants={glitchLeft}
-                className="flex items-center gap-2 sm:gap-4 p-2 sm:p-5 rounded-xl sm:rounded-2xl bg-white/5 border border-[#FF1744]/10"
+                className="flex items-center gap-2 sm:gap-4 p-2 sm:p-5 rounded-xl sm:rounded-2xl bg-white/5 border border-[var(--color-accent-red)]/10"
               >
                 <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                   <X className="w-3 h-3 sm:w-5 sm:h-5 text-white/30" />
                 </div>
-                <p className="text-[10px] sm:text-base text-[#8892B0] line-through decoration-white/30 leading-tight">{text}</p>
+                <p className="text-[10px] sm:text-base text-[var(--color-text-secondary)] line-through decoration-white/30 leading-tight">{text}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -376,7 +376,7 @@ export function AppPage() {
             viewport={{ once: true, margin: "-100px" }}
             className="space-y-2 sm:space-y-4 order-2"
           >
-            <h3 className="font-display text-xl sm:text-2xl text-[#7B2FFF] text-center md:text-left mb-4 sm:mb-8 uppercase tracking-widest glow-text">Avec <span className="font-days-one tracking-normal">MMA IQ</span></h3>
+            <h3 className="font-display text-xl sm:text-2xl text-[var(--color-accent-primary)] text-center md:text-left mb-4 sm:mb-8 uppercase tracking-widest glow-text">Avec <span className="font-days-one tracking-normal">MMA IQ</span></h3>
             {[
               "Planning & GPS",
               "Macros auto",
@@ -387,12 +387,12 @@ export function AppPage() {
               <motion.div
                 key={i}
                 variants={powerRight}
-                className="group flex items-center gap-2 sm:gap-4 p-2 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#7B2FFF]/10 to-[#7B2FFF]/5 border border-[#7B2FFF]/30 hover:border-[#7B2FFF]/50 transition-all duration-300 shadow-[0_0_20px_rgba(123,47,255,0.1)] hover:shadow-[0_0_30px_rgba(123,47,255,0.2)]"
+                className="group flex items-center gap-2 sm:gap-4 p-2 sm:p-5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[var(--color-accent-primary)]/10 to-[var(--color-accent-primary)]/5 border border-[var(--color-accent-primary)]/30 hover:border-[var(--color-accent-primary)]/50 transition-all duration-300 shadow-[0_0_20px_rgba(123,47,255,0.1)] hover:shadow-[0_0_30px_rgba(123,47,255,0.2)]"
               >
-                <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-[#7B2FFF]/20 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="w-3 h-3 sm:w-5 sm:h-5 text-[#7B2FFF]" />
+                <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-[var(--color-accent-primary)]/20 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-3 h-3 sm:w-5 sm:h-5 text-[var(--color-accent-primary)]" />
                 </div>
-                <p className="text-[10px] sm:text-base text-[#F0F4FF] font-medium leading-tight">{text}</p>
+                <p className="text-[10px] sm:text-base text-[var(--color-text-primary)] font-medium leading-tight">{text}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -406,7 +406,7 @@ export function AppPage() {
       <section className="relative z-10 pt-8 pb-12 sm:py-24 px-6 max-w-[1400px] mx-auto">
         <div className="text-center mb-10 sm:mb-16">
           <h2 className="font-display text-4xl md:text-[52px] mb-4 uppercase tracking-wide leading-[0.9]">8 MODULES.<br className="block" /> UN SEUL OBJECTIF.</h2>
-          <p className="text-[#8892B0] text-sm sm:text-lg max-w-md sm:max-w-2xl mx-auto leading-tight sm:leading-relaxed">Le tableau de bord de l'app, tel que tu le retrouveras au premier lancement.</p>
+          <p className="text-[var(--color-text-secondary)] text-sm sm:text-lg max-w-md sm:max-w-2xl mx-auto leading-tight sm:leading-relaxed">Le tableau de bord de l'app, tel que tu le retrouveras au premier lancement.</p>
         </div>
 
         <motion.div
@@ -424,11 +424,11 @@ export function AppPage() {
                 show: { opacity: 1, scale: 1, transition: { type: "spring", bounce: 0.5 } }
               }}
               whileHover={{ scale: 1.05, transition: { type: "spring", stiffness: 400 } }}
-              className="group relative bg-[#0C0E18]/80 backdrop-blur-md border border-white/5 p-3 sm:p-6 rounded-xl sm:rounded-[24px] flex flex-col items-center text-center overflow-hidden"
+              className="group relative bg-[var(--color-bg-surface)]/80 backdrop-blur-md border border-white/5 p-3 sm:p-6 rounded-xl sm:rounded-[24px] flex flex-col items-center text-center overflow-hidden"
             >
               {/* Hover Glow */}
-              <div className="absolute inset-0 bg-gradient-to-b from-[#7B2FFF]/0 to-[#7B2FFF]/0 group-hover:from-[#7B2FFF]/10 group-hover:to-transparent transition-all duration-500"></div>
-              <div className="absolute -inset-px rounded-xl sm:rounded-[24px] border border-transparent group-hover:border-[#7B2FFF]/50 transition-colors duration-500"></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-accent-primary)]/0 to-[var(--color-accent-primary)]/0 group-hover:from-[var(--color-accent-primary)]/10 group-hover:to-transparent transition-all duration-500"></div>
+              <div className="absolute -inset-px rounded-xl sm:rounded-[24px] border border-transparent group-hover:border-[var(--color-accent-primary)]/50 transition-colors duration-500"></div>
 
               <img
                 src={feature.img}
@@ -437,11 +437,11 @@ export function AppPage() {
                 className="w-16 h-16 sm:w-24 sm:h-24 object-contain mb-2 sm:mb-4 relative z-10 drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)]"
               />
               <h4 className="font-display text-sm sm:text-lg mb-1 sm:mb-2 tracking-widest uppercase relative z-10">{feature.title}</h4>
-              <p className="text-[#8892B0] text-[10px] sm:text-[13px] leading-tight sm:leading-relaxed relative z-10">{feature.desc}</p>
+              <p className="text-[var(--color-text-secondary)] text-[10px] sm:text-[13px] leading-tight sm:leading-relaxed relative z-10">{feature.desc}</p>
             </motion.div>
           ))}
         </motion.div>
-        <p className="text-center text-[#8892B0] text-xs sm:text-sm font-body mt-6 sm:mt-8">
+        <p className="text-center text-[var(--color-text-secondary)] text-xs sm:text-sm font-body mt-6 sm:mt-8">
           Et aussi : réseau social des combattants, messagerie, calendrier et recherche de clubs.
         </p>
       </section>
@@ -449,7 +449,7 @@ export function AppPage() {
       {/* ==========================================
           SECTION 5 — GAMEPLAN
           ========================================== */}
-      <section className="relative z-10 pt-20 pb-12 sm:py-24 bg-gradient-to-b from-transparent via-[#7B2FFF]/5 to-transparent border-y border-white/5">
+      <section className="relative z-10 pt-20 pb-12 sm:py-24 bg-gradient-to-b from-transparent via-[var(--color-accent-primary)]/5 to-transparent border-y border-white/5">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-16 items-center">
 
           {/* Left : vraie fiche adversaire générée par l'IA */}
@@ -477,7 +477,7 @@ export function AppPage() {
             <h2 className="font-display text-4xl md:text-[52px] mb-6 uppercase leading-[0.9] tracking-wide">
               ÉCRASE TON ADVERSAIRE <span className="text-white/30">PAR LA STRATÉGIE</span>
             </h2>
-            <p className="text-lg text-[#8892B0] mb-8 leading-relaxed">
+            <p className="text-lg text-[var(--color-text-secondary)] mb-8 leading-relaxed">
               Recherche ton adversaire, laisse l'IA remplir sa fiche — style de combat, faiblesses, gestion du risque —
               puis génère les points d'attaque recommandés et la stratégie de combat suggérée. À partager avec ton coach.
             </p>
@@ -489,16 +489,16 @@ export function AppPage() {
                 "Points d'attaque recommandés",
                 "Stratégie de combat suggérée"
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm font-ui font-bold tracking-wide text-[#F0F4FF]">
-                  <div className="w-6 h-6 rounded-full bg-[#7B2FFF]/20 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#7B2FFF]" />
+                <li key={i} className="flex items-center gap-3 text-sm font-ui font-bold tracking-wide text-[var(--color-text-primary)]">
+                  <div className="w-6 h-6 rounded-full bg-[var(--color-accent-primary)]/20 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-accent-primary)]" />
                   </div>
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
 
-            <a href="#download" className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 hover:bg-[#7B2FFF] text-white rounded-full font-ui font-bold text-lg transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(123,47,255,0.5)] hover:scale-[1.02]">
+            <a href="#download" className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 hover:bg-[var(--color-accent-primary)] text-white rounded-full font-ui font-bold text-lg transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(123,47,255,0.5)] hover:scale-[1.02]">
               Scouter mon adversaire <ChevronRight className="w-5 h-5" />
             </a>
           </motion.div>
@@ -509,7 +509,7 @@ export function AppPage() {
           SECTION 6 — FINAL CTA
           ========================================== */}
       <section id="download" className="relative z-10 pt-8 pb-32 sm:py-32 px-6 text-center overflow-hidden scroll-mt-24">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#04050A] via-[#12152A] to-[#04050A] -z-20"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-base)] via-[var(--color-bg-elevated)] to-[var(--color-bg-base)] -z-20"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_60%,rgba(123,47,255,0.25)_0%,transparent_60%)] -z-10"></div>
 
         <motion.div
@@ -522,7 +522,7 @@ export function AppPage() {
           <h2 className="font-display text-5xl md:text-[64px] mb-6 uppercase leading-[0.9] text-white drop-shadow-[0_0_30px_rgba(123,47,255,0.5)]">
             PRÊT À PASSER AU NIVEAU SUPÉRIEUR ?
           </h2>
-          <p className="text-xl text-[#F0F4FF]/80 mb-10 font-body">
+          <p className="text-xl text-[var(--color-text-primary)]/80 mb-10 font-body">
             L'application arrive sur iOS et Android. Laisse ton email pour être prévenu du lancement.
           </p>
 
@@ -548,7 +548,7 @@ export function AppPage() {
               <button
                 type="submit"
                 disabled={waitlistStatus === "loading"}
-                className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-[#04050A] rounded-2xl font-ui font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] disabled:opacity-60 disabled:hover:scale-100"
+                className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-[var(--color-bg-base)] rounded-2xl font-ui font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] disabled:opacity-60 disabled:hover:scale-100"
               >
                 {waitlistStatus === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bell className="w-5 h-5" />}
                 <span>Me prévenir</span>
@@ -557,13 +557,13 @@ export function AppPage() {
           )}
 
           {waitlistStatus === "error" && (
-            <div className="flex items-center justify-center gap-2 text-sm font-body text-white bg-[#FF1744]/20 border border-[#FF1744]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mb-4">
+            <div className="flex items-center justify-center gap-2 text-sm font-body text-white bg-[var(--color-accent-red)]/20 border border-[var(--color-accent-red)]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mb-4">
               <AlertCircle className="w-4 h-4 shrink-0" />
               L'inscription a échoué. Réessaie dans un instant.
             </div>
           )}
 
-          <p className="text-sm text-[#F0F4FF]/60 uppercase tracking-widest font-ui font-bold">
+          <p className="text-sm text-[var(--color-text-primary)]/60 uppercase tracking-widest font-ui font-bold">
             Gratuit • Sans engagement • iOS &amp; Android
           </p>
         </motion.div>
@@ -577,10 +577,10 @@ export function AppPage() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 150, opacity: 0 }}
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
-            className="fixed bottom-0 left-0 right-0 z-[100] p-4 bg-gradient-to-t from-[#04050A] via-[#04050A]/90 to-transparent pb-6 pointer-events-none"
+            className="fixed bottom-0 left-0 right-0 z-[100] p-4 bg-gradient-to-t from-[var(--color-bg-base)] via-[var(--color-bg-base)]/90 to-transparent pb-6 pointer-events-none"
           >
             <div className="flex gap-3 max-w-md mx-auto pointer-events-auto">
-              <a href="#download" className="flex-1 flex justify-center items-center gap-2 bg-[#7B2FFF] text-white py-4 rounded-2xl font-ui font-bold text-base shadow-[0_10px_40px_rgba(123,47,255,0.4)] active:scale-95 transition-transform">
+              <a href="#download" className="flex-1 flex justify-center items-center gap-2 bg-[var(--color-accent-primary)] text-white py-4 rounded-2xl font-ui font-bold text-base shadow-[0_10px_40px_rgba(123,47,255,0.4)] active:scale-95 transition-transform">
                 <Bell className="w-4 h-4" />
                 Être prévenu du lancement
               </a>

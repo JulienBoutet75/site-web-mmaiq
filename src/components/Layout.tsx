@@ -61,7 +61,7 @@ export function Layout({ children }: { children: ReactNode }) {
                         location.pathname.startsWith('/connexion');
 
   if (isNoLayoutPage) {
-    return <main className="min-h-screen bg-[#04050A]">{children}</main>;
+    return <main className="min-h-screen bg-[var(--color-bg-base)]">{children}</main>;
   }
 
   return (
@@ -69,14 +69,14 @@ export function Layout({ children }: { children: ReactNode }) {
       <header
         className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-500 ${
           isScrolled
-            ? "bg-[#04050A]/70 backdrop-blur-xl border-b border-white/5 py-2 md:py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+            ? "bg-[var(--color-bg-base)]/70 backdrop-blur-xl border-b border-white/5 py-2 md:py-4 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
             : "bg-transparent py-3 md:py-6"
         }`}
       >
         <div className="container mx-auto px-6 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 group">
-            <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/Logo%20a%20utiliser%202.png" alt="MMA IQ Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0" referrerPolicy="no-referrer" />
-            <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/mma%20iq%20ecriture%202.png" alt="MMA IQ" className="h-3 md:h-[18px] object-contain" referrerPolicy="no-referrer" />
+            <img src="/brand/logo.webp" alt="MMA IQ Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0" />
+            <img src="/brand/wordmark.webp" alt="MMA IQ" className="h-3 md:h-[18px] object-contain" />
           </Link>
 
           {/* Desktop Nav */}
@@ -125,7 +125,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 >
                   <Link 
                     to="/admin" 
-                    className="group relative flex items-center gap-2 px-5 py-2 rounded-full bg-[#7B2FFF] text-white font-ui font-bold text-[10px] uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(123,47,255,0.3)] hover:shadow-[0_0_30px_rgba(123,47,255,0.6)] transition-all duration-500 hover:-translate-y-0.5 border border-white/20 overflow-hidden"
+                    className="group relative flex items-center gap-2 px-5 py-2 rounded-full bg-[var(--color-accent-primary)] text-white font-ui font-bold text-[10px] uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(123,47,255,0.3)] hover:shadow-[0_0_30px_rgba(123,47,255,0.6)] transition-all duration-500 hover:-translate-y-0.5 border border-white/20 overflow-hidden"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
                     <ShieldCheck size={14} className="relative z-10 group-hover:rotate-12 transition-transform" />
@@ -148,7 +148,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 bg-[#04050A]/98 backdrop-blur-2xl z-[50] flex flex-col pt-28 px-8 transition-all duration-500 ease-out ${
+        className={`fixed inset-0 bg-[var(--color-bg-base)]/98 backdrop-blur-2xl z-[50] flex flex-col pt-28 px-8 transition-all duration-500 ease-out ${
           isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
         } lg:hidden overflow-hidden`}
       >
@@ -207,7 +207,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <main className="flex-grow">{children}</main>
 
-      <footer className="bg-[#04050A] border-t border-white/10 pt-12 md:pt-20 pb-8 md:pb-10 relative overflow-hidden">
+      <footer className="bg-[var(--color-bg-base)] border-t border-white/10 pt-12 md:pt-20 pb-8 md:pb-10 relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
         <div className="absolute bottom-0 left-0 w-full h-full bg-[radial-gradient(circle_at_bottom_center,rgba(123,47,255,0.05)_0%,transparent_60%)] pointer-events-none"></div>
         
@@ -215,8 +215,8 @@ export function Layout({ children }: { children: ReactNode }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 mb-12 md:mb-16">
             <div className="lg:col-span-1 flex flex-col items-center md:items-start text-center md:text-left">
               <Link to="/" className="flex items-center gap-2 group mb-4 md:mb-6 inline-flex">
-                <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/Logo%20a%20utiliser%202.png" alt="MMA IQ Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0" referrerPolicy="no-referrer" />
-                <img src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/mma%20iq%20ecriture%202.png" alt="MMA IQ" className="h-3 md:h-[18px] object-contain" referrerPolicy="no-referrer" />
+                <img src="/brand/logo.webp" alt="MMA IQ Logo" className="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0" />
+                <img src="/brand/wordmark.webp" alt="MMA IQ" className="h-3 md:h-[18px] object-contain" />
               </Link>
               <p className="text-[var(--color-text-sec)] font-ui text-xs md:text-sm leading-relaxed max-w-xs mb-4">
                 La plateforme de performance MMA. Application de performance + coaching vidéo +

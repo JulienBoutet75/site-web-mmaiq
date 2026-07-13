@@ -121,22 +121,22 @@ const COACH_PLAN = {
 const FeatureItem: React.FC<{ label: string, value: string | number }> = ({ label, value }) => {
   let icon;
   if (value === '✓') {
-    icon = <CheckCircle2 className="w-3 h-3 md:w-5 md:h-5 text-[#7B2FFF]" />;
+    icon = <CheckCircle2 className="w-3 h-3 md:w-5 md:h-5 text-[var(--color-accent-primary)]" />;
   } else if (value === '—') {
-    icon = <Minus className="w-3 h-3 md:w-5 md:h-5 text-[#4A5568]" />;
+    icon = <Minus className="w-3 h-3 md:w-5 md:h-5 text-[var(--color-text-muted)]" />;
   } else if (value === '∞') {
     icon = (
       <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-        <InfinityIcon className="w-3 h-3 md:w-5 md:h-5 text-[#FFD600]" />
+        <InfinityIcon className="w-3 h-3 md:w-5 md:h-5 text-[var(--color-accent-gold)]" />
       </motion.div>
     );
   } else {
-    icon = <span className="text-[#7B2FFF] font-bold text-[10px] md:text-sm">{value}</span>;
+    icon = <span className="text-[var(--color-accent-primary)] font-bold text-[10px] md:text-sm">{value}</span>;
   }
 
   return (
     <div className="flex items-center justify-between py-1 md:py-3 border-b border-white/5 last:border-0">
-      <span className="text-[#8892B0] font-body text-[9px] md:text-sm">{label}</span>
+      <span className="text-[var(--color-text-secondary)] font-body text-[9px] md:text-sm">{label}</span>
       <div className="flex items-center justify-center w-3 h-3 md:w-6 md:h-6">
         {icon}
       </div>
@@ -159,7 +159,7 @@ const AnimatedPrice: React.FC<{ price: number, isFree: boolean }> = ({ price, is
   if (isFree) return (
     <div className="flex items-baseline justify-center gap-1">
       <span className="font-accent text-3xl md:text-5xl text-white">0</span>
-      <span className="text-sm md:text-2xl text-[#8892B0]">€</span>
+      <span className="text-sm md:text-2xl text-[var(--color-text-secondary)]">€</span>
     </div>
   );
 
@@ -168,7 +168,7 @@ const AnimatedPrice: React.FC<{ price: number, isFree: boolean }> = ({ price, is
       <span className="font-accent text-3xl md:text-5xl text-white">
         <motion.span>{rounded}</motion.span>
       </span>
-      <span className="text-sm md:text-2xl text-[#8892B0]">€</span>
+      <span className="text-sm md:text-2xl text-[var(--color-text-secondary)]">€</span>
     </div>
   );
 };
@@ -191,14 +191,14 @@ const PlanCard: React.FC<{ plan: any, index: number }> = ({ plan, index }) => {
             {plan.name}
           </div>
         </h3>
-        <p className="text-[#8892B0] text-[10px] md:text-sm font-body mb-2 md:mb-6">{plan.subtitle}</p>
+        <p className="text-[var(--color-text-secondary)] text-[10px] md:text-sm font-body mb-2 md:mb-6">{plan.subtitle}</p>
 
         <div className="mb-1 md:mb-4 flex items-baseline justify-center gap-1">
           <AnimatedPrice price={plan.price} isFree={plan.price === 0} />
-          <span className="text-[#8892B0] text-xs md:text-lg font-body">{plan.period}</span>
+          <span className="text-[var(--color-text-secondary)] text-xs md:text-lg font-body">{plan.period}</span>
         </div>
         {plan.billing && (
-          <p className="text-[#8892B0] text-[9px] md:text-xs font-body uppercase tracking-widest opacity-80">{plan.billing}</p>
+          <p className="text-[var(--color-text-secondary)] text-[9px] md:text-xs font-body uppercase tracking-widest opacity-80">{plan.billing}</p>
         )}
         {!plan.billing && <p className="text-transparent text-[9px] md:text-xs uppercase tracking-wider select-none">&nbsp;</p>}
       </div>
@@ -214,16 +214,16 @@ const PlanCard: React.FC<{ plan: any, index: number }> = ({ plan, index }) => {
       {/* CTA : l'app n'est pas encore lancée — chaque plan mène à la liste d'attente */}
       {isElite ? (
         <div className="relative group/btn w-full mt-auto">
-          <Link to="/app#download" className="relative block text-center w-full py-2.5 md:py-4 bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF] text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-transform group-hover/btn:scale-[1.02] shadow-[0_0_20px_rgba(123,47,255,0.4)] overflow-hidden">
+          <Link to="/app#download" className="relative block text-center w-full py-2.5 md:py-4 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-transform group-hover/btn:scale-[1.02] shadow-[0_0_20px_rgba(123,47,255,0.4)] overflow-hidden">
             <span className="relative z-10">{plan.cta}</span>
           </Link>
         </div>
       ) : plan.id === 'performance' ? (
-        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-[#7B2FFF] hover:bg-[#7B2FFF]/80 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
+        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-primary)]/80 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
           {plan.cta}
         </Link>
       ) : plan.id === 'essentiel' ? (
-        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-[#7B2FFF]/20 hover:bg-[#7B2FFF]/30 border border-[#7B2FFF]/30 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
+        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-[var(--color-accent-primary)]/20 hover:bg-[var(--color-accent-primary)]/30 border border-[var(--color-accent-primary)]/30 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
           {plan.cta}
         </Link>
       ) : (
@@ -272,20 +272,20 @@ const CoachSuiteCard: React.FC<{ compact?: boolean }> = ({ compact = false }) =>
         </h3>
         <div className="flex items-baseline gap-1 mt-3">
           <span className="font-accent text-3xl md:text-4xl text-white">{COACH_PLAN.price}</span>
-          <span className="text-[#8892B0] text-sm font-body">{COACH_PLAN.period}</span>
+          <span className="text-[var(--color-text-secondary)] text-sm font-body">{COACH_PLAN.period}</span>
         </div>
-        <p className="text-[#8892B0] text-[10px] md:text-xs font-body uppercase tracking-widest opacity-80 mt-1">{COACH_PLAN.billing}</p>
+        <p className="text-[var(--color-text-secondary)] text-[10px] md:text-xs font-body uppercase tracking-widest opacity-80 mt-1">{COACH_PLAN.billing}</p>
       </div>
       <ul className={`grid ${compact ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} gap-x-6 gap-y-2 flex-1`}>
         {COACH_PLAN.features.map((f, i) => (
-          <li key={i} className="flex items-center gap-2 text-xs md:text-sm text-[#F0F4FF] font-body">
+          <li key={i} className="flex items-center gap-2 text-xs md:text-sm text-[var(--color-text-primary)] font-body">
             <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: COACH_PLAN.accent }} />
             {f}
           </li>
         ))}
       </ul>
       <div className={compact ? '' : 'md:w-auto'}>
-        <Link to="/app#download" className="block text-center px-6 py-3 md:py-4 bg-[#7B2FFF]/20 hover:bg-[#7B2FFF]/30 border border-[#7B2FFF]/30 text-white rounded-xl font-bold text-xs md:text-base transition-colors whitespace-nowrap">
+        <Link to="/app#download" className="block text-center px-6 py-3 md:py-4 bg-[var(--color-accent-primary)]/20 hover:bg-[var(--color-accent-primary)]/30 border border-[var(--color-accent-primary)]/30 text-white rounded-xl font-bold text-xs md:text-base transition-colors whitespace-nowrap">
           Choisir Coach Suite
         </Link>
       </div>
@@ -295,13 +295,13 @@ const CoachSuiteCard: React.FC<{ compact?: boolean }> = ({ compact = false }) =>
 
 const ValueCell = ({ value }: { value: string | number }) => {
   if (value === '✓') {
-    return <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-[#7B2FFF] mx-auto" />;
+    return <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-accent-primary)] mx-auto" />;
   } else if (value === '—') {
-    return <Minus className="w-4 h-4 md:w-5 md:h-5 text-[#4A5568] mx-auto" />;
+    return <Minus className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-text-muted)] mx-auto" />;
   } else if (value === '∞') {
-    return <InfinityIcon className="w-4 h-4 md:w-5 md:h-5 text-[#FFD600] mx-auto" />;
+    return <InfinityIcon className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-accent-gold)] mx-auto" />;
   } else {
-    return <span className="text-[#7B2FFF] font-bold text-[10px] md:text-sm">{value}</span>;
+    return <span className="text-[var(--color-accent-primary)] font-bold text-[10px] md:text-sm">{value}</span>;
   }
 };
 
@@ -340,7 +340,7 @@ export default function PricingSection() {
   }, [isModalOpen]);
 
   return (
-    <section className="py-24 bg-[#04050A] relative border-t border-[var(--color-border)] overflow-hidden">
+    <section className="py-24 bg-[var(--color-bg-base)] relative border-t border-[var(--color-border)] overflow-hidden">
       <style>{`
         @keyframes shimmer {
           100% { transform: translateX(100%); }
@@ -359,12 +359,12 @@ export default function PricingSection() {
         <div className="text-center mb-10 md:mb-16">
           <h2 className="text-xl sm:text-2xl md:text-5xl font-display uppercase tracking-tighter text-white mb-4 flex flex-row flex-wrap items-center justify-center gap-1 sm:gap-2 md:gap-4">
             <span>Vivez pleinement l'expérience</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF] tracking-widest font-days-one tracking-normal">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] tracking-widest font-days-one tracking-normal">
               MMA IQ
             </span>
           </h2>
 
-          <p className="text-sm md:text-base font-body text-[#8892B0]">
+          <p className="text-sm md:text-base font-body text-[var(--color-text-secondary)]">
             Sans engagement. Annulable à tout moment. Jusqu'à −17% avec l'abonnement annuel.
           </p>
         </div>
@@ -402,7 +402,7 @@ export default function PricingSection() {
               ))}
             </tbody>
           </table>
-          <p className="text-[10px] md:text-xs text-[#8892B0] font-body mt-3 text-center">
+          <p className="text-[10px] md:text-xs text-[var(--color-text-secondary)] font-body mt-3 text-center">
             Les crédits IA alimentent les gameplans, analyses vidéo, scans de repas et le coach IA.
           </p>
         </div>
@@ -419,10 +419,10 @@ export default function PricingSection() {
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF] rounded-full blur-xl opacity-70 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] rounded-full blur-xl opacity-70 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="relative flex items-center justify-center px-6 py-3 md:px-8 md:py-4 font-display tracking-wider text-sm md:text-xl text-white transition-all duration-300 bg-gradient-to-r from-[#7B2FFF] to-[#B28DFF] rounded-full hover:scale-110 shadow-[0_0_40px_rgba(123,47,255,0.6)] border border-white/30 overflow-hidden"
+              className="relative flex items-center justify-center px-6 py-3 md:px-8 md:py-4 font-display tracking-wider text-sm md:text-xl text-white transition-all duration-300 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] rounded-full hover:scale-110 shadow-[0_0_40px_rgba(123,47,255,0.6)] border border-white/30 overflow-hidden"
             >
               CHOISIR MON OFFRE <ArrowRight className="ml-2 md:ml-3 w-4 h-4 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
             </button>
@@ -445,13 +445,13 @@ export default function PricingSection() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-[1200px] bg-[#04050A] rounded-[32px] shadow-[0_0_50px_rgba(123,47,255,0.2)] overflow-hidden border border-white/10 max-h-[90vh] flex flex-col"
+              className="relative w-full max-w-[1200px] bg-[var(--color-bg-base)] rounded-[32px] shadow-[0_0_50px_rgba(123,47,255,0.2)] overflow-hidden border border-white/10 max-h-[90vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Close Button */}
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 z-[110] p-3 text-white hover:text-white bg-white/10 hover:bg-[#7B2FFF] rounded-full transition-all duration-300 shadow-lg border border-white/20"
+                className="absolute top-4 right-4 z-[110] p-3 text-white hover:text-white bg-white/10 hover:bg-[var(--color-accent-primary)] rounded-full transition-all duration-300 shadow-lg border border-white/20"
                 aria-label="Fermer"
               >
                 <X className="w-6 h-6" />
@@ -460,9 +460,9 @@ export default function PricingSection() {
               <div className="p-0 md:p-12 overflow-y-auto custom-scrollbar">
                 <div className="text-center mt-12 mb-8 md:mb-12 px-6">
                   <h3 className="text-2xl md:text-5xl font-display uppercase text-white tracking-widest">
-                    Sélectionnez votre <span className="text-[#7B2FFF]">plan</span>
+                    Sélectionnez votre <span className="text-[var(--color-accent-primary)]">plan</span>
                   </h3>
-                  <div className="h-1 w-24 bg-[#7B2FFF] mx-auto mt-4 rounded-full" />
+                  <div className="h-1 w-24 bg-[var(--color-accent-primary)] mx-auto mt-4 rounded-full" />
                 </div>
 
                 {/* Desktop / Tablet Grid */}
@@ -500,7 +500,7 @@ export default function PricingSection() {
                     {[...PLANS, COACH_PLAN].map((_, i) => (
                       <div
                         key={i}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${activeIndex === i ? 'bg-[#7B2FFF] w-6' : 'bg-white/20'}`}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${activeIndex === i ? 'bg-[var(--color-accent-primary)] w-6' : 'bg-white/20'}`}
                       />
                     ))}
                   </div>

@@ -229,9 +229,9 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="bg-[#0C0E18] border border-white/10 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="bg-[var(--color-bg-surface)] border border-white/10 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl"
       >
-        <div className="sticky top-0 bg-[#0C0E18] border-b border-white/10 p-6 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-[var(--color-bg-surface)] border-b border-white/10 p-6 flex items-center justify-between z-10">
           <h2 className="text-2xl font-display text-white">
             {formation ? "Modifier la formation" : "Ajouter une formation"}
           </h2>
@@ -262,9 +262,9 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
                 value={formData.coach_id}
                 onChange={(e) => setFormData({ ...formData, coach_id: e.target.value })}
               >
-                <option value="" disabled className="bg-[#0C0E18]">Sélectionner un coach</option>
+                <option value="" disabled className="bg-[var(--color-bg-surface)]">Sélectionner un coach</option>
                 {coaches.map(c => (
-                  <option key={c.id} value={c.id} className="bg-[#0C0E18]">{c.name}</option>
+                  <option key={c.id} value={c.id} className="bg-[var(--color-bg-surface)]">{c.name}</option>
                 ))}
               </select>
             </div>
@@ -328,9 +328,9 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
                 value={formData.level}
                 onChange={(e) => setFormData({ ...formData, level: e.target.value })}
               >
-                <option value="debutant" className="bg-[#0C0E18]">Débutant</option>
-                <option value="amateur" className="bg-[#0C0E18]">Amateur</option>
-                <option value="pro" className="bg-[#0C0E18]">Pro</option>
+                <option value="debutant" className="bg-[var(--color-bg-surface)]">Débutant</option>
+                <option value="amateur" className="bg-[var(--color-bg-surface)]">Amateur</option>
+                <option value="pro" className="bg-[var(--color-bg-surface)]">Pro</option>
               </select>
             </div>
             <div className="space-y-2">
@@ -340,12 +340,12 @@ export function FormationModal({ isOpen, onClose, formation, onSuccess, preSelec
                 value={formData.discipline}
                 onChange={(e) => setFormData({ ...formData, discipline: e.target.value })}
               >
-                <option value="striking" className="bg-[#0C0E18]">Striking</option>
-                <option value="grappling" className="bg-[#0C0E18]">Grappling</option>
-                <option value="mma-gameplan" className="bg-[#0C0E18]">MMA Gameplan</option>
-                <option value="prepa-mentale" className="bg-[#0C0E18]">Prépa Mentale</option>
-                <option value="cut-nutrition" className="bg-[#0C0E18]">Cut & Nutrition</option>
-                <option value="conditioning" className="bg-[#0C0E18]">Conditioning</option>
+                <option value="striking" className="bg-[var(--color-bg-surface)]">Striking</option>
+                <option value="grappling" className="bg-[var(--color-bg-surface)]">Grappling</option>
+                <option value="mma-gameplan" className="bg-[var(--color-bg-surface)]">MMA Gameplan</option>
+                <option value="prepa-mentale" className="bg-[var(--color-bg-surface)]">Prépa Mentale</option>
+                <option value="cut-nutrition" className="bg-[var(--color-bg-surface)]">Cut & Nutrition</option>
+                <option value="conditioning" className="bg-[var(--color-bg-surface)]">Conditioning</option>
               </select>
             </div>
             <div className="space-y-2">

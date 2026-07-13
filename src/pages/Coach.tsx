@@ -105,7 +105,7 @@ export function Coach() {
 
   if (loading) {
     return (
-      <div className="bg-[#04050A] text-white min-h-screen flex items-center justify-center">
+      <div className="bg-[var(--color-bg-base)] text-white min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent-red)]"></div>
       </div>
     );
@@ -113,7 +113,7 @@ export function Coach() {
 
   if (!coachData) {
     return (
-      <div className="bg-[#04050A] text-white min-h-screen flex items-center justify-center">
+      <div className="bg-[var(--color-bg-base)] text-white min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-3xl font-display mb-4">Coach introuvable</h1>
           <Link to="/instructional" className="text-[var(--color-accent-red)] hover:underline">
@@ -125,7 +125,7 @@ export function Coach() {
   }
 
   return (
-    <div className="bg-[#04050A] text-white pt-32 pb-24 min-h-screen selection:bg-[var(--color-accent-red)] selection:text-white relative">
+    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 min-h-screen selection:bg-[var(--color-accent-red)] selection:text-white relative">
       {/* Admin Toolbar */}
       {canEdit && (
         <div className="fixed top-24 left-0 right-0 z-[60] px-6">
@@ -193,14 +193,14 @@ export function Coach() {
             transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
             className="w-full max-w-[320px] mx-auto lg:mx-0 lg:w-[400px] shrink-0"
           >
-            <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-white/10 group bg-[#0C0E18] shadow-[0_0_50px_rgba(255,23,68,0.1)]">
+            <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden border border-white/10 group bg-[var(--color-bg-surface)] shadow-[0_0_50px_rgba(255,23,68,0.1)]">
               <img loading="lazy" 
                 src={isEditing && editData ? editData.photo_url : coachData.photo_url} 
                 alt={coachData.name}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#04050A] via-transparent to-transparent opacity-80 z-10"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-base)] via-transparent to-transparent opacity-80 z-10"></div>
               
               {isEditing && editData && (
                 <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-6 z-30">
@@ -326,7 +326,7 @@ export function Coach() {
       </section>
 
       {/* Formations Section */}
-      <section className="px-6 py-16 bg-[#04050A] relative z-10">
+      <section className="px-6 py-16 bg-[var(--color-bg-base)] relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
             <h2 className="text-3xl md:text-4xl font-display text-white">Ses Formations</h2>
@@ -373,14 +373,14 @@ export function Coach() {
                       onClick={() => navigate(`/course/${course.slug || course.id}`)}
                       className="cursor-pointer flex flex-col h-full"
                     >
-                      <div className="aspect-video bg-[#12152A] relative overflow-hidden shrink-0">
+                      <div className="aspect-video bg-[var(--color-bg-elevated)] relative overflow-hidden shrink-0">
                         <img loading="lazy" 
                           src={course.thumbnail_url || "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/default-formation.jpg"}
                           alt={course.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                           referrerPolicy="no-referrer"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0C0E18] via-[#0C0E18]/20 to-transparent"></div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-surface)] via-[var(--color-bg-surface)]/20 to-transparent"></div>
                         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500 z-10"></div>
                         
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">

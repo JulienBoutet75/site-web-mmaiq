@@ -1,26 +1,54 @@
+/* GÉNÉRÉ par scripts/build-tokens.mjs depuis tokens/mmaiq.tokens.json — ne pas éditer à la main.
+   Source unique des tokens partagés site ↔ app (décisions design du 11 juillet 2026). */
 :root {
-  --color-bg-base: #04050A;           /* noir profond, pas navy */
-  --color-bg-surface: #0C0E18;        /* surfaces cartes */
-  --color-bg-elevated: #12152A;       /* éléments surélevés */
-  --color-accent-primary: #7B2FFF;    /* violet électrique intense */
-  --color-accent-secondary: #FF1744;  /* rouge sang combat */
-  --color-accent-red: #FF1744;        /* rouge vif */
-  --color-accent-energy: #00E5FF;     /* cyan ki / énergie */
-  --color-accent-gold: #FFD600;       /* or victoire / highlights */
-  --color-text-primary: #F0F4FF;      /* blanc légèrement bleuté */
-  --color-text-secondary: #8892B0;    /* gris bleuté */
+  --color-violet-50: #F3EBFF;
+  --color-violet-100: #E4D4FF;
+  --color-violet-200: #C9A9FF;
+  --color-violet-300: #B28DFF;
+  --color-violet-400: #9557FF;
+  --color-violet-500: #7B2FFF;
+  --color-violet-600: #6520D9;
+  --color-violet-700: #5016B3;
+  --color-violet-800: #3C0F8C;
+  --color-violet-900: #2A0A66;
+  --color-bg-base: #04050A;
+  --color-bg-surface: #0C0E18;
+  --color-bg-elevated: #12152A;
+  --color-text-primary: #F0F4FF;
+  --color-text-secondary: #8892B0;
   --color-text-muted: #4A5568;
+  --color-accent-red: #FF1744;
+  --color-accent-energy: #00E5FF;
+  --color-accent-gold: #FFD600;
+  --color-accent-teal: #4ECDC4;
+  --color-semantic-success: #10B981;
+  --color-semantic-warning: #F1C40F;
+  --color-semantic-error: #FF6B6B;
+  --color-tier-essentiel: #E8C97A;
+  --color-tier-performance: #B0BEC5;
+  --color-tier-elite: #D4AF37;
+  --color-tier-coach: #9B7EFF;
+  --radius-sm: 8px;
+  --radius-input: 12px;
+  --radius-card: 16px;
+  --radius-hero: 24px;
+  --radius-pill: 9999px;
+
+  /* Rôles (pointent sur l'échelle ci-dessus) */
+  --color-accent-primary: var(--color-violet-500);
+  --color-accent-secondary: var(--color-accent-red);
   --color-border: rgba(123, 47, 255, 0.25);
   --color-glow-violet: rgba(123, 47, 255, 0.6);
   --color-glow-red: rgba(255, 23, 68, 0.5);
   --color-glow-cyan: rgba(0, 229, 255, 0.4);
 
-  /* Alias requis par les composants (étaient référencés sans être définis,
-     ce qui rendait le bouton primaire et plusieurs titres invisibles). */
-  --color-accent-purple: var(--color-accent-primary);
-  --color-accent-magenta: #B28DFF;
+  /* Alias historiques requis par les composants existants */
+  --color-accent-purple: var(--color-violet-500);
+  --color-accent-magenta: var(--color-violet-300);
   --color-card-bg: var(--color-bg-surface);
   --color-border-dark: rgba(255, 255, 255, 0.1);
-  --color-success: #10B981;
+  --color-success: var(--color-semantic-success);
+  --color-warning: var(--color-semantic-warning);
+  --color-error: var(--color-semantic-error);
   --color-text-sec: var(--color-text-secondary);
 }

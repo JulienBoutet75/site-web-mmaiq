@@ -32,7 +32,7 @@ export function AdminToolbar() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[9999] h-[56px] bg-[#0a0a16]/80 backdrop-blur-[12px] border-t-2 border-[#7B2FFF] px-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(123,47,255,0.1)]">
+    <div className="fixed bottom-0 left-0 right-0 z-[9999] h-[56px] bg-[#0a0a16]/80 backdrop-blur-[12px] border-t-2 border-[var(--color-accent-primary)] px-6 flex items-center justify-between shadow-[0_-10px_30px_rgba(123,47,255,0.1)]">
       <div className="flex items-center gap-3">
         <div className="relative flex items-center justify-center w-2 h-2">
           <span className="absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75 animate-ping"></span>
@@ -44,7 +44,7 @@ export function AdminToolbar() {
       <div className="flex items-center gap-2">
         <Link
           to="/admin"
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7B2FFF] to-[#6d13a6] hover:from-[#8f4dff] hover:to-[#7d23b6] text-white text-sm rounded-full font-bold transition-all shadow-[0_0_15px_rgba(123,47,255,0.4)] hover:shadow-[0_0_25px_rgba(123,47,255,0.6)] hover:-translate-y-0.5"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[var(--color-accent-primary)] to-[#6d13a6] hover:from-[var(--color-violet-400)] hover:to-[#7d23b6] text-white text-sm rounded-full font-bold transition-all shadow-[0_0_15px_rgba(123,47,255,0.4)] hover:shadow-[0_0_25px_rgba(123,47,255,0.6)] hover:-translate-y-0.5"
         >
           <ShieldCheck size={18} />
           Mode Super Admin

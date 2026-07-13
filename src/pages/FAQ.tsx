@@ -42,7 +42,7 @@ export function FAQ() {
   };
 
   return (
-    <div className="bg-[#04050A] text-white pt-32 pb-24 selection:bg-[var(--color-accent-purple)] selection:text-white min-h-screen">
+    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 selection:bg-[var(--color-accent-purple)] selection:text-white min-h-screen">
       {/* Hero */}
       <section className="px-6 max-w-3xl mx-auto text-center mb-16 relative">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.08)_0%,transparent_50%)] pointer-events-none blur-3xl"></div>

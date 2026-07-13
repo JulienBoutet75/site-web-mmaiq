@@ -47,17 +47,17 @@ export function BlogPost() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#04050A] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7B2FFF]"></div>
+      <div className="min-h-screen bg-[var(--color-bg-base)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent-primary)]"></div>
       </div>
     );
   }
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-[#04050A] text-white flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-[var(--color-bg-base)] text-white flex flex-col items-center justify-center p-6">
         <h1 className="text-3xl font-display mb-4">Article introuvable</h1>
-        <Link to="/blog" className="text-[#7B2FFF] hover:underline flex items-center gap-2">
+        <Link to="/blog" className="text-[var(--color-accent-primary)] hover:underline flex items-center gap-2">
           <ArrowLeft size={18} /> Retour au blog
         </Link>
       </div>
@@ -82,7 +82,7 @@ export function BlogPost() {
       // Bold and links (very simple regex)
       let processedLine = line
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-[#7B2FFF] hover:underline">$1</a>');
+        .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-[var(--color-accent-primary)] hover:underline">$1</a>');
       
       return (
         <p 
@@ -95,13 +95,13 @@ export function BlogPost() {
   };
 
   return (
-    <div className="bg-[#04050A] text-white min-h-screen pt-32 pb-24 selection:bg-[#7B2FFF]/30">
+    <div className="bg-[var(--color-bg-base)] text-white min-h-screen pt-32 pb-24 selection:bg-[var(--color-accent-primary)]/30">
       <div className="max-w-4xl mx-auto px-6">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-[#8892B0] uppercase tracking-widest mb-8 font-ui">
+        <nav className="flex items-center gap-2 text-xs text-[var(--color-text-secondary)] uppercase tracking-widest mb-8 font-ui">
           <Link to="/blog" className="hover:text-white transition-colors">Blog</Link>
           <span>/</span>
-          <span className="text-[#7B2FFF]">{post.category}</span>
+          <span className="text-[var(--color-accent-primary)]">{post.category}</span>
           <span>/</span>
           <span className="text-white/40 truncate max-w-[200px]">{post.title}</span>
         </nav>
@@ -112,9 +112,9 @@ export function BlogPost() {
             {post.title}
           </h1>
           
-          <div className="flex flex-wrap items-center gap-6 text-sm text-[#8892B0] font-ui">
+          <div className="flex flex-wrap items-center gap-6 text-sm text-[var(--color-text-secondary)] font-ui">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#0C0E18] border border-white/10 flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-[var(--color-bg-surface)] border border-white/10 flex items-center justify-center overflow-hidden">
                 {post.coaches?.photo_url ? (
                   <img loading="lazy" src={post.coaches.photo_url} alt={post.coaches.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
@@ -141,7 +141,7 @@ export function BlogPost() {
         {/* Main Video */}
         {post.video_url && (
           <div className="mb-12">
-            <YouTubeEmbed url={post.video_url} className="shadow-2xl shadow-[#7B2FFF]/10" />
+            <YouTubeEmbed url={post.video_url} className="shadow-2xl shadow-[var(--color-accent-primary)]/10" />
           </div>
         )}
 
@@ -164,8 +164,8 @@ export function BlogPost() {
 
         {/* Related Formation */}
         {relatedFormation && (
-          <section className="mb-16 p-8 bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-[#7B2FFF]/30 rounded-[2rem] relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#7B2FFF]/5 blur-3xl rounded-full -mr-32 -mt-32"></div>
+          <section className="mb-16 p-8 bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-[var(--color-accent-primary)]/30 rounded-[2rem] relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-accent-primary)]/5 blur-3xl rounded-full -mr-32 -mt-32"></div>
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
               <div className="w-full md:w-1/3 aspect-video bg-black rounded-xl overflow-hidden border border-white/5">
                 {relatedFormation.thumbnail_url ? (
@@ -176,7 +176,7 @@ export function BlogPost() {
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-[#0C0E18] to-[#04050A]"></div>
+                  <div className="w-full h-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)]"></div>
                 )}
               </div>
               <div className="flex-1 text-center md:text-left">
@@ -184,10 +184,10 @@ export function BlogPost() {
                 <h3 className="text-2xl font-display mb-2">{relatedFormation.title}</h3>
                 <p className="text-white/50 text-sm mb-6 line-clamp-2">{relatedFormation.description}</p>
                 <div className="flex items-center justify-center md:justify-start gap-6">
-                  <span className="text-2xl font-display text-[#7B2FFF]">{relatedFormation.price_cents / 100}€</span>
+                  <span className="text-2xl font-display text-[var(--color-accent-primary)]">{relatedFormation.price_cents / 100}€</span>
                   <Link 
                     to={`/course/${relatedFormation.id}`}
-                    className="bg-[#7B2FFF] hover:bg-[#8f4dff] text-white px-6 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2"
+                    className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white px-6 py-2 rounded-full text-sm font-bold transition-all flex items-center gap-2"
                   >
                     Voir la formation <ArrowRight size={16} />
                   </Link>
@@ -204,7 +204,7 @@ export function BlogPost() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {recommendedPosts.map((p) => (
                 <Link key={p.id} to={`/blog/${p.slug}`} className="group">
-                  <div className="aspect-video bg-[#0C0E18] rounded-xl overflow-hidden mb-4 border border-white/10 group-hover:border-[#7B2FFF]/30 transition-all">
+                  <div className="aspect-video bg-[var(--color-bg-surface)] rounded-xl overflow-hidden mb-4 border border-white/10 group-hover:border-[var(--color-accent-primary)]/30 transition-all">
                     {p.thumbnail_path ? (
                       <img loading="lazy"
                         src={p.thumbnail_path}
@@ -213,10 +213,10 @@ export function BlogPost() {
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[#0C0E18] to-[#04050A]"></div>
+                      <div className="w-full h-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)]"></div>
                     )}
                   </div>
-                  <h4 className="font-display text-sm group-hover:text-[#7B2FFF] transition-colors line-clamp-2">{p.title}</h4>
+                  <h4 className="font-display text-sm group-hover:text-[var(--color-accent-primary)] transition-colors line-clamp-2">{p.title}</h4>
                 </Link>
               ))}
             </div>

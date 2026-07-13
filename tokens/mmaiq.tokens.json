@@ -1,0 +1,54 @@
+{
+  "$description": "MMA IQ — source unique des design tokens (format W3C Design Tokens). Compilée via `npm run tokens` vers src/design-tokens.css (site) et lib/core/themes/design_tokens.dart (app Flutter). Décisions du 11 juillet 2026 : violet canonique #7B2FFF, base sombre du site, nomenclature de plans de l'app.",
+  "color": {
+    "violet": {
+      "$description": "Échelle de la couleur de marque. 500 = violet canonique. 300 et 600 officialisent des valeurs qui existaient déjà en dur (ex-magenta #B28DFF, ex-hover About #6520D9).",
+      "50": { "$type": "color", "$value": "#F3EBFF" },
+      "100": { "$type": "color", "$value": "#E4D4FF" },
+      "200": { "$type": "color", "$value": "#C9A9FF" },
+      "300": { "$type": "color", "$value": "#B28DFF" },
+      "400": { "$type": "color", "$value": "#9557FF" },
+      "500": { "$type": "color", "$value": "#7B2FFF" },
+      "600": { "$type": "color", "$value": "#6520D9" },
+      "700": { "$type": "color", "$value": "#5016B3" },
+      "800": { "$type": "color", "$value": "#3C0F8C" },
+      "900": { "$type": "color", "$value": "#2A0A66" }
+    },
+    "bg": {
+      "base": { "$type": "color", "$value": "#04050A", "$description": "noir profond, pas navy" },
+      "surface": { "$type": "color", "$value": "#0C0E18", "$description": "surfaces cartes" },
+      "elevated": { "$type": "color", "$value": "#12152A", "$description": "éléments surélevés" }
+    },
+    "text": {
+      "primary": { "$type": "color", "$value": "#F0F4FF" },
+      "secondary": { "$type": "color", "$value": "#8892B0" },
+      "muted": { "$type": "color", "$value": "#4A5568" }
+    },
+    "accent": {
+      "red": { "$type": "color", "$value": "#FF1744", "$description": "rouge combat — rôle data/intensité" },
+      "energy": { "$type": "color", "$value": "#00E5FF", "$description": "cyan énergie — rôle data" },
+      "gold": { "$type": "color", "$value": "#FFD600", "$description": "or victoire — rôle data/highlight" },
+      "teal": { "$type": "color", "$value": "#4ECDC4", "$description": "teal perfs/stats — accent data historique de l'app" }
+    },
+    "semantic": {
+      "success": { "$type": "color", "$value": "#10B981" },
+      "warning": { "$type": "color", "$value": "#F1C40F" },
+      "error": { "$type": "color", "$value": "#FF6B6B" }
+    },
+    "tier": {
+      "$description": "Couleurs des plans d'abonnement (source : paywall de l'app).",
+      "essentiel": { "$type": "color", "$value": "#E8C97A" },
+      "performance": { "$type": "color", "$value": "#B0BEC5" },
+      "elite": { "$type": "color", "$value": "#D4AF37" },
+      "coach": { "$type": "color", "$value": "#9B7EFF" }
+    }
+  },
+  "radius": {
+    "$description": "Échelle fermée : input 12, card 16, hero 24, pill. (8 conservé temporairement pour compat.)",
+    "sm": { "$type": "dimension", "$value": "8px" },
+    "input": { "$type": "dimension", "$value": "12px" },
+    "card": { "$type": "dimension", "$value": "16px" },
+    "hero": { "$type": "dimension", "$value": "24px" },
+    "pill": { "$type": "dimension", "$value": "9999px" }
+  }
+}

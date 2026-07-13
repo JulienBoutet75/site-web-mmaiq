@@ -119,7 +119,7 @@ export function EditableSelect({
           autoFocus
           className={`
             ${className}
-            outline-none border border-purple-500 bg-[#0C0E18] text-white cursor-pointer
+            outline-none border border-purple-500 bg-[var(--color-bg-surface)] text-white cursor-pointer
             transition-all duration-200 w-full
           `}
         >
@@ -364,7 +364,7 @@ export function EditableCard({
 
   if (isEditing && editForm) {
     return (
-      <div className={`relative ${className} bg-[#0C0E18] border-2 border-purple-500 rounded-[2rem] p-6 shadow-[0_0_30px_rgba(123,47,255,0.2)]`}>
+      <div className={`relative ${className} bg-[var(--color-bg-surface)] border-2 border-purple-500 rounded-[2rem] p-6 shadow-[0_0_30px_rgba(123,47,255,0.2)]`}>
         {editForm}
       </div>
     );

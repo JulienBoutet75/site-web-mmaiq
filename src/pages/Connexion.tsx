@@ -115,28 +115,28 @@ export function Connexion() {
   };
 
   return (
-    <div className="min-h-screen bg-[#04050A] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--color-bg-base)] flex items-center justify-center p-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-[#0C0E18] border border-white/10 rounded-2xl p-8 shadow-2xl"
+        className="w-full max-w-md bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-8 shadow-2xl"
       >
         <div className="relative text-center mb-8">
-          <Link to="/" className="absolute left-0 top-0 text-[#8892B0] hover:text-white transition-colors">
+          <Link to="/" className="absolute left-0 top-0 text-[var(--color-text-secondary)] hover:text-white transition-colors">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <Link to="/" className="inline-block mb-4">
             <h1 className="font-display text-2xl text-white tracking-tighter">
-              <span className="font-days-one tracking-normal">MMA IQ</span> <span className="text-[#7B2FFF]">ACADEMY</span>
+              <span className="font-days-one tracking-normal">MMA IQ</span> <span className="text-[var(--color-accent-primary)]">ACADEMY</span>
             </h1>
           </Link>
-          <p className="text-[#8892B0] font-ui">
+          <p className="text-[var(--color-text-secondary)] font-ui">
             {isResetMode ? "Réinitialiser votre mot de passe" : "Connectez-vous à votre espace"}
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-[#FF1744] text-sm text-center">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-[var(--color-accent-red)] text-sm text-center">
             {error}
           </div>
         )}
@@ -149,18 +149,18 @@ export function Connexion() {
 
         {!isResetMode ? (
           <form onSubmit={handleLogin} className="space-y-4">
-            <div className="flex bg-[#0C0E18] border border-white/10 rounded-xl p-1 mb-6">
+            <div className="flex bg-[var(--color-bg-surface)] border border-white/10 rounded-xl p-1 mb-6">
               <button
                 type="button"
                 onClick={() => setLoginMode('admin')}
-                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMode === 'admin' ? 'bg-[#7B2FFF] text-white' : 'text-[#8892B0] hover:text-white'}`}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMode === 'admin' ? 'bg-[var(--color-accent-primary)] text-white' : 'text-[var(--color-text-secondary)] hover:text-white'}`}
               >
                 Administration
               </button>
               <button
                 type="button"
                 onClick={() => setLoginMode('coach')}
-                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMode === 'coach' ? 'bg-[#7B2FFF] text-white' : 'text-[#8892B0] hover:text-white'}`}
+                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${loginMode === 'coach' ? 'bg-[var(--color-accent-primary)] text-white' : 'text-[var(--color-text-secondary)] hover:text-white'}`}
               >
                 Accès Coach
               </button>
@@ -169,24 +169,24 @@ export function Connexion() {
             {loginMode === 'admin' ? (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-[#8892B0] mb-2 ml-1">Email</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Email</label>
                   <input 
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#7B2FFF] transition-colors"
+                    className="w-full bg-[var(--color-bg-surface)] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
                     placeholder="votre@email.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#8892B0] mb-2 ml-1">Mot de passe</label>
+                  <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Mot de passe</label>
                   <input 
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#7B2FFF] transition-colors"
+                    className="w-full bg-[var(--color-bg-surface)] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
                     placeholder="••••••••"
                   />
                 </div>
@@ -194,7 +194,7 @@ export function Connexion() {
                   <button 
                     type="button"
                     onClick={() => setIsResetMode(true)}
-                    className="text-sm text-[#7B2FFF] hover:underline"
+                    className="text-sm text-[var(--color-accent-primary)] hover:underline"
                   >
                     Mot de passe oublié ?
                   </button>
@@ -202,16 +202,16 @@ export function Connexion() {
               </>
             ) : (
               <div>
-                <label className="block text-sm font-medium text-[#8892B0] mb-2 ml-1">Clé d'accès Coach</label>
+                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Clé d'accès Coach</label>
                 <input 
                   type="text"
                   required
                   value={accessKey}
                   onChange={(e) => setAccessKey(e.target.value.toUpperCase())}
-                  className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#7B2FFF] transition-colors font-ui tracking-widest uppercase"
+                  className="w-full bg-[var(--color-bg-surface)] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors font-ui tracking-widest uppercase"
                   placeholder="EX: A7B9X2Y4"
                 />
-                <p className="text-xs text-[#8892B0] mt-2 ml-1">
+                <p className="text-xs text-[var(--color-text-secondary)] mt-2 ml-1">
                   Entrez la clé d'accès fournie par l'administrateur.
                 </p>
               </div>
@@ -220,7 +220,7 @@ export function Connexion() {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-[#7B2FFF] hover:bg-[#8f4dff] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(123,47,255,0.3)] mt-4"
+              className="w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(123,47,255,0.3)] mt-4"
             >
               {loading ? "Connexion..." : "Se connecter"}
             </button>
@@ -228,27 +228,27 @@ export function Connexion() {
         ) : (
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#8892B0] mb-2 ml-1">Email</label>
+              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Email</label>
               <input 
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#0C0E18] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[#7B2FFF] transition-colors"
+                className="w-full bg-[var(--color-bg-surface)] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
                 placeholder="votre@email.com"
               />
             </div>
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-[#7B2FFF] hover:bg-[#8f4dff] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(123,47,255,0.3)]"
+              className="w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(123,47,255,0.3)]"
             >
               {loading ? "Envoi en cours..." : "Envoyer le lien de réinitialisation"}
             </button>
             <button 
               type="button"
               onClick={() => setIsResetMode(false)}
-              className="w-full text-sm text-[#8892B0] hover:text-white transition-colors"
+              className="w-full text-sm text-[var(--color-text-secondary)] hover:text-white transition-colors"
             >
               ← Retour à la connexion
             </button>
