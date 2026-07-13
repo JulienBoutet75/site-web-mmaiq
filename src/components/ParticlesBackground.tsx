@@ -4,7 +4,7 @@ interface ParticlesBackgroundProps {
   color?: string;
 }
 
-export const ParticlesBackground: React.FC<ParticlesBackgroundProps> = ({ color = '139, 47, 201' }) => {
+export const ParticlesBackground: React.FC<ParticlesBackgroundProps> = ({ color = '123, 47, 255' }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {

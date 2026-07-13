@@ -182,13 +182,13 @@ export function Home() {
 
               <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-gold)] transition-colors relative overflow-hidden lg:mt-6">
                 <div className="absolute inset-0 bg-gradient-to-tl from-[var(--color-accent-gold)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(255,215,0,0.1)] group-hover:shadow-[0_0_30px_rgba(255,215,0,0.3)] transition-shadow overflow-hidden group/logo">
+                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[#0C0E18] to-[#04050A] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(255,214,0,0.1)] group-hover:shadow-[0_0_30px_rgba(255,214,0,0.3)] transition-shadow overflow-hidden group/logo">
                   <div className="absolute inset-0 bg-[var(--color-accent-gold)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-gold)]/40 transition-colors"></div>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,215,0,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,214,0,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
                   <EditableImage 
                     path="home.valueprop.p3.icon" 
                     defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/3333333.png" 
-                    className="w-8 h-8 md:w-20 md:h-20 relative z-10 drop-shadow-[0_0_8px_rgba(255,215,0,0.8)]" 
+                    className="w-8 h-8 md:w-20 md:h-20 relative z-10 drop-shadow-[0_0_8px_rgba(255,214,0,0.8)]" 
                     imgClassName="w-full h-full object-contain rounded-full" 
                   />
                   <div className="absolute inset-0 border border-[var(--color-accent-gold)]/30 rounded-full scale-105 opacity-0 group-hover/logo:opacity-100 group-hover/logo:scale-100 transition-all duration-300"></div>
@@ -203,15 +203,21 @@ export function Home() {
               whileInView="visible"
               viewport={{ once: true }}
               variants={powerUpVariant}
-              className="lg:col-span-2 relative aspect-[4/3] md:aspect-video lg:aspect-square rounded-[2rem] md:rounded-full overflow-hidden border border-[var(--color-border)] shadow-[0_0_50px_rgba(123,47,255,0.2)] order-2 lg:order-2"
+              className="lg:col-span-2 relative aspect-video rounded-[2rem] overflow-hidden border border-[var(--color-border)] shadow-[0_0_50px_rgba(123,47,255,0.2)] order-2 lg:order-2"
             >
-              <EditableImage 
-                path="home.valueprop.mainimg"
-                defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/ChatGPT%20Image%2028%20mars%202026,%2011_31_23.png"
-                className="w-full h-full"
-                imgClassName="w-full h-full object-cover"
+              {/* Extrait réel du produit : scan de repas IA (montage investisseur) */}
+              <video
+                src="/app/videos/montage-scan.mp4"
+                poster="/app/videos/montage-scan-poster.webp"
+                aria-label="Démo du scan de repas IA de MMA IQ : photo de l'assiette, analyse, aliments détectés"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-base)] via-transparent to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-base)] via-transparent to-transparent pointer-events-none"></div>
             </motion.div>
 
             <motion.div 

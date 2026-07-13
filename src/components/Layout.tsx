@@ -333,7 +333,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
           <div className="border-t border-white/10 pt-6 md:pt-8 text-center flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-[var(--color-text-sec)] font-ui text-xs md:text-sm">
-              © 2026 <span className="font-days-one tracking-normal">MMA IQ</span> — Perf Lab System. Tous droits réservés.
+              © 2026 <span className="font-days-one tracking-normal">MMA IQ</span>. Tous droits réservés.
             </p>
           </div>
         </div>
