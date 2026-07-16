@@ -4,7 +4,29 @@ import { motion } from "motion/react";
 import { Bell, CheckCircle2, Loader2, AlertCircle, MapPin, ChevronRight, Percent, QrCode, TrendingUp } from "lucide-react";
 import { supabase, submitLead } from "../lib/supabase";
 import { saveReferral } from "../lib/referral";
+import { createSubscriptionCheckout } from "../services/stripeService";
 import { AmbientBackground } from "../components/AmbientBackground";
+
+// Tant que l'app n'est pas lancée, la landing convertit en pré-inscriptions
+// (waitlist). Passer VITE_ENABLE_CHECKOUT=true au lancement pour vendre
+// l'abonnement web directement (prix fixés côté serveur, remise salle
+// appliquée automatiquement au checkout).
+const CHECKOUT_ENABLED = import.meta.env.VITE_ENABLE_CHECKOUT === "true";
+
+interface CheckoutPlan {
+  key: "essentiel" | "performance" | "elite";
+  name: string;
+  monthly: string;
+  yearly: string;
+  tagline: string;
+  popular?: boolean;
+}
+
+const CHECKOUT_PLANS: CheckoutPlan[] = [
+  { key: "essentiel", name: "Essentiel", monthly: "5,99 €", yearly: "59,90 €", tagline: "L'essentiel pour progresser" },
+  { key: "performance", name: "Performance", monthly: "9,99 €", yearly: "99,90 €", tagline: "Pour les compétiteurs" },
+  { key: "elite", name: "Elite", monthly: "19,99 €", yearly: "199,90 €", tagline: "L'expérience complète", popular: true },
+];
 
 interface PartnerPublic {
   name: string;
@@ -25,6 +47,9 @@ export function Salle() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
+  const [subscribing, setSubscribing] = useState<string | null>(null);
+  const [subError, setSubError] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -56,6 +81,20 @@ export function Salle() {
     } catch (err) {
       console.error("Salle waitlist error:", err);
       setStatus("error");
+    }
+  };
+
+  const handleSubscribe = async (planKey: "essentiel" | "performance" | "elite") => {
+    if (subscribing || !partner) return;
+    setSubError(false);
+    setSubscribing(planKey);
+    try {
+      await createSubscriptionCheckout(planKey, interval, partner.code);
+      // Redirection vers Stripe : on ne reset pas subscribing.
+    } catch (err) {
+      console.error("Salle checkout error:", err);
+      setSubError(true);
+      setSubscribing(null);
     }
   };
 
@@ -134,8 +173,10 @@ export function Salle() {
 
           <p className="text-lg sm:text-xl text-[var(--color-text-secondary)] max-w-xl mx-auto mb-8 leading-relaxed">
             Entraînement, nutrition, cutting, gameplan et analyse vidéo IA :
-            l'app tout-en-un du combattant arrive sur iOS &amp; Android.
-            Pré-inscris-toi avec le code de ton club.
+            l'app tout-en-un du combattant{CHECKOUT_ENABLED ? "." : " arrive sur iOS et Android."}{" "}
+            {CHECKOUT_ENABLED
+              ? "Abonne-toi via ton club : il touche sa part, tu progresses."
+              : "Pré-inscris-toi avec le code de ton club."}
           </p>
 
           {hasDiscount && (
@@ -148,41 +189,108 @@ export function Salle() {
             </div>
           )}
 
-          {status === "success" ? (
-            <div className="flex items-center justify-center gap-3 max-w-lg mx-auto px-6 py-5 bg-white/10 border border-white/20 rounded-2xl">
-              <CheckCircle2 className="w-6 h-6 text-white shrink-0" />
-              <p className="text-white font-body font-bold text-left">
-                C'est noté ! Tu es rattaché à {partner.name}. On te prévient au lancement.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-lg mx-auto">
-              <label htmlFor="salle-email" className="sr-only">Email</label>
-              <input
-                id="salle-email"
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="ton@email.com"
-                className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 font-body focus:outline-none focus:border-white/60 transition-colors"
-              />
-              <button
-                type="submit"
-                disabled={status === "loading"}
-                className="group flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] text-white rounded-2xl font-ui font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(123,47,255,0.35)] disabled:opacity-60 disabled:hover:scale-100"
-              >
-                {status === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bell className="w-5 h-5" />}
-                <span>Me pré-inscrire</span>
-              </button>
-            </form>
-          )}
+          {CHECKOUT_ENABLED ? (
+            <>
+              {/* Choix mensuel / annuel */}
+              <div className="inline-flex items-center gap-1 bg-white/5 border border-white/10 rounded-full p-1 mb-8" role="group" aria-label="Facturation">
+                {(["monthly", "yearly"] as const).map((i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setInterval(i)}
+                    className={`px-5 py-2 rounded-full font-ui text-sm font-bold transition-all ${
+                      interval === i ? "bg-[var(--color-accent-primary)] text-white" : "text-[var(--color-text-secondary)] hover:text-white"
+                    }`}
+                  >
+                    {i === "monthly" ? "Mensuel" : "Annuel (−17 %)"}
+                  </button>
+                ))}
+              </div>
 
-          {status === "error" && (
-            <div className="flex items-center justify-center gap-2 text-sm font-body text-white bg-[var(--color-accent-red)]/20 border border-[var(--color-accent-red)]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mt-4">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              L'inscription a échoué. Réessaie dans un instant.
-            </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
+                {CHECKOUT_PLANS.map((plan) => (
+                  <div
+                    key={plan.key}
+                    className={`relative bg-white/[0.04] border rounded-2xl p-6 flex flex-col ${
+                      plan.popular ? "border-[var(--color-accent-primary)]/60 shadow-[0_0_30px_rgba(123,47,255,0.2)]" : "border-white/[0.08]"
+                    }`}
+                  >
+                    {plan.popular && (
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[var(--color-accent-primary)] text-white text-[10px] font-ui font-bold uppercase tracking-widest">
+                        Populaire
+                      </span>
+                    )}
+                    <h3 className="font-display text-xl uppercase tracking-wide mb-1">{plan.name}</h3>
+                    <p className="text-xs text-[var(--color-text-secondary)] mb-4">{plan.tagline}</p>
+                    <p className="font-display text-3xl mb-5">
+                      {interval === "monthly" ? plan.monthly : plan.yearly}
+                      <span className="text-sm text-white/50 font-body"> {interval === "monthly" ? "/ mois" : "/ an"}</span>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleSubscribe(plan.key)}
+                      disabled={subscribing !== null}
+                      className="mt-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] text-white font-ui text-sm font-bold hover:scale-[1.02] transition-all disabled:opacity-60 disabled:hover:scale-100"
+                    >
+                      {subscribing === plan.key ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                      Choisir {plan.name}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {hasDiscount && (
+                <p className="text-xs text-[var(--color-text-secondary)] font-ui mt-5">
+                  La remise −{partner.discount_percent} % ({partner.discount_months} mois) est appliquée automatiquement à l'étape de paiement.
+                </p>
+              )}
+
+              {subError && (
+                <div className="flex items-center justify-center gap-2 text-sm font-body text-white bg-[var(--color-accent-red)]/20 border border-[var(--color-accent-red)]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mt-4">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  Impossible d'ouvrir le paiement. Réessaie dans un instant.
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {status === "success" ? (
+                <div className="flex items-center justify-center gap-3 max-w-lg mx-auto px-6 py-5 bg-white/10 border border-white/20 rounded-2xl">
+                  <CheckCircle2 className="w-6 h-6 text-white shrink-0" />
+                  <p className="text-white font-body font-bold text-left">
+                    C'est noté ! Tu es rattaché à {partner.name}. On te prévient au lancement.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-lg mx-auto">
+                  <label htmlFor="salle-email" className="sr-only">Email</label>
+                  <input
+                    id="salle-email"
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="ton@email.com"
+                    className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 font-body focus:outline-none focus:border-white/60 transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    disabled={status === "loading"}
+                    className="group flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] text-white rounded-2xl font-ui font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(123,47,255,0.35)] disabled:opacity-60 disabled:hover:scale-100"
+                  >
+                    {status === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bell className="w-5 h-5" />}
+                    <span>Me pré-inscrire</span>
+                  </button>
+                </form>
+              )}
+
+              {status === "error" && (
+                <div className="flex items-center justify-center gap-2 text-sm font-body text-white bg-[var(--color-accent-red)]/20 border border-[var(--color-accent-red)]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mt-4">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  L'inscription a échoué. Réessaie dans un instant.
+                </div>
+              )}
+            </>
           )}
 
           <p className="text-xs text-white/40 uppercase tracking-widest font-ui font-bold mt-6">
