@@ -164,8 +164,16 @@ export async function insertData(table: string, data: any, accessToken?: string 
 // Soumission publique (formulaires visiteurs) : insertion sans relecture.
 // La table leads autorise l'INSERT à tous mais réserve le SELECT à l'admin ;
 // un .select() après insert échouerait donc côté visiteur.
+// referral_code : code de la salle partenaire qui a apporté le lead
+// (capture ?ref= / landing /s/:slug, voir src/lib/referral.ts).
 export async function submitLead(
-  lead: { type: 'contact' | 'newsletter' | 'waitlist'; email: string; name?: string; message?: string }
+  lead: {
+    type: 'contact' | 'newsletter' | 'waitlist' | 'partner';
+    email: string;
+    name?: string;
+    message?: string;
+    referral_code?: string;
+  }
 ): Promise<void> {
   const { error } = await supabase.from('leads').insert(lead)
   if (error) {

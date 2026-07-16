@@ -10,7 +10,7 @@ import {
   ArrowDownRight, Monitor, Smartphone, Tablet, Link as LinkIcon, Layers,
   Type as TypeIcon, MousePointer2, ChevronDown, ChevronUp, Download, Share2,
   Calendar, MessageSquare, Bell, Search as SearchIcon, Menu, Maximize2,
-  Minimize2, Settings2, Shield, Zap
+  Minimize2, Settings2, Shield, Zap, Building2
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../context/AuthContext";
@@ -19,6 +19,7 @@ import {
   updateData, deleteData, loadSiteContent, saveSiteContent, signUp, supabase, getSession
 } from "../lib/supabase";
 import { MediaUploader } from "../components/admin/MediaUploader";
+import { PartnersCRUD } from "../components/admin/PartnersCRUD";
 import { YouTubeEmbed } from "../components/YouTubeEmbed";
 import { 
   LineChart, 
@@ -50,6 +51,8 @@ export function Admin() {
   const [produits, setProduits] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);
   const [newsletter, setNewsletter] = useState<any[]>([]);
+  const [partners, setPartners] = useState<any[]>([]);
+  const [partnerLeads, setPartnerLeads] = useState<any[]>([]);
   const [siteContent, setSiteContent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,18 +64,18 @@ export function Admin() {
     setIsDrawerOpen(true);
   };
 
+  // Sections désactivées pour la v1 : Shop, Blog, Newsletter, Éditeur Vidéo,
+  // Contenu du site. Les composants (ShopCRUD, BlogCRUD, NewsletterTable,
+  // EditeurVideo, SiteContentEditor) restent dans le fichier — pour réactiver,
+  // remettre l'entrée ici + le rendu de l'onglet plus bas.
   const sidebarItems = [
     { id: "dashboard", icon: <LayoutDashboard size={20} />, label: "Vue générale" },
     { id: "coachs", icon: <Users size={20} />, label: "Coaches" },
     { id: "formations", icon: <GraduationCap size={20} />, label: "Instructional" },
     { id: "app-performance", icon: <Smartphone size={20} />, label: "Application de performance" },
-    { id: "shop", icon: <ShoppingBag size={20} />, label: "Shop" },
-    { id: "blog", icon: <FileText size={20} />, label: "Blog" },
     { id: "sales", icon: <DollarSign size={20} />, label: "Ventes" },
-    { id: "newsletter", icon: <Mail size={20} />, label: "Newsletter" },
+    { id: "partners", icon: <Building2 size={20} />, label: "Salles partenaires" },
     { id: "media", icon: <FolderOpen size={20} />, label: "Médiathèque" },
-    { id: "video-editor", icon: <Scissors size={20} />, label: "Éditeur Vidéo" },
-    { id: "content", icon: <Palette size={20} />, label: "Contenu du site" },
   ];
 
   useEffect(() => {
@@ -110,7 +113,7 @@ export function Admin() {
         }
       };
 
-      const [f, m_images, m_videos, a, c, p, s, n, sc] = await Promise.all([
+      const [f, m_images, m_videos, a, c, p, s, n, sc, pt, pl] = await Promise.all([
         safeFetch(fetchData("formations", "*", "&order=created_at.desc", accessToken), []),
         safeFetch(listFiles("images", accessToken), []),
         safeFetch(listFiles("formations-videos", accessToken), []),
@@ -119,7 +122,9 @@ export function Admin() {
         safeFetch(fetchData("products", "*", "&order=name.asc", accessToken), []),
         safeFetch(fetchData("purchases", "*", "&order=created_at.desc&limit=50", accessToken), []),
         safeFetch(fetchData("newsletter_subscribers", "*", "&order=subscribed_at.desc", accessToken), []),
-        safeFetch(fetchData("site_content", "*", "", accessToken), [])
+        safeFetch(fetchData("site_content", "*", "", accessToken), []),
+        safeFetch(fetchData("partners", "*", "&order=created_at.desc", accessToken), []),
+        safeFetch(fetchData("leads", "id,type,name,email,message,referral_code,created_at", "", accessToken), [])
       ]);
       
       const allMedias = [
@@ -146,6 +151,8 @@ export function Admin() {
       setProduits(p);
       setSales(s);
       setNewsletter(n);
+      setPartners(pt);
+      setPartnerLeads(pl);
       setSiteContent(sc[0] || null);
     } catch (err) {
       console.error("Error loading admin data:", err);
@@ -248,21 +255,15 @@ export function Admin() {
           {activeTab === "dashboard" && <Dashboard stats={{
             coaches: coachs.length,
             formations: { published: instructionals.filter(f => f.published).length, total: instructionals.length },
-            products: produits.length,
             sales: { total: sales.length, month: sales.filter(s => new Date(s.created_at).getMonth() === new Date().getMonth()).length },
-            revenue: sales.filter(s => s.status === 'completed').reduce((acc, s) => acc + (s.amount_cents || 0), 0),
-            newsletter: newsletter.length
+            revenue: sales.filter(s => s.status === 'completed').reduce((acc, s) => acc + (s.amount_cents || 0), 0)
           }} sales={sales} onNavigate={setActiveTab} />}
           {activeTab === "coachs" && <CoachsCRUD data={coachs} onUpdate={loadAllData} onOpenMedia={openDrawer} />}
           {activeTab === "formations" && <FormationsCRUD data={instructionals} coachs={coachs} onUpdate={loadAllData} onOpenMedia={openDrawer} />}
           {activeTab === "app-performance" && <AppPerformanceEditor data={siteContent} onUpdate={loadAllData} onOpenMedia={openDrawer} />}
-          {activeTab === "shop" && <ShopCRUD data={produits} onUpdate={loadAllData} onOpenMedia={openDrawer} />}
-          {activeTab === "blog" && <BlogCRUD data={articles} coachs={coachs} formations={instructionals} onUpdate={loadAllData} onOpenMedia={openDrawer} />}
           {activeTab === "sales" && <SalesTable data={sales} />}
-          {activeTab === "newsletter" && <NewsletterTable data={newsletter} onUpdate={loadAllData} />}
+          {activeTab === "partners" && <PartnersCRUD data={partners} leads={partnerLeads} onUpdate={loadAllData} />}
           {activeTab === "media" && <Mediatheque medias={medias} setMedias={setMedias} />}
-          {activeTab === "video-editor" && <EditeurVideo medias={medias} />}
-          {activeTab === "content" && <SiteContentEditor data={siteContent} onUpdate={loadAllData} />}
         </div>
 
         <MediathequeDrawer 
@@ -301,27 +302,25 @@ function Dashboard({ stats, sales, onNavigate }: { stats: any; sales: any[]; onN
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard label="Coaches" value={stats.coaches} icon={<Users className="text-[var(--color-accent-primary)]" />} />
-        <StatCard 
-          label="Instructional" 
-          value={`${stats.formations.published} / ${stats.formations.total}`} 
+        <StatCard
+          label="Instructional"
+          value={`${stats.formations.published} / ${stats.formations.total}`}
           subLabel="Publiées / Total"
-          icon={<GraduationCap className="text-[#22c55e]" />} 
+          icon={<GraduationCap className="text-[#22c55e]" />}
         />
-        <StatCard label="Produits Shop" value={stats.products} icon={<ShoppingBag className="text-[#3b82f6]" />} />
-        <StatCard 
-          label="Ventes" 
-          value={stats.sales.total} 
+        <StatCard
+          label="Ventes"
+          value={stats.sales.total}
           subLabel={`+${stats.sales.month} ce mois`}
-          icon={<DollarSign className="text-[#f59e0b]" />} 
+          icon={<DollarSign className="text-[#f59e0b]" />}
         />
-        <StatCard 
-          label="Revenu Total" 
-          value={`${(stats.revenue / 100).toLocaleString()} €`} 
-          icon={<DollarSign className="text-green-500" />} 
+        <StatCard
+          label="Revenu Total"
+          value={`${(stats.revenue / 100).toLocaleString()} €`}
+          icon={<DollarSign className="text-green-500" />}
         />
-        <StatCard label="Abonnés Newsletter" value={stats.newsletter} icon={<Mail className="text-[var(--color-accent-red)]" />} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -393,24 +392,6 @@ function Dashboard({ stats, sales, onNavigate }: { stats: any; sales: any[]; onN
               >
                 <div className="flex items-center gap-3">
                   <PlusCircle size={20} /> Nouvelle Formation
-                </div>
-                <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-all" />
-              </button>
-              <button 
-                onClick={() => onNavigate("blog")}
-                className="flex items-center justify-between p-4 rounded-xl text-sm font-medium bg-[#3b82f6]/10 text-[#3b82f6] border border-[#3b82f6]/20 hover:bg-[#3b82f6]/20 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <PlusCircle size={20} /> Nouvel Article
-                </div>
-                <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-all" />
-              </button>
-              <button 
-                onClick={() => onNavigate("shop")}
-                className="flex items-center justify-between p-4 rounded-xl text-sm font-medium bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20 hover:bg-[#f59e0b]/20 transition-all group"
-              >
-                <div className="flex items-center gap-3">
-                  <PlusCircle size={20} /> Nouveau Produit
                 </div>
                 <ChevronRight size={16} className="opacity-0 group-hover:opacity-100 transition-all" />
               </button>

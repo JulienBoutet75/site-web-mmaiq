@@ -4,6 +4,7 @@ import { Menu, X, Pencil, ShieldCheck, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useSite } from "../context/SiteContext";
 import { submitLead } from "../lib/supabase";
+import { saveReferral } from "../lib/referral";
 
 // Sections sans contenu pour l'instant — retirées de la navigation publique
 // tant qu'elles sont vides (les URLs restent accessibles directement).
@@ -43,6 +44,13 @@ export function Layout({ children }: { children: ReactNode }) {
     setIsMobileMenuOpen(false);
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  // Attribution partenaire : un lien partagé par une salle porte ?ref=CODE.
+  // Capturé sur toutes les routes, persisté 60 jours (voir lib/referral.ts).
+  useEffect(() => {
+    const ref = new URLSearchParams(location.search).get("ref");
+    if (ref) saveReferral(ref);
+  }, [location.search]);
 
   const navLinks = siteData.navLinks.filter(
     (link) => isAdmin || !HIDDEN_NAV_PATHS.includes(link.path)
@@ -255,6 +263,15 @@ export function Layout({ children }: { children: ReactNode }) {
                       Tarifs
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      to="/partenaires"
+                      className="hover:text-[var(--color-accent-purple)] transition-colors inline-flex items-center gap-2"
+                    >
+                      <span className="w-1 h-1 rounded-full bg-[var(--color-accent-purple)] opacity-0 -ml-3 transition-all hidden md:block"></span>
+                      Clubs &amp; salles partenaires
+                    </Link>
+                  </li>
                 </ul>
               </div>
 
@@ -335,6 +352,12 @@ export function Layout({ children }: { children: ReactNode }) {
             <p className="text-[var(--color-text-sec)] font-ui text-xs md:text-sm">
               © 2026 <span className="font-days-one tracking-normal">MMA IQ</span>. Tous droits réservés.
             </p>
+            <Link
+              to="/connexion"
+              className="text-[var(--color-text-sec)]/60 hover:text-white font-ui text-xs transition-colors"
+            >
+              Connexion
+            </Link>
           </div>
         </div>
       </footer>

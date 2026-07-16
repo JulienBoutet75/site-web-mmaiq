@@ -28,6 +28,8 @@ const About = lazy(() => import("./pages/About").then(m => ({ default: m.About }
 const FAQ = lazy(() => import("./pages/FAQ").then(m => ({ default: m.FAQ })));
 const Contact = lazy(() => import("./pages/Contact").then(m => ({ default: m.Contact })));
 const Pricing = lazy(() => import("./pages/Pricing").then(m => ({ default: m.Pricing })));
+const Partenaires = lazy(() => import("./pages/Partenaires").then(m => ({ default: m.Partenaires })));
+const Salle = lazy(() => import("./pages/Salle").then(m => ({ default: m.Salle })));
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
 const CoachDashboard = lazy(() => import("./pages/CoachDashboard").then(m => ({ default: m.CoachDashboard })));
 const Connexion = lazy(() => import("./pages/Connexion").then(m => ({ default: m.Connexion })));
@@ -65,6 +67,8 @@ export default function App() {
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/tarifs" element={<Pricing />} />
+                  <Route path="/partenaires" element={<Partenaires />} />
+                  <Route path="/s/:slug" element={<Salle />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/coach" element={<CoachDashboard />} />
                   <Route path="/coach/dashboard" element={<CoachDashboard />} />

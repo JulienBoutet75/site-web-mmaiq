@@ -8,6 +8,7 @@ import {
 import { AmbientBackground } from '../components/AmbientBackground';
 import { PhoneFrame } from '../components/PhoneFrame';
 import { submitLead } from '../lib/supabase';
+import { getReferral, normalizeRefCode, saveReferral } from '../lib/referral';
 
 // --- ANIMATION VARIANTS ---
 const staggerContainer = {
@@ -43,6 +44,9 @@ const MODULES = [
 export function AppPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState("");
+  // Code salle partenaire : pré-rempli si un lien ?ref= / une landing /s/:slug
+  // a déjà déposé un code, modifiable par le visiteur (champ optionnel).
+  const [waitlistCode, setWaitlistCode] = useState(() => getReferral()?.code ?? "");
   const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const handleWaitlist = async (e: React.FormEvent) => {
@@ -50,7 +54,13 @@ export function AppPage() {
     if (waitlistStatus === "loading") return;
     setWaitlistStatus("loading");
     try {
-      await submitLead({ type: "waitlist", email: waitlistEmail });
+      const referralCode = normalizeRefCode(waitlistCode) ?? getReferral()?.code;
+      if (referralCode) saveReferral(referralCode);
+      await submitLead({
+        type: "waitlist",
+        email: waitlistEmail,
+        ...(referralCode ? { referral_code: referralCode } : {}),
+      });
       setWaitlistStatus("success");
       setWaitlistEmail("");
     } catch (err) {
@@ -534,25 +544,41 @@ export function AppPage() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-lg mx-auto mb-4">
-              <label htmlFor="waitlist-email" className="sr-only">Email</label>
-              <input
-                id="waitlist-email"
-                type="email"
-                required
-                value={waitlistEmail}
-                onChange={(e) => setWaitlistEmail(e.target.value)}
-                placeholder="ton@email.com"
-                className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 font-body focus:outline-none focus:border-white/60 transition-colors"
-              />
-              <button
-                type="submit"
-                disabled={waitlistStatus === "loading"}
-                className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-[var(--color-bg-base)] rounded-2xl font-ui font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] disabled:opacity-60 disabled:hover:scale-100"
-              >
-                {waitlistStatus === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bell className="w-5 h-5" />}
-                <span>Me prévenir</span>
-              </button>
+            <form onSubmit={handleWaitlist} className="flex flex-col gap-3 max-w-lg mx-auto mb-4">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch">
+                <label htmlFor="waitlist-email" className="sr-only">Email</label>
+                <input
+                  id="waitlist-email"
+                  type="email"
+                  required
+                  value={waitlistEmail}
+                  onChange={(e) => setWaitlistEmail(e.target.value)}
+                  placeholder="ton@email.com"
+                  className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 font-body focus:outline-none focus:border-white/60 transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={waitlistStatus === "loading"}
+                  className="group flex items-center justify-center gap-3 px-8 py-4 bg-white text-[var(--color-bg-base)] rounded-2xl font-ui font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] disabled:opacity-60 disabled:hover:scale-100"
+                >
+                  {waitlistStatus === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bell className="w-5 h-5" />}
+                  <span>Me prévenir</span>
+                </button>
+              </div>
+              <div className="flex items-center gap-2 justify-center">
+                <label htmlFor="waitlist-code" className="text-sm font-body text-white/60 shrink-0">
+                  Code salle&nbsp;:
+                </label>
+                <input
+                  id="waitlist-code"
+                  type="text"
+                  value={waitlistCode}
+                  onChange={(e) => setWaitlistCode(e.target.value.toUpperCase())}
+                  placeholder="Optionnel — ex. GRACIELYON"
+                  maxLength={14}
+                  className="w-56 px-4 py-2 rounded-xl bg-white/5 border border-white/15 text-white text-sm tracking-widest uppercase placeholder:normal-case placeholder:tracking-normal placeholder:text-white/35 font-body focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors"
+                />
+              </div>
             </form>
           )}
 
