@@ -14,12 +14,14 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "../context/AuthContext";
-import { 
-  uploadFile, deleteFile, listFiles, fetchData, insertData, 
-  updateData, deleteData, loadSiteContent, saveSiteContent, signUp, supabase, getSession
+import {
+  uploadFile, deleteFile, listFiles, fetchData, insertData,
+  updateData, deleteData, loadSiteContent, saveSiteContent, signUp, supabase, getSession,
+  getMediaUrl
 } from "../lib/supabase";
 import { MediaUploader } from "../components/admin/MediaUploader";
 import { PartnersCRUD } from "../components/admin/PartnersCRUD";
+import { MessagesCRUD, NewsletterLeadsTable, WaitlistTable } from "../components/admin/MessagesCRUD";
 import { YouTubeEmbed } from "../components/YouTubeEmbed";
 import { 
   LineChart, 
@@ -52,7 +54,9 @@ export function Admin() {
   const [sales, setSales] = useState<any[]>([]);
   const [newsletter, setNewsletter] = useState<any[]>([]);
   const [partners, setPartners] = useState<any[]>([]);
-  const [partnerLeads, setPartnerLeads] = useState<any[]>([]);
+  // Tous les leads (contact / newsletter / waitlist / partner) — chaque
+  // onglet filtre sur son type.
+  const [allLeads, setAllLeads] = useState<any[]>([]);
   const [siteContent, setSiteContent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,16 +68,21 @@ export function Admin() {
     setIsDrawerOpen(true);
   };
 
-  // Sections désactivées pour la v1 : Shop, Blog, Newsletter, Éditeur Vidéo,
-  // Contenu du site. Les composants (ShopCRUD, BlogCRUD, NewsletterTable,
-  // EditeurVideo, SiteContentEditor) restent dans le fichier — pour réactiver,
-  // remettre l'entrée ici + le rendu de l'onglet plus bas.
-  const sidebarItems = [
+  // Sections désactivées pour la v1 : Shop, Blog, Éditeur Vidéo, Contenu du
+  // site. Les composants (ShopCRUD, BlogCRUD, EditeurVideo, SiteContentEditor)
+  // restent dans le fichier — pour réactiver, remettre l'entrée ici + le rendu
+  // de l'onglet plus bas. Newsletter réactivée le 17 juil 2026 : le footer
+  // écrit dans leads (type 'newsletter'), l'onglet affiche les deux sources.
+  const messagesCount = allLeads.filter((l) => l.type === "contact").length;
+  const sidebarItems: { id: string; icon: React.ReactNode; label: string; badge?: number }[] = [
     { id: "dashboard", icon: <LayoutDashboard size={20} />, label: "Vue générale" },
     { id: "coachs", icon: <Users size={20} />, label: "Coaches" },
     { id: "formations", icon: <GraduationCap size={20} />, label: "Instructional" },
     { id: "app-performance", icon: <Smartphone size={20} />, label: "Application de performance" },
     { id: "sales", icon: <DollarSign size={20} />, label: "Ventes" },
+    { id: "messages", icon: <MessageSquare size={20} />, label: "Messages", badge: messagesCount },
+    { id: "newsletter", icon: <Mail size={20} />, label: "Newsletter" },
+    { id: "waitlist", icon: <Bell size={20} />, label: "Waitlist app" },
     { id: "partners", icon: <Building2 size={20} />, label: "Salles partenaires" },
     { id: "media", icon: <FolderOpen size={20} />, label: "Médiathèque" },
   ];
@@ -124,24 +133,31 @@ export function Admin() {
         safeFetch(fetchData("newsletter_subscribers", "*", "&order=subscribed_at.desc", accessToken), []),
         safeFetch(fetchData("site_content", "*", "", accessToken), []),
         safeFetch(fetchData("partners", "*", "&order=created_at.desc", accessToken), []),
-        safeFetch(fetchData("leads", "id,type,name,email,message,referral_code,created_at", "", accessToken), [])
+        safeFetch(fetchData("leads", "id,type,name,email,message,referral_code,created_at", "&order=created_at.desc", accessToken), [])
       ]);
       
+      // Vidéos : `url` reste l'URL publique canonique (identifiant persistant
+      // — video_edits.video_url, copie, sélection) ; `previewUrl` est une URL
+      // signée éphémère utilisée uniquement comme src d'aperçu, car le bucket
+      // formations-videos devient privé.
+      const videoMedias = await Promise.all(m_videos.map(async file => ({
+        ...file,
+        bucket: 'formations-videos',
+        type: 'video/mp4', // Fallback type if missing
+        url: `https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/formations-videos/${file.name}`,
+        previewUrl: await getMediaUrl('formations-videos', file.name),
+        size: (file.metadata?.size / 1024 / 1024).toFixed(2) + " MB"
+      })));
+
       const allMedias = [
-        ...m_images.map(file => ({ 
-          ...file, 
-          bucket: 'images', 
+        ...m_images.map(file => ({
+          ...file,
+          bucket: 'images',
           type: 'image/jpeg', // Fallback type if missing
           url: `https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/${file.name}`,
           size: (file.metadata?.size / 1024 / 1024).toFixed(2) + " MB"
         })),
-        ...m_videos.map(file => ({ 
-          ...file, 
-          bucket: 'formations-videos', 
-          type: 'video/mp4', // Fallback type if missing
-          url: `https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/formations-videos/${file.name}`,
-          size: (file.metadata?.size / 1024 / 1024).toFixed(2) + " MB"
-        }))
+        ...videoMedias
       ];
 
       setInstructionals(f);
@@ -152,7 +168,7 @@ export function Admin() {
       setSales(s);
       setNewsletter(n);
       setPartners(pt);
-      setPartnerLeads(pl);
+      setAllLeads(pl);
       setSiteContent(sc[0] || null);
     } catch (err) {
       console.error("Error loading admin data:", err);
@@ -198,7 +214,14 @@ export function Admin() {
               }`}
             >
               <span className={activeTab === item.id ? "text-white" : "text-[var(--color-accent-primary)]"}>{item.icon}</span>
-              {item.label}
+              <span className="flex-1 text-left">{item.label}</span>
+              {item.badge ? (
+                <span className={`shrink-0 min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center tabular-nums ${
+                  activeTab === item.id ? "bg-white/20 text-white" : "bg-[var(--color-accent-primary)]/15 text-[var(--color-accent-primary)]"
+                }`}>
+                  {item.badge}
+                </span>
+              ) : null}
             </button>
           ))}
         </nav>
@@ -262,7 +285,15 @@ export function Admin() {
           {activeTab === "formations" && <FormationsCRUD data={instructionals} coachs={coachs} onUpdate={loadAllData} onOpenMedia={openDrawer} />}
           {activeTab === "app-performance" && <AppPerformanceEditor data={siteContent} onUpdate={loadAllData} onOpenMedia={openDrawer} />}
           {activeTab === "sales" && <SalesTable data={sales} />}
-          {activeTab === "partners" && <PartnersCRUD data={partners} leads={partnerLeads} onUpdate={loadAllData} />}
+          {activeTab === "messages" && <MessagesCRUD leads={allLeads} />}
+          {activeTab === "newsletter" && (
+            <div className="space-y-10">
+              <NewsletterTable data={newsletter} onUpdate={loadAllData} />
+              <NewsletterLeadsTable leads={allLeads} subscribers={newsletter} />
+            </div>
+          )}
+          {activeTab === "waitlist" && <WaitlistTable leads={allLeads} partners={partners} />}
+          {activeTab === "partners" && <PartnersCRUD data={partners} leads={allLeads} onUpdate={loadAllData} />}
           {activeTab === "media" && <Mediatheque medias={medias} setMedias={setMedias} />}
         </div>
 
@@ -941,7 +972,7 @@ function Mediatheque({ medias, setMedias, onSelect }: { medias: any[]; setMedias
               {m.type.startsWith("image") ? (
                 <img src={m.url} alt={m.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               ) : (
-                <video src={m.url} className="w-full h-full object-cover" />
+                <video src={m.previewUrl || m.url} className="w-full h-full object-cover" />
               )}
               
               <div className={`absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 ${onSelect ? 'bg-black/40' : ''}`}>
@@ -1239,7 +1270,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
                 className="bg-[#111120] border border-[#1e1e34] rounded-xl overflow-hidden cursor-pointer hover:border-[var(--color-accent-primary)] transition-colors"
               >
                 <div className="aspect-video bg-black relative">
-                  <video src={v.url} className="w-full h-full object-cover opacity-50" />
+                  <video src={v.previewUrl || v.url} className="w-full h-full object-cover opacity-50" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <Play size={32} className="text-white opacity-80" />
                   </div>
@@ -1282,7 +1313,7 @@ function EditeurVideo({ medias }: { medias: any[] }) {
       <div className="bg-black rounded-2xl overflow-hidden border border-[#1e1e34] shadow-2xl">
         <video
           ref={videoRef}
-          src={selectedVideo.url}
+          src={selectedVideo.previewUrl || selectedVideo.url}
           className="w-full aspect-video"
           onClick={togglePlay}
         />

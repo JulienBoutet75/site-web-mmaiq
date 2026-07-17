@@ -9,26 +9,35 @@ import {
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
 import { motion, AnimatePresence } from "motion/react";
-import { supabase, updateData, insertData, deleteData } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { VideoPlayer } from "../components/VideoPlayer";
-import { createCheckoutSession } from "../services/stripeService";
+import { createFormationCheckout, redeemAccessCode, getVideoUrl } from "../services/stripeService";
 import { MediaUploader } from "../components/admin/MediaUploader";
 import { showToast } from "../utils/ui";
 
 export function Course() {
   const { slug } = useParams();
-  const { user, profile, accessToken } = useAuth();
+  const { user, session, profile, isAdmin } = useAuth();
   const navigate = useNavigate();
-  
+
   const [formation, setFormation] = useState<any>(null);
   const [chapters, setChapters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [activeChapter, setActiveChapter] = useState<any>(null);
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  // Modale post-échec d'achat : 'unconfigured' si le serveur répond que
+  // Stripe n'est pas configuré, 'error' pour tout autre échec réel.
+  const [purchaseModal, setPurchaseModal] = useState<'unconfigured' | 'error' | null>(null);
   const [enteredCode, setEnteredCode] = useState('');
   const [codeError, setCodeError] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
+
+  // URLs de lecture résolues côté serveur (signées quand le bucket est privé)
+  const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
+  const [trailerLoading, setTrailerLoading] = useState(false);
+  const [chapterUrl, setChapterUrl] = useState<string | null>(null);
+  const [chapterLoading, setChapterLoading] = useState(false);
 
   // Admin Editing State
   const [isEditing, setIsEditing] = useState(false);
@@ -36,8 +45,14 @@ export function Course() {
   const [editChapters, setEditChapters] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
 
-  const { isAdmin: isGlobalAdmin } = useAuth();
-  const canEdit = isGlobalAdmin || profile?.role === 'super_admin' || (profile?.role === 'coach' && formation?.coach_id === profile?.id);
+  // isAdmin (useAuth) couvre les rôles admin/super_admin ET l'admin reconnu
+  // par email (fallback VITE_ADMIN_EMAIL sans ligne profiles).
+  const canEdit = isAdmin || (profile?.role === 'coach' && formation?.coach_id === profile?.id);
+
+  // Chemins de redirection auth (convention /connexion?mode=...&redirect=...)
+  const coursePath = `/course/${slug}`;
+  const signupUrl = `/connexion?mode=signup&redirect=${encodeURIComponent(coursePath)}`;
+  const signinUrl = `/connexion?redirect=${encodeURIComponent(coursePath)}`;
 
   const startEditing = () => {
     if (!formation) {
@@ -64,7 +79,7 @@ export function Course() {
       long_description: longDesc.content || "",
       bullets: longDesc.bullets || [],
       access_code: (longDesc as any).access_code || "",
-      trailer_url: formation.trailer_url || formation.trailer_video_url || "",
+      trailer_url: formation.trailer_url || "",
       thumbnail_url: formation.thumbnail_url || "",
       price_cents: formation.price_cents,
       level: formation.level,
@@ -99,8 +114,8 @@ export function Course() {
           access_code: editData.access_code || ''
         }),
         price_cents: editData.price_cents,
+        // La colonne réelle est trailer_url (trailer_video_url n'existe pas)
         trailer_url: editData.trailer_url,
-        trailer_video_url: editData.trailer_url,
         thumbnail_url: editData.thumbnail_url,
         level: editData.level,
         discipline: editData.discipline,
@@ -201,6 +216,18 @@ export function Course() {
     });
   };
 
+  // Vérifie l'achat côté serveur (RLS « own purchases » autorise cette lecture)
+  const checkPurchase = async (formationId: string) => {
+    if (!user) return false;
+    const { data: pData } = await supabase
+      .from("purchases")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("formation_id", formationId)
+      .eq("status", "completed");
+    return !!(pData && pData.length > 0);
+  };
+
   useEffect(() => {
     async function loadData() {
       if (!slug) return;
@@ -212,7 +239,7 @@ export function Course() {
           .select("*, coaches(id, name, slug, photo_url, tagline, bio)")
           .eq("slug", slug)
           .single();
-        
+
         if (fError) throw fError;
         if (fData) {
           setFormation(fData);
@@ -223,26 +250,22 @@ export function Course() {
             .select("*")
             .eq("formation_id", fData.id)
             .order("sort_order");
-          
+
           if (chError) throw chError;
           setChapters(chData || []);
 
-          // 3. Check unlocked via access code
-          let unlocked = localStorage.getItem('unlocked_formation_' + fData.id) === 'true';
-
-          // 4. Check purchase if logged in
-          if (!unlocked && user) {
+          // 3. Check purchase if logged in (seule source de vérité : purchases)
+          if (user) {
             const { data: pData } = await supabase
               .from("purchases")
               .select("id")
               .eq("user_id", user.id)
               .eq("formation_id", fData.id)
               .eq("status", "completed");
-            
-            unlocked = (pData && pData.length > 0);
+            setHasPurchased(!!(pData && pData.length > 0));
+          } else {
+            setHasPurchased(false);
           }
-
-          setHasPurchased(unlocked);
         }
       } catch (err) {
         console.error("Error loading formation:", err);
@@ -251,7 +274,32 @@ export function Course() {
       }
     }
     loadData();
-  }, [slug, user]);
+  }, [slug, user?.id]);
+
+  // Teaser : URL résolue côté serveur pour les utilisateurs connectés
+  // (signée si le bucket est privé, URL stockée en mode dégradé).
+  useEffect(() => {
+    let cancelled = false;
+    async function loadTrailer() {
+      if (!formation?.trailer_url || !user || !session?.access_token) {
+        setTrailerUrl(null);
+        return;
+      }
+      setTrailerLoading(true);
+      try {
+        const { url } = await getVideoUrl(formation.id, 'trailer', session.access_token);
+        if (!cancelled) setTrailerUrl(url);
+      } catch (err) {
+        console.error("Erreur de chargement du teaser:", err);
+        // Repli : URL stockée telle quelle (bucket encore public)
+        if (!cancelled) setTrailerUrl(formation.trailer_url);
+      } finally {
+        if (!cancelled) setTrailerLoading(false);
+      }
+    }
+    loadTrailer();
+    return () => { cancelled = true; };
+  }, [formation?.id, formation?.trailer_url, user?.id, session?.access_token]);
 
   if (loading) {
     return (
@@ -279,40 +327,76 @@ export function Course() {
       ? formation.long_description 
       : { content: formation.long_description, bullets: [], access_code: '' };
 
-  const handleCodeSubmit = (e: React.FormEvent) => {
+  // Le code d'accès est validé exclusivement côté serveur : plus aucune
+  // comparaison locale ni déblocage localStorage (zéro sécurité côté client).
+  const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setCodeError(false);
-    if (!enteredCode) return;
-    
-    if (enteredCode.trim().toUpperCase() === longDescData.access_code) {
-      localStorage.setItem('unlocked_formation_' + formation.id, 'true');
-      setHasPurchased(true);
-      showToast("Code valide ! Vidéo débloquée.");
-    } else {
+    if (!enteredCode.trim()) return;
+
+    if (!user || !session?.access_token) {
+      navigate(signinUrl);
+      return;
+    }
+
+    setRedeeming(true);
+    try {
+      const res = await redeemAccessCode(formation.id, enteredCode, session.access_token);
+      if (res.ok) {
+        showToast("Code valide ! Formation débloquée.");
+        setEnteredCode('');
+        // Recharge l'état d'achat (le serveur vient d'enregistrer l'accès)
+        setHasPurchased(await checkPurchase(formation.id));
+      } else {
+        setCodeError(true);
+      }
+    } catch (err) {
+      console.error("Erreur lors de la validation du code:", err);
       setCodeError(true);
+    } finally {
+      setRedeeming(false);
     }
   };
 
   const handlePurchase = async () => {
-    if (!user) {
-      navigate("/connexion");
+    if (!user || !session?.access_token) {
+      navigate(signupUrl);
       return;
     }
 
     try {
-      await createCheckoutSession([
-        {
-          name: formation.title,
-          price: formation.price_cents / 100,
-          image: formation.thumbnail_url,
-          description: `Accès à la formation: ${formation.title}`,
-        }
-      ], {
-        formation_id: formation.id,
-        user_id: user.id,
-      });
-    } catch (error) {
-      setShowPurchaseModal(true);
+      // Le prix est résolu côté serveur depuis la table formations
+      await createFormationCheckout(formation.id, session.access_token);
+    } catch (error: any) {
+      // Le placeholder « bientôt disponible » est réservé au cas où le
+      // serveur indique explicitement que Stripe n'est pas configuré.
+      setPurchaseModal(error?.message === 'Stripe is not configured' ? 'unconfigured' : 'error');
+    }
+  };
+
+  // Sélection d'un chapitre : l'URL signée est récupérée à la demande
+  // (les URLs signées expirent, on ne les précharge pas toutes).
+  const openChapter = async (ch: any) => {
+    if (!user || !session?.access_token) {
+      navigate(signinUrl);
+      return;
+    }
+    if (!hasPurchased && !canEdit) {
+      showToast("Achetez la formation ou utilisez un code d'accès pour accéder à ce chapitre.");
+      return;
+    }
+    setActiveChapter(ch);
+    setChapterUrl(null);
+    setChapterLoading(true);
+    window.scrollTo({ top: 400, behavior: 'smooth' });
+    try {
+      const { url } = await getVideoUrl(formation.id, ch.id, session.access_token);
+      setChapterUrl(url);
+    } catch (err) {
+      console.error("Erreur de chargement du chapitre:", err);
+      showToast("Impossible de charger la vidéo de ce chapitre.");
+    } finally {
+      setChapterLoading(false);
     }
   };
 
@@ -579,17 +663,47 @@ export function Course() {
                     </div>
                   </div>
                 </div>
-              ) : (formation?.trailer_url || formation?.trailer_video_url) ? (
-                <div className="w-full aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative group">
-                  <VideoPlayer 
-                    url={(formation.trailer_url || formation.trailer_video_url) as string} 
-                    poster={formation.thumbnail_url} 
-                    className="w-full h-full"
-                  />
-                  <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full border border-white/10 pointer-events-none">
-                    Extrait Gratuit
+              ) : formation?.trailer_url ? (
+                user ? (
+                  <div className="w-full aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative group">
+                    {trailerLoading ? (
+                      <div className="w-full h-full flex items-center justify-center bg-black/40">
+                        <Loader2 size={32} className="animate-spin text-[var(--color-accent-primary)]" />
+                      </div>
+                    ) : (
+                      <VideoPlayer
+                        url={trailerUrl || ''}
+                        poster={formation.thumbnail_url}
+                        className="w-full h-full"
+                      />
+                    )}
+                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full border border-white/10 pointer-events-none">
+                      Extrait Gratuit
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  /* Teaser verrouillé : compte gratuit requis */
+                  <div className="w-full aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative">
+                    {formation.thumbnail_url && (
+                      <img loading="lazy"
+                        src={formation.thumbnail_url}
+                        alt={formation.title}
+                        className="w-full h-full object-cover opacity-30"
+                        referrerPolicy="no-referrer"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center gap-4">
+                      <Lock className="text-[var(--color-accent-primary)]" size={40} />
+                      <h3 className="text-xl md:text-2xl font-display">Crée ton compte gratuit pour regarder le teaser</h3>
+                      <Link to={signupUrl}>
+                        <Button className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold rounded-xl px-6 py-3 flex items-center gap-2">
+                          <PlayCircle size={18} />
+                          Créer mon compte gratuit
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                )
               ) : null}
 
               {/* Ce que vous allez apprendre */}
@@ -652,8 +766,8 @@ export function Course() {
                 {activeChapter ? `Chapitre : ${activeChapter.title}` : (isEditing && editData ? editData.title : formation.title)}
               </h2>
               {activeChapter && (
-                <button 
-                  onClick={() => setActiveChapter(null)}
+                <button
+                  onClick={() => { setActiveChapter(null); setChapterUrl(null); }}
                   className="text-sm font-bold text-[var(--color-text-secondary)] hover:text-white transition-colors uppercase tracking-widest"
                 >
                   Retour à la vue globale
@@ -676,29 +790,44 @@ export function Course() {
                 </div>
               ) : (
                 <>
-                  <VideoPlayer 
-                    url={hasPurchased
-                      ? (activeChapter?.video_url || formation.trailer_url || formation.trailer_video_url || '')
-                      : (formation.trailer_url || formation.trailer_video_url || '')
-                    } 
-                    poster={formation.thumbnail_url} 
-                    className="w-full h-full"
-                  />
-                  {!hasPurchased && (
+                  {(chapterLoading || (!activeChapter && trailerLoading)) ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Loader2 size={40} className="animate-spin text-[var(--color-accent-primary)]" />
+                    </div>
+                  ) : (
+                    <VideoPlayer
+                      url={activeChapter ? (chapterUrl || '') : (trailerUrl || '')}
+                      poster={formation.thumbnail_url}
+                      className="w-full h-full"
+                    />
+                  )}
+                  {!user && (
                     <div className="absolute inset-0 z-30 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
                       <Lock className="text-[var(--color-accent-primary)] mb-4" size={48} />
                       <h3 className="text-2xl font-display mb-2">Contenu verrouillé</h3>
-                      <p className="text-white/70 mb-6 max-w-sm">Entrez votre code d'accès pour débloquer cette vidéo.</p>
+                      <p className="text-white/70 mb-6 max-w-sm">Crée ton compte gratuit pour regarder le teaser de cette formation.</p>
+                      <Link to={signupUrl}>
+                        <Button className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold rounded-xl px-6 py-3">
+                          Créer mon compte gratuit
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                  {user && !hasPurchased && !canEdit && (
+                    <div className="absolute inset-0 z-30 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+                      <Lock className="text-[var(--color-accent-primary)] mb-4" size={48} />
+                      <h3 className="text-2xl font-display mb-2">Contenu verrouillé</h3>
+                      <p className="text-white/70 mb-6 max-w-sm">Achetez la formation ou entrez votre code d'accès pour débloquer les chapitres.</p>
                       <form onSubmit={handleCodeSubmit} className="flex gap-2 w-full max-w-xs">
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           placeholder="Entrez votre code"
                           value={enteredCode}
                           onChange={(e) => setEnteredCode(e.target.value)}
                           className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
                         />
-                        <Button type="submit" className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)]">
-                          Débloquer
+                        <Button type="submit" disabled={redeeming} className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] disabled:opacity-50">
+                          {redeeming ? <Loader2 size={18} className="animate-spin" /> : "Débloquer"}
                         </Button>
                       </form>
                       {codeError && <p className="text-red-500 mt-2 text-sm">Code incorrect</p>}
@@ -785,16 +914,9 @@ export function Course() {
                 }
 
                 return (
-                  <button 
+                  <button
                     key={ch.id}
-                  onClick={() => {
-                      if (!hasPurchased) {
-                        showToast("Veuillez acheter la formation ou entrer un code valide pour accéder à ce chapitre.");
-                        return;
-                      }
-                      setActiveChapter(ch);
-                      window.scrollTo({ top: 400, behavior: 'smooth' });
-                    }}
+                    onClick={() => openChapter(ch)}
                     className={`w-full flex items-center gap-5 p-5 rounded-[1.5rem] transition-all text-left border group ${
                       isActive 
                         ? "bg-[var(--color-accent-primary)]/10 border-[var(--color-accent-primary)]/30 text-white" 
@@ -869,8 +991,8 @@ export function Course() {
                         onChange={(e) => setEnteredCode(e.target.value)}
                         className={`flex-1 bg-[var(--color-bg-base)] border rounded-lg px-3 py-2 text-sm outline-none transition-colors ${codeError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-[var(--color-accent-primary)]'}`}
                       />
-                      <button type="submit" className="border border-white/20 hover:bg-white/10 text-xs px-3 rounded-lg text-white font-semibold transition-colors">
-                        Valider
+                      <button type="submit" disabled={redeeming} className="border border-white/20 hover:bg-white/10 text-xs px-3 rounded-lg text-white font-semibold transition-colors disabled:opacity-50">
+                        {redeeming ? "..." : "Valider"}
                       </button>
                     </form>
                     {codeError && <p className="text-red-500 text-xs mt-2 text-left">Code invalide. Veuillez réessayer.</p>}
@@ -882,18 +1004,18 @@ export function Course() {
         </section>
       )}
 
-      {/* Placeholder Modal */}
+      {/* Modale d'échec d'achat (placeholder ou erreur réelle) */}
       <AnimatePresence>
-        {showPurchaseModal && (
+        {purchaseModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowPurchaseModal(false)}
+              onClick={() => setPurchaseModal(null)}
               className="absolute inset-0 bg-black/90 backdrop-blur-md"
             />
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -902,13 +1024,24 @@ export function Course() {
               <div className="w-24 h-24 bg-[var(--color-accent-primary)]/10 rounded-full flex items-center justify-center mx-auto mb-8 text-[var(--color-accent-primary)]">
                 <AlertCircle size={48} />
               </div>
-              <h3 className="text-3xl font-display mb-6">Paiement bientôt disponible</h3>
-              <p className="text-lg text-[var(--color-text-secondary)] mb-10 leading-relaxed">
-                Nous finalisons actuellement notre système de paiement sécurisé. 
-                Revenez très bientôt pour débloquer vos formations <span className="font-days-one tracking-normal">MMA IQ</span>!
-              </p>
-              <Button 
-                onClick={() => setShowPurchaseModal(false)}
+              {purchaseModal === 'unconfigured' ? (
+                <>
+                  <h3 className="text-3xl font-display mb-6">Paiement bientôt disponible</h3>
+                  <p className="text-lg text-[var(--color-text-secondary)] mb-10 leading-relaxed">
+                    Nous finalisons actuellement notre système de paiement sécurisé.
+                    Revenez très bientôt pour débloquer vos formations <span className="font-days-one tracking-normal">MMA IQ</span>!
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h3 className="text-3xl font-display mb-6">Paiement momentanément indisponible</h3>
+                  <p className="text-lg text-[var(--color-text-secondary)] mb-10 leading-relaxed">
+                    Réessaie dans un instant.
+                  </p>
+                </>
+              )}
+              <Button
+                onClick={() => setPurchaseModal(null)}
                 className="w-full py-5 rounded-2xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] font-bold text-lg"
               >
                 Compris !

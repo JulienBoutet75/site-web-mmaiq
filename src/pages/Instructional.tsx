@@ -17,7 +17,9 @@ import { FormationModal } from "../components/admin/FormationModal";
 export function Instructional() {
   const navigate = useNavigate();
   const { isAdmin, openMediathequeForSelection } = useSite();
-  const { accessToken } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
+  // Jeton d'accès dérivé de la session Supabase (utilisé par les actions admin)
+  const accessToken = session?.access_token;
   
   // Existing state
   const [searchQuery, setSearchQuery] = useState("");
@@ -35,11 +37,16 @@ export function Instructional() {
   const [selectedFormation, setSelectedFormation] = useState<any>(null);
 
   const [levelFilter, setLevelFilter] = useState("");
-  const [mmaFilter, setMmaFilter] = useState("");
+  const [coachFilter, setCoachFilter] = useState("");
   const [disciplineFilter, setDisciplineFilter] = useState("");
 
   // New state for FAQ
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  // Vidéo de fond du hero : si l'URL devient inaccessible (bucket
+  // formations-videos passé en privé), on retire le <video> et le fond
+  // existant (dégradés/overlay) prend le relais.
+  const [heroVideoOk, setHeroVideoOk] = useState(true);
 
   useEffect(() => {
     loadData();
@@ -76,26 +83,48 @@ export function Instructional() {
   }, []);
 
   const filteredCourses = useMemo(() => {
-    let filtered = courses;
-    
+    // Brouillons (published=false) réservés aux admins : le serveur refuse
+    // leur achat, on les exclut donc du catalogue public.
+    let filtered = isAdmin ? courses : courses.filter((c: any) => c.published !== false);
+
     if (levelFilter) filtered = filtered.filter((c: any) => c.level === levelFilter);
-    if (mmaFilter) filtered = filtered.filter((c: any) => c.mma_sub_discipline === mmaFilter);
+    if (coachFilter) filtered = filtered.filter((c: any) => String(c.coach_id) === coachFilter);
     if (disciplineFilter) filtered = filtered.filter((c: any) => c.discipline === disciplineFilter);
-    
+
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter((c: any) => {
         const coach = coaches.find(coach => coach.id === c.coach_id);
         return (
-          c.title?.toLowerCase().includes(query) || 
-          c.desc?.toLowerCase().includes(query) ||
+          c.title?.toLowerCase().includes(query) ||
+          c.description?.toLowerCase().includes(query) ||
           coach?.name?.toLowerCase().includes(query)
         );
       });
     }
-    
+
     return filtered;
-  }, [courses, levelFilter, mmaFilter, disciplineFilter, searchQuery]);
+  }, [courses, coaches, levelFilter, coachFilter, disciplineFilter, searchQuery, isAdmin]);
+
+  // Libellés capitalisés des niveaux (stockés en minuscules en base)
+  const levelLabels: Record<string, string> = {
+    debutant: "Débutant",
+    amateur: "Amateur",
+    pro: "Pro"
+  };
+
+  const hasActiveFilters = Boolean(searchQuery.trim() || levelFilter || coachFilter || disciplineFilter);
+
+  const resetFilters = () => {
+    setSearchQuery("");
+    setLevelFilter("");
+    setCoachFilter("");
+    setDisciplineFilter("");
+  };
+
+  // Tronque la description affichée sur les cartes (~140 caractères)
+  const truncateDescription = (text?: string) =>
+    text && text.length > 140 ? `${text.slice(0, 140).trimEnd()}…` : text;
 
   const handleAddCoach = async () => {
     const name = prompt("Nom du coach :");
@@ -208,11 +237,16 @@ export function Instructional() {
       {/* BLOC 1 — HERO */}
       <section className="relative w-full min-h-[85vh] flex flex-col items-center justify-center text-center overflow-hidden pt-32 pb-16">
         <div className="absolute inset-0 z-0 bg-[var(--color-bg-base)]">
-          <video
-            autoPlay loop muted playsInline
-            className="w-full h-full object-cover opacity-50 relative"
-            src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/formations-videos/BMPCC%204K%20_%20Jessie%20Wilcox%20Boxing.mp4"
-          />
+          {/* À remplacer par un asset local public/ ou un bucket public :
+              cette URL cassera quand formations-videos passera en privé. */}
+          {heroVideoOk && (
+            <video
+              autoPlay loop muted playsInline
+              onError={() => setHeroVideoOk(false)}
+              className="w-full h-full object-cover opacity-50 relative"
+              src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/formations-videos/BMPCC%204K%20_%20Jessie%20Wilcox%20Boxing.mp4"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-base)]/70 via-[var(--color-bg-base)]/40 to-[var(--color-bg-base)]"></div>
         </div>
         
@@ -233,13 +267,21 @@ export function Instructional() {
             Des instructionals experts, ciblés et immédiatement utiles. Des coachs crédibles. Des formats justes. Une pédagogie claire.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <button 
-              onClick={() => scrollTo('instructionals')} 
+            <button
+              onClick={() => scrollTo('instructionals')}
               className="bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white font-ui font-semibold py-4 px-8 rounded-full transition-all duration-300 shadow-xl flex items-center justify-center gap-2"
             >
               Découvrir les vidéos <ArrowRight size={18} />
             </button>
           </div>
+          {!authLoading && !user && (
+            <Link
+              to="/connexion?mode=signup&redirect=/instructional"
+              className="mt-4 font-ui text-sm text-[var(--color-text-secondary)] hover:text-white underline underline-offset-4 decoration-white/20 hover:decoration-white/60 transition-colors"
+            >
+              Créer un compte gratuit →
+            </Link>
+          )}
         </motion.div>
       </section>
 
@@ -346,20 +388,18 @@ export function Instructional() {
                 <option value="pro">Pro</option>
               </select>
 
-              <select 
+              <select
                 className="bg-[var(--color-bg-elevated)] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
-                aria-label="Filtrer par spécificité MMA" onChange={(e) => setMmaFilter(e.target.value)}
-                value={mmaFilter}
+                aria-label="Filtrer par coach" onChange={(e) => setCoachFilter(e.target.value)}
+                value={coachFilter}
               >
-                <option value="">Spécificité MMA</option>
-                <option value="cage wrestling">Cage Wrestling</option>
-                <option value="ground boxing">Ground Boxing</option>
-                <option value="opening">Opening</option>
-                <option value="shoot boxing">Shoot Boxing</option>
-                <option value="striking">Striking MMA</option>
+                <option value="">Tous les coachs</option>
+                {coaches.map((coach: any) => (
+                  <option key={coach.id} value={String(coach.id)}>{coach.name}</option>
+                ))}
               </select>
 
-              <select 
+              <select
                 className="bg-[var(--color-bg-elevated)] border border-white/10 text-white rounded-full px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-accent-red)] flex-none cursor-pointer"
                 aria-label="Filtrer par discipline" onChange={(e) => setDisciplineFilter(e.target.value)}
                 value={disciplineFilter}
@@ -367,8 +407,10 @@ export function Instructional() {
                 <option value="">Toutes les disciplines</option>
                 <option value="striking">Striking</option>
                 <option value="grappling">Grappling</option>
-                <option value="lutte">Lutte</option>
                 <option value="mma-gameplan">MMA Gameplan</option>
+                <option value="prepa-mentale">Prépa Mentale</option>
+                <option value="cut-nutrition">Cut & Nutrition</option>
+                <option value="conditioning">Conditioning</option>
               </select>
             </div>
           </div>
@@ -424,13 +466,19 @@ export function Instructional() {
                           </div>
                         </div>
 
-                        <div className="absolute top-4 left-4 z-20">
+                        <div className="absolute top-4 left-4 z-20 flex gap-2">
                           <Badge
-                            color={course.level === "Débutant" ? "green" : course.level === "Amateur" ? "purple" : "red"}
+                            color={course.level?.toLowerCase() === "debutant" ? "green" : course.level?.toLowerCase() === "amateur" ? "purple" : "red"}
                             className="bg-black/80 backdrop-blur-md border-white/5 font-bold tracking-widest text-[10px]"
                           >
-                            {course.level}
+                            {levelLabels[course.level?.toLowerCase()] || course.level}
                           </Badge>
+                          {/* Repère admin : formation invisible du public */}
+                          {isAdmin && course.published === false && (
+                            <Badge color="gray" className="bg-black/80 backdrop-blur-md border-white/5 font-bold tracking-widest text-[10px]">
+                              Brouillon
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       
@@ -462,7 +510,7 @@ export function Instructional() {
                         </h3>
                         
                         <p className="font-body text-[var(--color-text-secondary)] text-sm md:text-base mb-5 flex-grow line-clamp-1 leading-relaxed">
-                          {course.short_description || course.description || course.desc}
+                          {truncateDescription(course.description)}
                         </p>
                         
                         <div className="flex flex-wrap gap-2 mb-6">
@@ -516,10 +564,25 @@ export function Instructional() {
           )}
           
           {filteredCourses.length === 0 && !loading && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-32">
-              <p className="font-display text-2xl text-white mb-2">Aucun format ne correspond.</p>
-              <p className="font-body text-[var(--color-text-secondary)]">Ajustez vos filtres pour découvrir le catalogue.</p>
-            </motion.div>
+            hasActiveFilters ? (
+              /* Filtres ou recherche actifs sans résultat */
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-32">
+                <p className="font-display text-2xl text-white mb-2">Aucun format ne correspond.</p>
+                <p className="font-body text-[var(--color-text-secondary)] mb-8">Ajustez vos filtres pour découvrir le catalogue.</p>
+                <button
+                  onClick={resetFilters}
+                  className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/30 text-white font-ui text-sm font-semibold py-3 px-6 rounded-full transition-colors"
+                >
+                  Réinitialiser les filtres
+                </button>
+              </motion.div>
+            ) : (
+              /* Catalogue réellement vide */
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-32">
+                <p className="font-display text-2xl text-white mb-2">Catalogue en préparation</p>
+                <p className="font-body text-[var(--color-text-secondary)]">Les premières formations arrivent très bientôt.</p>
+              </motion.div>
+            )
           )}
         </div>
       </section>

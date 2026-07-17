@@ -110,6 +110,20 @@ export function getPublicUrl(bucket: string, fileName: string) {
   return data.publicUrl;
 }
 
+// Résout l'URL d'un média : URL signée (valide 1 h) si le bucket est privé,
+// avec repli sur l'URL publique si la signature échoue (bucket encore public
+// ou droits insuffisants). Permet la transition du bucket formations-videos
+// vers le mode privé sans casser l'existant.
+export async function getMediaUrl(bucket: string, path: string): Promise<string> {
+  try {
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, 3600);
+    if (!error && data?.signedUrl) return data.signedUrl;
+  } catch {
+    // Ignoré : repli sur l'URL publique ci-dessous.
+  }
+  return getPublicUrl(bucket, path);
+}
+
 // ── Site Content ──
 
 export async function loadSiteContent(accessToken?: string | null) {

@@ -18,6 +18,8 @@ interface SessionInfo {
   email: string | null;
   planKey: string | null;
   gymCode: string | null;
+  kind: string | null;
+  formationId: string | null;
 }
 
 // Page de retour Stripe. Avec un session_id (checkout récent), on vérifie
@@ -41,6 +43,23 @@ export function Success() {
         const data: SessionInfo = await res.json();
         if (cancelled) return;
         setInfo(data);
+        // Achat de formation : on confirme côté serveur AVANT d'afficher le
+        // CTA « Accéder à mes formations » — confirm-purchase est l'écrivain
+        // principal de purchases (upsert idempotent), un clic immédiat
+        // tomberait sinon sur une page vide. En cas d'échec on affiche quand
+        // même le succès : le webhook Stripe sert de rattrapage en prod.
+        if (data.kind === "formation") {
+          try {
+            await fetch("/api/confirm-purchase", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ sessionId }),
+            });
+          } catch {
+            // silencieux : la confirmation arrivera par le webhook
+          }
+        }
+        if (cancelled) return;
         setState(data.status === "complete" && data.paymentStatus !== "unpaid" ? "ok" : "pending");
       } catch {
         if (!cancelled) setState("error");
@@ -50,6 +69,7 @@ export function Success() {
   }, [sessionId]);
 
   const isSubscription = info?.mode === "subscription";
+  const isFormation = info?.kind === "formation";
   const planName = info?.planKey ? PLAN_NAMES[info.planKey] ?? info.planKey : null;
 
   return (
@@ -88,8 +108,8 @@ export function Success() {
             </div>
             <h1 className="text-3xl font-display mb-4">Paiement en attente</h1>
             <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-              Ton paiement n'est pas encore confirmé. Tu recevras un email dès qu'il le sera —
-              si tu as annulé, tu peux réessayer quand tu veux.
+              Ton paiement n'est pas encore confirmé. Reviens dans quelques minutes ou
+              contacte-nous si ça persiste — si tu as annulé, tu peux réessayer quand tu veux.
             </p>
             <Link to="/">
               <Button variant="outline" className="w-full py-4 rounded-xl border-white/10 hover:bg-white/5">
@@ -132,14 +152,16 @@ export function Success() {
               <>
                 <h1 className="text-3xl font-display mb-4">Paiement réussi !</h1>
                 <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-                  Merci pour ton achat. Tu recevras un email de confirmation sous peu.
+                  Ton achat est confirmé. Retrouve ta formation à tout moment dans{" "}
+                  <strong className="text-white">Mes formations</strong>, connecté avec l'email
+                  utilisé au paiement{info?.email && <> (<strong className="text-white">{info.email}</strong>)</>}.
                 </p>
               </>
             )}
 
             <div className="space-y-4">
               {state === "legacy" || !isSubscription ? (
-                <Link to="/instructional">
+                <Link to={isFormation ? "/mes-formations" : "/instructional"}>
                   <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
                     Accéder à mes formations
                     <ArrowRight size={18} />

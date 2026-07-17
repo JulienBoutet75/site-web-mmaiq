@@ -1,10 +1,12 @@
 import { useState, useEffect, ReactNode, FormEvent } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, Pencil, ShieldCheck, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
 import { useSite } from "../context/SiteContext";
+import { useAuth } from "../context/AuthContext";
 import { submitLead } from "../lib/supabase";
 import { saveReferral } from "../lib/referral";
+import { CONTACT_EMAIL } from "../data/site";
 
 // Sections sans contenu pour l'instant — retirées de la navigation publique
 // tant qu'elles sont vides (les URLs restent accessibles directement).
@@ -16,7 +18,31 @@ export function Layout({ children }: { children: ReactNode }) {
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const location = useLocation();
+  const navigate = useNavigate();
   const { siteData, isAdmin, updateArray } = useSite();
+  const { user, profile, signOut, coachSession, setCoachSession } = useAuth();
+
+  // Lien d'espace personnel selon le rôle du compte : admin → back-office,
+  // coach → dashboard, sinon l'espace élève « Mes formations ».
+  const role = profile?.role;
+  const accountLink =
+    role === "admin" || role === "super_admin"
+      ? { name: "Admin", path: "/admin" }
+      : role === "coach"
+        ? { name: "Espace coach", path: "/coach/dashboard" }
+        : { name: "Mes formations", path: "/mes-formations" };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  // Déconnexion d'un coach connecté par clé d'accès (user=null) :
+  // session locale uniquement, rien à révoquer côté Supabase Auth.
+  const handleCoachSignOut = () => {
+    setCoachSession(null);
+    navigate("/");
+  };
 
   const handleNewsletter = async (e: FormEvent) => {
     e.preventDefault();
@@ -113,6 +139,51 @@ export function Layout({ children }: { children: ReactNode }) {
             ))}
             
             <div className="flex items-center gap-4 pl-6 border-l border-white/10">
+              {/* État de compte : connexion, coach par clé, ou espace personnel + déconnexion */}
+              {!user ? (
+                coachSession ? (
+                  <>
+                    <Link
+                      to="/coach/dashboard"
+                      className="font-ui text-sm font-semibold tracking-wide transition-all duration-300 hover:text-white hover:-translate-y-0.5 text-[var(--color-text-sec)]"
+                    >
+                      Espace coach
+                    </Link>
+                    <button
+                      onClick={handleCoachSignOut}
+                      className="font-ui text-sm font-semibold tracking-wide transition-all duration-300 hover:text-white hover:-translate-y-0.5 text-[var(--color-text-sec)]"
+                    >
+                      Déconnexion
+                    </button>
+                  </>
+                ) : (
+                  <Link
+                    to="/connexion"
+                    className="font-ui text-sm font-semibold tracking-wide transition-all duration-300 hover:text-white hover:-translate-y-0.5 text-[var(--color-text-sec)]"
+                  >
+                    Se connecter
+                  </Link>
+                )
+              ) : (
+                <>
+                  <Link
+                    to={accountLink.path}
+                    className={`font-ui text-sm font-semibold tracking-wide transition-all duration-300 hover:text-white hover:-translate-y-0.5 ${
+                      location.pathname === accountLink.path
+                        ? "text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                        : "text-[var(--color-text-sec)]"
+                    }`}
+                  >
+                    {accountLink.name}
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="font-ui text-sm font-semibold tracking-wide transition-all duration-300 hover:text-white hover:-translate-y-0.5 text-[var(--color-text-sec)]"
+                  >
+                    Déconnexion
+                  </button>
+                </>
+              )}
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -148,6 +219,9 @@ export function Layout({ children }: { children: ReactNode }) {
           <button
             className="lg:hidden text-white hover:text-[var(--color-accent-purple)] transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
@@ -156,6 +230,9 @@ export function Layout({ children }: { children: ReactNode }) {
 
       {/* Mobile Menu */}
       <div
+        id="mobile-menu"
+        // inert (React 19) : panneau fermé retiré du focus clavier et des lecteurs d'écran
+        inert={!isMobileMenuOpen}
         className={`fixed inset-0 bg-[var(--color-bg-base)]/98 backdrop-blur-2xl z-[50] flex flex-col pt-28 px-8 transition-all duration-500 ease-out ${
           isMobileMenuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
         } lg:hidden overflow-hidden`}
@@ -210,6 +287,97 @@ export function Layout({ children }: { children: ReactNode }) {
               )}
             </div>
           ))}
+
+          {/* État de compte (mobile) : connexion, coach par clé, ou espace personnel + déconnexion */}
+          {!user ? (
+            coachSession ? (
+              <>
+                <Link
+                  to="/coach/dashboard"
+                  className="relative font-display text-2xl md:text-3xl border-b border-white/10 pb-4 transition-all duration-300 flex items-center justify-between group uppercase tracking-wider active:scale-95 active:text-[var(--color-accent-red)] text-white/80"
+                  style={{
+                    transitionDelay: isMobileMenuOpen ? `${(navLinks.length + 1) * 50}ms` : '0ms',
+                    transform: isMobileMenuOpen ? 'translateX(0) scale(1)' : 'translateX(40px) scale(0.95)',
+                    opacity: isMobileMenuOpen ? 1 : 0,
+                    transitionTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+                  }}
+                >
+                  <span className="relative z-10 flex-1 pr-4 whitespace-normal text-left leading-tight">Espace coach</span>
+                  <span className="relative z-10 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-active:bg-[var(--color-accent-red)] group-active:scale-110 shrink-0">
+                    <span className="text-sm font-bold text-[var(--color-accent-red)] group-active:text-white">→</span>
+                  </span>
+                </Link>
+                <button
+                  onClick={handleCoachSignOut}
+                  className="relative font-display text-2xl md:text-3xl border-b border-white/10 pb-4 transition-all duration-300 flex items-center justify-between group uppercase tracking-wider active:scale-95 active:text-[var(--color-accent-red)] text-white/80 w-full"
+                  style={{
+                    transitionDelay: isMobileMenuOpen ? `${(navLinks.length + 2) * 50}ms` : '0ms',
+                    transform: isMobileMenuOpen ? 'translateX(0) scale(1)' : 'translateX(40px) scale(0.95)',
+                    opacity: isMobileMenuOpen ? 1 : 0,
+                    transitionTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+                  }}
+                >
+                  <span className="relative z-10 flex-1 pr-4 whitespace-normal text-left leading-tight">Déconnexion</span>
+                  <span className="relative z-10 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-active:bg-[var(--color-accent-red)] group-active:scale-110 shrink-0">
+                    <span className="text-sm font-bold text-[var(--color-accent-red)] group-active:text-white">→</span>
+                  </span>
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/connexion"
+                className="relative font-display text-2xl md:text-3xl border-b border-white/10 pb-4 transition-all duration-300 flex items-center justify-between group uppercase tracking-wider active:scale-95 active:text-[var(--color-accent-red)] text-white/80"
+                style={{
+                  transitionDelay: isMobileMenuOpen ? `${(navLinks.length + 1) * 50}ms` : '0ms',
+                  transform: isMobileMenuOpen ? 'translateX(0) scale(1)' : 'translateX(40px) scale(0.95)',
+                  opacity: isMobileMenuOpen ? 1 : 0,
+                  transitionTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+                }}
+              >
+                <span className="relative z-10 flex-1 pr-4 whitespace-normal text-left leading-tight">Se connecter</span>
+                <span className="relative z-10 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-active:bg-[var(--color-accent-red)] group-active:scale-110 shrink-0">
+                  <span className="text-sm font-bold text-[var(--color-accent-red)] group-active:text-white">→</span>
+                </span>
+              </Link>
+            )
+          ) : (
+            <>
+              <Link
+                to={accountLink.path}
+                className={`relative font-display text-2xl md:text-3xl border-b border-white/10 pb-4 transition-all duration-300 flex items-center justify-between group uppercase tracking-wider active:scale-95 active:text-[var(--color-accent-red)] ${
+                  location.pathname === accountLink.path ? "text-[var(--color-accent-red)]" : "text-white/80"
+                }`}
+                style={{
+                  transitionDelay: isMobileMenuOpen ? `${(navLinks.length + 1) * 50}ms` : '0ms',
+                  transform: isMobileMenuOpen ? 'translateX(0) scale(1)' : 'translateX(40px) scale(0.95)',
+                  opacity: isMobileMenuOpen ? 1 : 0,
+                  transitionTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+                }}
+              >
+                <span className="relative z-10 flex-1 pr-4 whitespace-normal text-left leading-tight">{accountLink.name}</span>
+                <span className={`relative z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 group-active:scale-110 shrink-0 ${
+                  location.pathname === accountLink.path ? "bg-[var(--color-accent-red)] text-white" : "bg-white/5 group-active:bg-[var(--color-accent-red)]"
+                }`}>
+                  <span className={`text-sm font-bold ${location.pathname === accountLink.path ? "text-white" : "text-[var(--color-accent-red)] group-active:text-white"}`}>→</span>
+                </span>
+              </Link>
+              <button
+                onClick={handleSignOut}
+                className="relative font-display text-2xl md:text-3xl border-b border-white/10 pb-4 transition-all duration-300 flex items-center justify-between group uppercase tracking-wider active:scale-95 active:text-[var(--color-accent-red)] text-white/80 w-full"
+                style={{
+                  transitionDelay: isMobileMenuOpen ? `${(navLinks.length + 2) * 50}ms` : '0ms',
+                  transform: isMobileMenuOpen ? 'translateX(0) scale(1)' : 'translateX(40px) scale(0.95)',
+                  opacity: isMobileMenuOpen ? 1 : 0,
+                  transitionTimingFunction: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+                }}
+              >
+                <span className="relative z-10 flex-1 pr-4 whitespace-normal text-left leading-tight">Déconnexion</span>
+                <span className="relative z-10 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all duration-300 group-active:bg-[var(--color-accent-red)] group-active:scale-110 shrink-0">
+                  <span className="text-sm font-bold text-[var(--color-accent-red)] group-active:text-white">→</span>
+                </span>
+              </button>
+            </>
+          )}
         </nav>
       </div>
 
@@ -305,6 +473,15 @@ export function Layout({ children }: { children: ReactNode }) {
                       Contact
                     </Link>
                   </li>
+                  <li>
+                    <a
+                      href={`mailto:${CONTACT_EMAIL}`}
+                      className="hover:text-white transition-colors inline-flex items-center gap-2 break-all"
+                    >
+                      <span className="w-1 h-1 rounded-full bg-white opacity-0 -ml-3 transition-all hidden md:block"></span>
+                      {CONTACT_EMAIL}
+                    </a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -315,7 +492,11 @@ export function Layout({ children }: { children: ReactNode }) {
                 Instructional, actus, méthode. Pas de spam, que du concret.
               </p>
               {newsletterStatus === "success" ? (
-                <p className="text-[var(--color-success)] font-ui text-xs md:text-sm font-semibold">
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="text-[var(--color-success)] font-ui text-xs md:text-sm font-semibold"
+                >
                   ✓ Inscription confirmée. À très vite !
                 </p>
               ) : (
@@ -339,12 +520,18 @@ export function Layout({ children }: { children: ReactNode }) {
                     </button>
                   </div>
                   {newsletterStatus === "error" && (
-                    <p className="text-[var(--color-accent-red)] font-ui text-xs">
+                    <p role="alert" className="text-[var(--color-accent-red)] font-ui text-xs">
                       L'inscription a échoué. Réessaie dans un instant.
                     </p>
                   )}
                 </form>
               )}
+              <p className="text-[var(--color-text-sec)]/60 font-ui text-[11px] mt-3 leading-relaxed max-w-xs">
+                Jamais partagé, désinscription en un clic.{" "}
+                <Link to="/confidentialite" className="underline hover:text-white transition-colors">
+                  Confidentialité
+                </Link>
+              </p>
             </div>
           </div>
 
@@ -352,6 +539,22 @@ export function Layout({ children }: { children: ReactNode }) {
             <p className="text-[var(--color-text-sec)] font-ui text-xs md:text-sm">
               © 2026 <span className="font-days-one tracking-normal">MMA IQ</span>. Tous droits réservés.
             </p>
+            <nav
+              aria-label="Liens légaux"
+              className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 font-ui text-xs text-[var(--color-text-sec)]/60"
+            >
+              <Link to="/mentions-legales" className="hover:text-white transition-colors">
+                Mentions légales
+              </Link>
+              <span aria-hidden="true">·</span>
+              <Link to="/confidentialite" className="hover:text-white transition-colors">
+                Confidentialité
+              </Link>
+              <span aria-hidden="true">·</span>
+              <Link to="/cgv" className="hover:text-white transition-colors">
+                CGV
+              </Link>
+            </nav>
             <Link
               to="/connexion"
               className="text-[var(--color-text-sec)]/60 hover:text-white font-ui text-xs transition-colors"

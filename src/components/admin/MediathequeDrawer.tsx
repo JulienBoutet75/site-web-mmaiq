@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSite } from '../../context/SiteContext';
-import { listFiles, uploadFile, deleteFile, getPublicUrl } from '../../lib/supabase';
+import { listFiles, uploadFile, deleteFile, getPublicUrl, getMediaUrl } from '../../lib/supabase';
 import { X, UploadCloud, Copy, Trash2, Scissors, Image as ImageIcon, Video } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { VideoEditorModal } from './VideoEditorModal';
@@ -30,8 +30,25 @@ export function MediathequeDrawer() {
         ...(images || []).map((f: any) => ({ ...f, bucket: 'images', type: 'image' })),
         ...(videos || []).map((f: any) => ({ ...f, bucket: 'formations-videos', type: 'video' }))
       ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      
-      setFiles(allFiles);
+
+      // Deux URLs par fichier :
+      // - url : URL canonique publique (stable), la seule que Sélectionner/Copier
+      //   renvoient — c'est elle qu'on persiste, le serveur sait la signer ;
+      // - previewUrl : URL signée éphémère (1 h), uniquement pour l'aperçu du
+      //   drawer quand formations-videos passe en privé. getMediaUrl retombe
+      //   seule sur l'URL publique si la signature échoue (bucket encore public).
+      // Le bucket images reste public : previewUrl = url directement.
+      const withUrls = await Promise.all(
+        allFiles.map(async (f: any) => {
+          const url = getPublicUrl(f.bucket, f.name);
+          const previewUrl = f.bucket === 'formations-videos'
+            ? await getMediaUrl(f.bucket, f.name)
+            : url;
+          return { ...f, url, previewUrl };
+        })
+      );
+
+      setFiles(withUrls);
     } catch (error) {
       console.error("Failed to load files", error);
     }
@@ -201,7 +218,10 @@ export function MediathequeDrawer() {
                 // Ignore empty folder placeholders
                 if (file.name === '.emptyFolderPlaceholder') return null;
                 
-                const url = getPublicUrl(file.bucket, file.name);
+                // url : canonique publique, à persister (Sélectionner, Copier).
+                // previewUrl : signée, réservée aux aperçus <img>/<video> et à l'éditeur.
+                const url = file.url;
+                const previewUrl = file.previewUrl;
                 return (
                   <div key={file.id} className="group relative bg-[#111120] rounded-xl border border-[#1e1e34] overflow-hidden hover:border-purple-500 transition-colors">
                     {/* Thumbnail */}
@@ -210,10 +230,10 @@ export function MediathequeDrawer() {
                       onClick={() => handleSelect(url)}
                     >
                       {file.type === 'image' ? (
-                        <img src={url} alt={file.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        <img src={previewUrl} alt={file.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center relative">
-                          <video src={url} className="w-full h-full object-cover opacity-50" />
+                          <video src={previewUrl} className="w-full h-full object-cover opacity-50" />
                           <Video size={24} className="absolute text-white/50" />
                         </div>
                       )}
@@ -235,7 +255,7 @@ export function MediathequeDrawer() {
                         </span>
                         <div className="flex gap-1">
                           {file.type === 'video' && (
-                            <button onClick={() => setEditingVideo(url)} className="p-1.5 text-blue-400 hover:bg-blue-400/10 rounded transition-colors" title="Éditer la vidéo">
+                            <button onClick={() => setEditingVideo(previewUrl)} className="p-1.5 text-blue-400 hover:bg-blue-400/10 rounded transition-colors" title="Éditer la vidéo">
                               <Scissors size={14} />
                             </button>
                           )}

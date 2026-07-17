@@ -60,18 +60,11 @@ export function ProductDetail() {
 
   const handleAddToCart = async () => {
     try {
-      await createCheckoutSession([
-        {
-          name: product.name,
-          price: product.price_cents / 100,
-          image: product.images?.[0],
-          description: `${product.description} - Taille: ${selectedSize}`,
-          quantity: quantity,
-        }
-      ], {
-        product_id: product.id,
-        size: selectedSize,
-      });
+      // Le prix est résolu côté serveur : on n'envoie que l'id et la quantité.
+      await createCheckoutSession(
+        [{ productId: product.id, quantity }],
+        { product_id: product.id, size: selectedSize }
+      );
     } catch (error) {
       setShowModal(true); // Fallback to modal if Stripe fails (e.g. not configured)
     }
