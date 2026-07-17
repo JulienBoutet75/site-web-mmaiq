@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { signIn, signUp, resetPassword, getProfile, supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -28,7 +28,18 @@ export function Connexion() {
   const navigate = useNavigate();
   const { setCoachSession, primeAuth } = useAuth();
 
-  const inputClass = "w-full bg-[var(--color-bg-surface)] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors";
+  // A11y : les messages de feedback reçoivent le focus à leur apparition
+  // pour être annoncés par les lecteurs d'écran (comme sur Contact).
+  const errorRef = useRef<HTMLDivElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (error) errorRef.current?.focus();
+  }, [error]);
+  useEffect(() => {
+    if (success) successRef.current?.focus();
+  }, [success]);
+
+  const inputClass = "w-full bg-[var(--color-bg-surface)] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-white/55 focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors";
   const submitClass = "w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(123,47,255,0.3)]";
 
   // Convention de redirection : admin/super_admin → /admin, coach → /coach/dashboard,
@@ -165,7 +176,7 @@ export function Connexion() {
       ? "Accès coach par clé"
       : mode === 'signup'
         ? "Crée ton compte gratuit pour accéder aux teasers"
-        : "Connectez-vous à votre espace";
+        : "Connecte-toi à ton espace";
 
   return (
     <div className="min-h-screen bg-[var(--color-bg-base)] flex items-center justify-center p-4">
@@ -187,13 +198,23 @@ export function Connexion() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-[var(--color-accent-red)] text-sm text-center">
+          <div
+            role="alert"
+            ref={errorRef}
+            tabIndex={-1}
+            className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-[var(--color-accent-red)] text-sm text-center focus:outline-none"
+          >
             {error}
           </div>
         )}
 
         {success && (
-          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-500 text-sm text-center">
+          <div
+            role="status"
+            ref={successRef}
+            tabIndex={-1}
+            className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl text-green-500 text-sm text-center focus:outline-none"
+          >
             {success}
           </div>
         )}

@@ -151,11 +151,19 @@ export function Success() {
             ) : (
               <>
                 <h1 className="text-3xl font-display mb-4">Paiement réussi !</h1>
-                <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-                  Ton achat est confirmé. Retrouve ta formation à tout moment dans{" "}
-                  <strong className="text-white">Mes formations</strong>, connecté avec l'email
-                  utilisé au paiement{info?.email && <> (<strong className="text-white">{info.email}</strong>)</>}.
-                </p>
+                {/* « Mes formations » n'a de sens que pour une formation :
+                    un achat boutique n'y apparaît jamais. */}
+                {isFormation ? (
+                  <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
+                    Ton achat est confirmé. Retrouve ta formation à tout moment dans{" "}
+                    <strong className="text-white">Mes formations</strong>, connecté avec l'email
+                    utilisé au paiement{info?.email && <> (<strong className="text-white">{info.email}</strong>)</>}.
+                  </p>
+                ) : (
+                  <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
+                    Ton achat est confirmé. Merci pour ta confiance !
+                  </p>
+                )}
               </>
             )}
 
@@ -163,7 +171,7 @@ export function Success() {
               {state === "legacy" || !isSubscription ? (
                 <Link to={isFormation ? "/mes-formations" : "/instructional"}>
                   <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
-                    Accéder à mes formations
+                    {isFormation ? "Accéder à mes formations" : "Découvrir les formations"}
                     <ArrowRight size={18} />
                   </Button>
                 </Link>

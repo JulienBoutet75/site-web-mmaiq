@@ -158,7 +158,7 @@ export function MesFormations() {
               </p>
               <Link
                 to="/instructional"
-                className="bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white font-ui font-semibold py-4 px-8 rounded-full transition-all duration-300 shadow-xl flex items-center justify-center gap-2"
+                className="bg-[var(--color-accent-red)] hover:opacity-90 text-white font-ui font-semibold py-4 px-8 rounded-full transition-all duration-300 shadow-xl flex items-center justify-center gap-2"
               >
                 Découvrir le catalogue <ArrowRight size={18} />
               </Link>
@@ -250,7 +250,7 @@ export function MesFormations() {
                         </h3>
 
                         <div className="mt-auto pt-5 border-t border-white/5">
-                          <button className="w-full bg-[var(--color-accent-red)] hover:bg-[#ff4d5e] text-white font-ui font-bold py-3 px-5 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm shadow-[0_0_15px_rgba(255,23,68,0.2)]">
+                          <button className="w-full bg-[var(--color-accent-red)] hover:opacity-90 text-white font-ui font-bold py-3 px-5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-[0_0_15px_rgba(255,23,68,0.2)]">
                             Reprendre <ArrowRight size={16} />
                           </button>
                         </div>

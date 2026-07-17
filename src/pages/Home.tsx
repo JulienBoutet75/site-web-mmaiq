@@ -1,44 +1,39 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from 'motion/react';
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Badge } from "../components/ui/Badge";
-import { Card } from "../components/ui/Card";
 import { EditableText, EditableImage, EditableSelect } from "../components/admin/Editable";
 import { useAuth } from "../context/AuthContext";
 import { useSite } from "../context/SiteContext";
 import { fetchData } from "../lib/supabase";
-import { 
-  Play, ArrowRight, ChevronDown, ChevronUp, Smartphone, PlayCircle,
-  Brain, BarChart3, Target, Users, Video, FileText, Repeat, Infinity as InfinityIcon, Award, Crosshair,
-  FileEdit, Mic, Clapperboard, ArrowLeftRight, ArrowUpDown, Check, Plus, ChevronLeft, ChevronRight
+import {
+  Play, ArrowRight, Smartphone, PlayCircle, Video, ChevronLeft, ChevronRight
 } from "lucide-react";
-import { powerUpVariant, staggerContainer, speedImpactVariant, speedImpactRightVariant, textRevealVariant } from "../animations";
+import { powerUpVariant, speedImpactVariant, speedImpactRightVariant, textRevealVariant } from "../animations";
 import PricingSection from "../components/PricingSection";
+import { PhoneFrame } from "../components/PhoneFrame";
+import { FaqAccordion } from "../components/FaqAccordion";
+import { faqs } from "../data/faq";
 
 export function Home() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const montageRef = useRef<HTMLVideoElement>(null);
 
+  // La démo complète pèse ~4,5 Mo : on ne la télécharge et ne la lit que
+  // lorsqu'elle entre à l'écran, et pas du tout en prefers-reduced-motion.
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('in-view');
-          } else {
-            entry.target.classList.remove('in-view');
-          }
-        });
+    const el = montageRef.current;
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) el.play().catch(() => {});
+        else el.pause();
       },
-      { threshold: 0.5 } // Trigger when 50% of the image is visible
+      { threshold: 0.25 }
     );
-
-    const images = document.querySelectorAll('.method-image-container img');
-    images.forEach((img) => observer.observe(img));
-
-    return () => {
-      images.forEach((img) => observer.unobserve(img));
-    };
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
   const { accessToken } = useAuth();
   const { siteData, isAdmin } = useSite();
@@ -60,10 +55,6 @@ export function Home() {
     };
     loadData();
   }, [accessToken]);
-
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
 
   return (
     <div className="bg-[var(--color-bg-base)] text-white selection:bg-[var(--color-accent-purple)] selection:text-white">
@@ -155,112 +146,26 @@ export function Home() {
               className="text-[var(--color-text-secondary)] font-body text-[12px] sm:text-sm md:text-xl max-w-2xl mx-auto leading-relaxed px-2"
             />
           </motion.div>
-          <div className="flex flex-col lg:grid lg:grid-cols-4 gap-6 items-center">
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={speedImpactVariant}
-              className="flex flex-row lg:flex-col gap-4 lg:gap-6 w-full lg:col-span-1 order-3 lg:order-1"
-            >
-              <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-primary)] transition-colors relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-primary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
-                  <div className="absolute inset-0 bg-[var(--color-accent-primary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-primary)]/40 transition-colors"></div>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
-                  <EditableImage 
-                    path="home.valueprop.p1.icon" 
-                    defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/1111.png" 
-                    className="w-8 h-8 md:w-20 md:h-20 relative z-10 drop-shadow-[0_0_8px_rgba(123,47,255,0.8)]" 
-                    imgClassName="w-full h-full object-contain rounded-full" 
-                  />
-                  <div className="absolute inset-0 border border-[var(--color-accent-primary)]/30 rounded-full scale-105 opacity-0 group-hover/logo:opacity-100 group-hover/logo:scale-100 transition-all duration-300"></div>
-                </div>
-                <EditableText as="h3" path="home.valueprop.p1.title" defaultText="Analyse Tactique" className="text-sm md:text-2xl font-display text-white mb-1 md:mb-2 relative z-10" />
-                <EditableText as="p" path="home.valueprop.p1.desc" defaultText="Décortique le style de ton adversaire en quelques secondes." className="text-[10px] md:text-base text-[var(--color-text-secondary)] font-body relative z-10" />
-              </div>
-
-              <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-gold)] transition-colors relative overflow-hidden lg:mt-6">
-                <div className="absolute inset-0 bg-gradient-to-tl from-[var(--color-accent-gold)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(255,214,0,0.1)] group-hover:shadow-[0_0_30px_rgba(255,214,0,0.3)] transition-shadow overflow-hidden group/logo">
-                  <div className="absolute inset-0 bg-[var(--color-accent-gold)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-gold)]/40 transition-colors"></div>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,214,0,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
-                  <EditableImage 
-                    path="home.valueprop.p3.icon" 
-                    defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/3333333.png" 
-                    className="w-8 h-8 md:w-20 md:h-20 relative z-10 drop-shadow-[0_0_8px_rgba(255,214,0,0.8)]" 
-                    imgClassName="w-full h-full object-contain rounded-full" 
-                  />
-                  <div className="absolute inset-0 border border-[var(--color-accent-gold)]/30 rounded-full scale-105 opacity-0 group-hover/logo:opacity-100 group-hover/logo:scale-100 transition-all duration-300"></div>
-                </div>
-                <EditableText as="h3" path="home.valueprop.p3.title" defaultText="Progression Mesurable" className="text-sm md:text-2xl font-display text-white mb-1 md:mb-2 relative z-10" />
-                <EditableText as="p" path="home.valueprop.p3.desc" defaultText="Suis tes stats, ton cardio et ta charge d'entraînement." className="text-[10px] md:text-base text-[var(--color-text-secondary)] font-body relative z-10" />
-              </div>
-            </motion.div>
-
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={powerUpVariant}
-              className="lg:col-span-2 relative aspect-video rounded-[2rem] overflow-hidden border border-[var(--color-border)] shadow-[0_0_50px_rgba(123,47,255,0.2)] order-2 lg:order-2"
-            >
-              {/* Extrait réel du produit : scan de repas IA (montage investisseur) */}
-              <video
-                src="/app/videos/montage-scan.mp4"
-                poster="/app/videos/montage-scan-poster.webp"
-                aria-label="Démo du scan de repas IA de MMA IQ : photo de l'assiette, analyse, aliments détectés"
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-base)] via-transparent to-transparent pointer-events-none"></div>
-            </motion.div>
-
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={speedImpactRightVariant}
-              className="flex flex-row lg:flex-col gap-4 lg:gap-6 w-full lg:col-span-1 order-1 lg:order-3"
-            >
-              <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-primary)] transition-colors relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-bl from-[var(--color-accent-primary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(123,47,255,0.1)] group-hover:shadow-[0_0_30px_rgba(123,47,255,0.3)] transition-shadow overflow-hidden group/logo">
-                  <div className="absolute inset-0 bg-[var(--color-accent-primary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-primary)]/40 transition-colors"></div>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
-                  <EditableImage 
-                    path="home.valueprop.p2.icon" 
-                    defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/22222.png" 
-                    className="w-8 h-8 md:w-20 md:h-20 relative z-10 drop-shadow-[0_0_8px_rgba(123,47,255,0.8)]" 
-                    imgClassName="w-full h-full object-contain rounded-full" 
-                  />
-                  <div className="absolute inset-0 border border-[var(--color-accent-primary)]/30 rounded-full scale-105 opacity-0 group-hover/logo:opacity-100 group-hover/logo:scale-100 transition-all duration-300"></div>
-                </div>
-                <EditableText as="h3" path="home.valueprop.p2.title" defaultText="Entraînement Élite" className="text-sm md:text-2xl font-display text-white mb-1 md:mb-2 relative z-10" />
-                <EditableText as="p" path="home.valueprop.p2.desc" defaultText="Des programmes conçus par les meilleurs coachs francophones." className="text-[10px] md:text-base text-[var(--color-text-secondary)] font-body relative z-10" />
-              </div>
-              <div className="flex-1 flex flex-col items-center text-center p-4 md:p-6 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl group hover:border-[var(--color-accent-secondary)] transition-colors relative overflow-hidden lg:mt-6">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-accent-secondary)]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="w-12 h-12 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-white/10 flex items-center justify-center mb-3 md:mb-6 relative shadow-[0_0_20px_rgba(0,229,255,0.1)] group-hover:shadow-[0_0_30px_rgba(0,229,255,0.3)] transition-shadow overflow-hidden group/logo">
-                  <div className="absolute inset-0 bg-[var(--color-accent-secondary)]/20 blur-md rounded-full group-hover/logo:bg-[var(--color-accent-secondary)]/40 transition-colors"></div>
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,229,255,0.8)_0%,transparent_70%)] opacity-0 group-hover/logo:opacity-50 transition-opacity"></div>
-                  <EditableImage 
-                    path="home.valueprop.p4.icon" 
-                    defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/side-view-male-female-boxers-fist-bump.jpg" 
-                    className="w-8 h-8 md:w-20 md:h-20 relative z-10 drop-shadow-[0_0_8px_rgba(0,229,255,0.8)]" 
-                    imgClassName="w-full h-full object-cover rounded-full" 
-                  />
-                  <div className="absolute inset-0 border border-[var(--color-accent-secondary)]/30 rounded-full scale-105 opacity-0 group-hover/logo:opacity-100 group-hover/logo:scale-100 transition-all duration-300"></div>
-                </div>
-                <EditableText as="h3" path="home.valueprop.p4.title" defaultText="Communauté & Sparring" className="text-sm md:text-2xl font-display text-white mb-1 md:mb-2 relative z-10" />
-                <EditableText as="p" path="home.valueprop.p4.desc" defaultText="Échange avec d'autres passionnés et trouve des partenaires d'entraînement." className="text-[10px] md:text-base text-[var(--color-text-secondary)] font-body relative z-10" />
-              </div>
-            </motion.div>
-          </div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={powerUpVariant}
+            className="relative max-w-5xl mx-auto aspect-video rounded-[2rem] overflow-hidden border border-[var(--color-border)] shadow-[0_0_50px_rgba(123,47,255,0.2)]"
+          >
+            {/* Montage produit complet : les 9 modules de l'app (01/09 → 09/09) */}
+            <video
+              ref={montageRef}
+              src="/app/videos/montage-full.mp4"
+              poster="/app/videos/montage-full-poster.webp"
+              aria-label="Démo complète de l'app MMA IQ : les 9 modules, de l'onboarding à la communauté"
+              muted
+              loop
+              playsInline
+              preload="none"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
         </div>
       </section>
 
@@ -292,9 +197,9 @@ export function Home() {
             </div>
 
             {[
-              { step: '01', title: 'Évalue ton niveau', desc: 'Passe nos tests physiques et techniques pour définir ton point de départ.', color: 'var(--color-accent-energy)', stat: 'DATA.SYNC', img: 'https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/apapa.png' },
-              { step: '02', title: 'Suis ton plan', desc: 'Reçois un programme adapté à tes objectifs et ton emploi du temps.', color: 'var(--color-accent-primary)', stat: 'SYS.ACTIVE', img: 'https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/ChatGPT%20Image%2028%20mars%202026,%2011_24_24.png' },
-              { step: '03', title: 'Mesure l\'impact', desc: 'Analyse tes progrès avec des données concrètes et ajuste le tir.', color: 'var(--color-accent-secondary)', stat: 'CALC.OPTIM', img: 'https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/ChatGPT%20Image%2028%20mars%202026,%2011_06_59.png' }
+              { step: '01', title: 'Évalue ton niveau', desc: 'Passe nos tests physiques et techniques pour définir ton point de départ.', color: 'var(--color-accent-energy)', stat: 'DATA.SYNC', video: '/app/videos/onboarding.mp4', posterImg: '/app/videos/onboarding-poster.webp', label: "Onboarding de l'app : disciplines, années de pratique, niveau et mensurations" },
+              { step: '02', title: 'Suis ton plan', desc: 'Reçois un programme adapté à tes objectifs et ton emploi du temps.', color: 'var(--color-accent-primary)', stat: 'SYS.ACTIVE', video: '/app/videos/entrainement-live.mp4', posterImg: '/app/videos/entrainement-live-poster.webp', label: "Séance d'entraînement guidée en temps réel dans l'app" },
+              { step: '03', title: 'Mesure l\'impact', desc: 'Analyse tes progrès avec des données concrètes et ajuste le tir.', color: 'var(--color-accent-secondary)', stat: 'CALC.OPTIM', video: '/app/videos/hero-performance.mp4', posterImg: '/app/videos/hero-performance-poster.webp', label: "Tableau de bord performance de l'app : score global de forme et courbes" }
             ].map((block, i) => (
               <div key={i} className={`flex flex-col ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-8 md:gap-12 relative z-10`}>
                 <motion.div 
@@ -304,17 +209,12 @@ export function Home() {
                   variants={i % 2 === 0 ? speedImpactVariant : speedImpactRightVariant}
                   className="w-full md:w-1/2 relative"
                 >
-                  <div className="aspect-square w-full max-w-[200px] md:max-w-[300px] mx-auto bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-full overflow-hidden relative group p-2">
-                    <div className="absolute inset-0 border border-[var(--color-accent-energy)]/20 m-4 rounded-full pointer-events-none z-20"></div>
-                    
-                    <EditableImage 
-                      path={`home.method.img${i}`}
-                      defaultSrc={block.img}
-                      className="w-full h-full relative z-10 rounded-full overflow-hidden method-image-container"
-                      imgClassName="w-full h-full object-cover object-center transition-all duration-700 rounded-full"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-surface)] to-transparent opacity-80 z-10 pointer-events-none rounded-full"></div>
-                  </div>
+                  {/* Vraie capture de l'app dans un cadre téléphone, comme sur la page /app */}
+                  <PhoneFrame
+                    src={block.video}
+                    poster={block.posterImg}
+                    label={block.label}
+                  />
                   {/* Step Number Overlay */}
                   <div className={`absolute ${i % 2 === 0 ? '-right-4 md:-right-8' : '-left-4 md:-left-8'} -top-8 md:-top-12 text-6xl md:text-[150px] font-accent font-black text-white/5 select-none pointer-events-none`}>
                     {block.step}
@@ -341,115 +241,6 @@ export function Home() {
                 </motion.div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 4 — LES COACHS */}
-      <section className="py-16 md:py-24 px-6 bg-[var(--color-bg-base)] border-t border-[var(--color-border)] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10">
-          <motion.h2 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={textRevealVariant}
-            className="text-4xl md:text-5xl lg:text-6xl text-center mb-2 md:mb-4 font-display uppercase tracking-tighter text-white"
-          >
-            L'Élite à tes côtés.
-          </motion.h2>
-          <motion.p
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={textRevealVariant}
-            className="text-xs sm:text-sm md:text-xl text-center text-[var(--color-text-secondary)] font-body font-normal mb-12 md:mb-16 px-2"
-          >
-            Derrière chaque champion, il y a un coach qui voit tout.<br /><span className="font-days-one tracking-normal">MMA IQ</span> te donne les yeux.
-          </motion.p>
-          
-          <div className="relative flex items-center justify-center w-full max-w-5xl mx-auto px-0 md:px-12">
-            <button 
-              className="hidden md:flex absolute left-0 p-3 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full text-white hover:bg-white/10 shadow-[0_0_15px_rgba(0,0,0,0.5)] z-10" 
-              onClick={() => document.getElementById('coaches-scroll')?.scrollBy({ left: -350, behavior: 'smooth' })}
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <div id="coaches-scroll" className="flex overflow-x-auto gap-4 md:gap-6 pb-8 snap-x snap-mandatory hide-scrollbar scroll-smooth w-full px-4 md:px-0">
-              {[1, 2].map((i) => {
-                const selectedId = siteData.texts[`home.featured_coach_${i}`];
-                const coach = coaches.find(c => String(c.id) === String(selectedId)) || coaches[i - 1];
-
-                if (!coach && !isAdmin) return null;
-
-                return (
-                  <motion.div 
-                    key={i}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={powerUpVariant}
-                    className="w-[85vw] max-w-[300px] md:max-w-none md:w-[calc(50%-12px)] bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl p-4 md:p-6 text-center group hover:border-[var(--color-accent-energy)] transition-colors snap-center relative overflow-hidden flex-shrink-0"
-                  >
-                  {isAdmin && (
-                    <div className="absolute top-2 right-2 z-50 bg-black/90 p-2 rounded-lg border border-purple-500/50 backdrop-blur-md shadow-xl text-left">
-                      <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">Sélectionner Coach {i}</div>
-                      <EditableSelect 
-                        path={`home.featured_coach_${i}`}
-                        options={coaches.map(c => ({ value: String(c.id), label: c.name }))}
-                        defaultText="Choisir un coach..."
-                        className="text-sm"
-                      />
-                    </div>
-                  )}
-                  <Link to={coach ? `/coaches/${coach.slug}` : "#"} className="block w-full h-full">
-                    <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-accent-energy)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
-                    <div className="w-20 h-20 md:w-32 md:h-32 mx-auto mb-4 md:mb-6 relative mt-4 md:mt-6">
-                      <div className="absolute inset-0 bg-[var(--color-accent-energy)] rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity animate-aura-pulse"></div>
-                      <div className="w-full h-full rounded-full overflow-hidden border-2 border-[var(--color-border)] group-hover:border-[var(--color-accent-energy)] transition-colors relative z-10">
-                        {coach?.photo_url ? (
-                          <img loading="lazy"
-                            src={coach.photo_url}
-                            alt={coach.name}
-                            className="w-full h-full object-cover object-center grayscale group-hover:grayscale-0 transition-all duration-500"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[var(--color-bg-elevated)] to-[var(--color-bg-surface)] flex items-center justify-center">
-                            <span className="font-display text-3xl md:text-5xl text-white/40">{(coach?.name || "?").charAt(0)}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <h3 className="text-2xl font-ui font-bold text-white mb-2">{coach?.name || "Sélectionne un coach"}</h3>
-                    <div className="flex flex-wrap justify-center gap-2 mb-4">
-                      {coach?.specialties?.slice(0, 2).map((specialty: string, idx: number) => (
-                        <Badge key={idx} className="bg-white/5 text-[var(--color-accent-energy)] border-[var(--color-accent-energy)]/30 font-ui text-xs">{specialty}</Badge>
-                      ))}
-                    </div>
-                    {coach?.bio && (
-                      <p className="text-sm font-body text-[var(--color-text-secondary)] mb-6 line-clamp-3">
-                        {coach.bio}
-                      </p>
-                    )}
-
-                    <div className="border-t border-[var(--color-border)] pt-4 text-sm font-ui font-semibold text-[var(--color-accent-energy)]">
-                      Voir son profil →
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
-            </div>
-            <button 
-              className="hidden md:flex absolute right-0 p-3 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full text-white hover:bg-white/10 shadow-[0_0_15px_rgba(0,0,0,0.5)] z-10" 
-              onClick={() => document.getElementById('coaches-scroll')?.scrollBy({ left: 350, behavior: 'smooth' })}
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          </div>
-          <div className="text-center text-[var(--color-text-secondary)] text-xs mt-2 md:hidden animate-pulse">
-            ← Glissez pour voir plus →
           </div>
         </div>
       </section>
@@ -617,61 +408,6 @@ export function Home() {
       </section>
       </div>
 
-      {/* SECTION 6 — POURQUOI LES SPORTS DE COMBAT ? */}
-      <section className="py-8 md:py-32 px-4 md:px-6 relative overflow-hidden border-y border-[var(--color-border)]">
-        <div className="absolute inset-0 z-0">
-          <EditableImage 
-            path="home.story.bg"
-            defaultSrc="https://images.unsplash.com/photo-1517438476312-10d79c077509?auto=format&fit=crop&q=80"
-            className="w-full h-full"
-            imgClassName="w-full h-full object-cover opacity-20"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-bg-base)] via-[var(--color-bg-base)]/80 to-transparent"></div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row items-center gap-8 md:gap-16">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={textRevealVariant}
-            className="w-full md:w-1/2"
-          >
-            <EditableText as="h2" path="home.story.title" defaultText="Plus qu'un sport." className="text-2xl md:text-5xl lg:text-7xl font-display uppercase text-white tracking-tighter mb-2 md:mb-6" />
-            <div className="w-12 md:w-20 h-1 bg-[var(--color-accent-secondary)] mb-4 md:mb-8"></div>
-            <EditableText as="p" path="home.story.p1" defaultText="Le MMA n'est pas qu'une question de force physique. C'est une discipline mentale, une quête de maîtrise de soi et de résilience." className="text-xs md:text-xl font-body text-[var(--color-text-secondary)] mb-3 md:mb-6" />
-            <EditableText as="p" path="home.story.p2" defaultText="Sur le tatami ou dans la cage, tu apprends à affronter tes peurs, à repousser tes limites et à te relever après chaque chute. C'est cette mentalité que nous forgeons chez MMA IQ." className="text-xs md:text-xl font-body text-[var(--color-text-secondary)] mb-6 md:mb-12" />
-            
-            <div className="border-l-2 md:border-l-4 border-[var(--color-accent-gold)] pl-3 md:pl-6 py-1 md:py-2">
-              <EditableText as="p" path="home.story.quote" defaultText="« Le combat est le test ultime de la vérité. »" className="text-base md:text-2xl lg:text-3xl font-display text-white italic tracking-wide" />
-            </div>
-          </motion.div>
-          
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-            className="w-full md:w-1/2 flex flex-col gap-3 md:gap-4"
-          >
-            {[
-              { title: 'Discipline', desc: "Une méthode claire, un plan à suivre, des repères concrets à chaque entraînement." },
-              { title: 'Maîtrise de soi', desc: "Apprendre à gérer la pression, la fatigue et la peur — dans la cage comme en dehors." },
-              { title: 'Résilience', desc: "Se relever après chaque chute et transformer les défaites en données de progression." },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                variants={powerUpVariant}
-                className="bg-[var(--color-bg-surface)]/50 backdrop-blur-md border border-[var(--color-border)] p-4 md:p-6 rounded-xl md:rounded-2xl hover:border-[var(--color-accent-primary)] transition-colors"
-              >
-                <div className="text-lg md:text-2xl font-display text-white mb-1 uppercase tracking-wide">{item.title}</div>
-                <div className="text-xs md:text-base font-body text-[var(--color-text-secondary)]">{item.desc}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
       {/* SECTION 7 — ACCÈS PREMIUM */}
       <PricingSection />
 
@@ -687,31 +423,11 @@ export function Home() {
           >
             Questions fréquentes
           </motion.h2>
-          <div className="space-y-4">
-            {[
-              { q: "MMA IQ, c'est pour quel niveau ?", a: "Que tu sois débutant cherchant à poser les bases ou compétiteur préparant son prochain combat, l'application s'adapte à ton profil et tes objectifs." },
-              { q: "Quelle différence entre l'application et le coaching vidéo ?", a: "L'application est ton outil quotidien (planning, stats, stratégie). Les coachings vidéo (Academy) sont des masterclasses spécifiques achetées à l'unité pour approfondir une technique précise." },
-              { q: "Comment fonctionne le Gameplan ?", a: "Notre algorithme analyse les données disponibles sur le style de combat demandé et génère une stratégie tactique structurée (forces, faiblesses, clés du combat)." },
-              { q: "Puis-je annuler mon abonnement Premium ?", a: "Oui, l'abonnement est sans engagement. Tu peux l'annuler à tout moment depuis les paramètres de ton compte." },
-            ].map((faq, i) => (
-              <div key={i} className="border border-[var(--color-border)] rounded-xl p-6 bg-[var(--color-bg-surface)] hover:border-[var(--color-accent-primary)] transition-colors">
-                <button className="w-full text-left text-white font-ui font-bold text-lg md:text-xl flex justify-between items-center" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                  {faq.q}
-                  <span className={`text-[var(--color-accent-primary)] transform transition-transform ${openFaq === i ? 'rotate-45' : ''}`}>
-                    <Plus className="w-6 h-6" />
-                  </span>
-                </button>
-                {openFaq === i && (
-                  <motion.p 
-                    initial={{ height: 0, opacity: 0 }} 
-                    animate={{ height: 'auto', opacity: 1 }} 
-                    className="text-[var(--color-text-secondary)] font-body text-base md:text-lg mt-4"
-                  >
-                    {faq.a}
-                  </motion.p>
-                )}
-              </div>
-            ))}
+          <FaqAccordion items={faqs.filter(f => f.featured)} />
+          <div className="mt-8 text-center">
+            <Link to="/faq" className="inline-flex items-center gap-2 text-[var(--color-accent-primary)] font-ui font-bold hover:underline">
+              Toutes les questions <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

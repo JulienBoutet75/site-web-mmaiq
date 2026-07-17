@@ -382,7 +382,7 @@ export function Course() {
       return;
     }
     if (!hasPurchased && !canEdit) {
-      showToast("Achetez la formation ou utilisez un code d'accès pour accéder à ce chapitre.");
+      showToast("Achète la formation ou utilise un code d'accès pour accéder à ce chapitre.");
       return;
     }
     setActiveChapter(ch);
@@ -817,7 +817,7 @@ export function Course() {
                     <div className="absolute inset-0 z-30 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
                       <Lock className="text-[var(--color-accent-primary)] mb-4" size={48} />
                       <h3 className="text-2xl font-display mb-2">Contenu verrouillé</h3>
-                      <p className="text-white/70 mb-6 max-w-sm">Achetez la formation ou entrez votre code d'accès pour débloquer les chapitres.</p>
+                      <p className="text-white/70 mb-6 max-w-sm">Achète la formation ou entre ton code d'accès pour débloquer les chapitres.</p>
                       <form onSubmit={handleCodeSubmit} className="flex gap-2 w-full max-w-xs">
                         <input
                           type="text"

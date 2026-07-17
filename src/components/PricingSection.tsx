@@ -237,10 +237,10 @@ const PlanCard: React.FC<{ plan: any, index: number }> = ({ plan, index }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 60 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.08 }}
+      animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: index * 0.08 } }}
       whileHover={{ scale: 1.02 }}
-      className={`relative h-full transition-all duration-300 ${isElite ? 'lg:-mt-4 lg:mb-4 lg:w-[calc(100%+20px)] lg:-ml-[10px] z-10 mt-2 md:mt-0' : 'z-0'}`}
+      transition={{ duration: 0.2 }}
+      className={`relative h-full ${isElite ? 'lg:-mt-4 lg:mb-4 lg:w-[calc(100%+20px)] lg:-ml-[10px] z-10 mt-2 md:mt-0' : 'z-0'}`}
     >
       {isElite ? (
         <div className="relative p-[2px] rounded-2xl overflow-visible h-full shadow-[0_0_40px_rgba(212,175,55,0.35),0_0_80px_rgba(123,47,255,0.15)]" style={{ background: `linear-gradient(135deg, ${plan.accent}66, transparent)` }}>
@@ -309,6 +309,23 @@ export default function PricingSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  // A11y modale (aria-modal) : focus sur « Fermer » à l'ouverture, fermeture
+  // par Échap, focus rendu au bouton déclencheur à la fermeture.
+  useEffect(() => {
+    if (!isModalOpen) return;
+    closeButtonRef.current?.focus();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsModalOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      triggerRef.current?.focus();
+    };
+  }, [isModalOpen]);
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -421,6 +438,7 @@ export default function PricingSection() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] rounded-full blur-xl opacity-70 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
             <button
+              ref={triggerRef}
               onClick={() => setIsModalOpen(true)}
               className="relative flex items-center justify-center px-6 py-3 md:px-8 md:py-4 font-display tracking-wider text-sm md:text-xl text-white transition-all duration-300 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] rounded-full hover:scale-110 shadow-[0_0_40px_rgba(123,47,255,0.6)] border border-white/30 overflow-hidden"
             >
@@ -441,6 +459,9 @@ export default function PricingSection() {
             onClick={() => setIsModalOpen(false)}
           >
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Sélectionnez votre plan"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -450,6 +471,7 @@ export default function PricingSection() {
             >
               {/* Close Button */}
               <button
+                ref={closeButtonRef}
                 onClick={() => setIsModalOpen(false)}
                 className="absolute top-4 right-4 z-[110] p-3 text-white hover:text-white bg-white/10 hover:bg-[var(--color-accent-primary)] rounded-full transition-all duration-300 shadow-lg border border-white/20"
                 aria-label="Fermer"

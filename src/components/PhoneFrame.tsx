@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface PhoneFrameProps {
   /** chemin public du mp4 (boucle muette) */
@@ -20,6 +20,24 @@ interface PhoneFrameProps {
  */
 export function PhoneFrame({ src, poster, label, className = '', eager = false }: PhoneFrameProps) {
   const frameRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Lecture uniquement quand le téléphone est à l'écran (économie de bande
+  // passante) et jamais si l'utilisateur préfère réduire les animations.
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || eager) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) el.play().catch(() => {});
+        else el.pause();
+      },
+      { threshold: 0.3 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [eager]);
 
   const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = frameRef.current;
@@ -49,10 +67,11 @@ export function PhoneFrame({ src, poster, label, className = '', eager = false }
         {/* Dynamic island */}
         <div className="absolute top-[18px] left-1/2 -translate-x-1/2 w-20 h-[18px] bg-black rounded-full z-10" aria-hidden="true" />
         <video
+          ref={videoRef}
           src={src}
           poster={poster}
           aria-label={label}
-          autoPlay
+          autoPlay={eager}
           muted
           loop
           playsInline

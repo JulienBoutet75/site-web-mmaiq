@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode, FormEvent } from "react";
+import { useState, useEffect, useRef, ReactNode, FormEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, Pencil, ShieldCheck, ArrowRight } from "lucide-react";
 import { motion } from "motion/react";
@@ -17,6 +17,12 @@ export function Layout({ children }: { children: ReactNode }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  // A11y : le message de confirmation remplace le formulaire (dont le bouton
+  // focalisé) — on lui donne le focus pour une annonce fiable au lecteur d'écran.
+  const newsletterSuccessRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (newsletterStatus === "success") newsletterSuccessRef.current?.focus();
+  }, [newsletterStatus]);
   const location = useLocation();
   const navigate = useNavigate();
   const { siteData, isAdmin, updateArray } = useSite();
@@ -494,8 +500,9 @@ export function Layout({ children }: { children: ReactNode }) {
               {newsletterStatus === "success" ? (
                 <p
                   role="status"
-                  aria-live="polite"
-                  className="text-[var(--color-success)] font-ui text-xs md:text-sm font-semibold"
+                  ref={newsletterSuccessRef}
+                  tabIndex={-1}
+                  className="text-[var(--color-success)] font-ui text-xs md:text-sm font-semibold focus:outline-none"
                 >
                   ✓ Inscription confirmée. À très vite !
                 </p>
@@ -510,7 +517,7 @@ export function Layout({ children }: { children: ReactNode }) {
                       value={newsletterEmail}
                       onChange={(e) => setNewsletterEmail(e.target.value)}
                       placeholder="Email"
-                      className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 md:px-4 w-full font-ui text-xs md:text-sm text-white focus:outline-none focus:border-[var(--color-accent-purple)] focus:bg-white/10 transition-all placeholder:text-white/40"
+                      className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 md:px-4 w-full font-ui text-xs md:text-sm text-white focus:outline-none focus:border-[var(--color-accent-purple)] focus:bg-white/10 transition-all placeholder:text-white/55"
                     />
                     <button
                       disabled={newsletterStatus === "loading"}
@@ -527,7 +534,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 </form>
               )}
               <p className="text-[var(--color-text-sec)]/60 font-ui text-[11px] mt-3 leading-relaxed max-w-xs">
-                Jamais partagé, désinscription en un clic.{" "}
+                Jamais partagé. Tu peux te désinscrire à tout moment.{" "}
                 <Link to="/confidentialite" className="underline hover:text-white transition-colors">
                   Confidentialité
                 </Link>

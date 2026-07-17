@@ -1,130 +1,122 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { isValidElement, type ReactNode } from "react";
+import { motion } from "motion/react";
+import { Link } from "react-router-dom";
+import { Mail, ArrowRight } from "lucide-react";
 import { Badge } from "../components/ui/Badge";
+import { AmbientBackground } from "../components/AmbientBackground";
+import { FaqAccordion } from "../components/FaqAccordion";
+import { Seo } from "../components/Seo";
+import { faqs } from "../data/faq";
+import { staggerContainer, textRevealVariant } from "../animations";
 
-const faqs = [
-  {
-    q: "MMA IQ, c'est pour quel niveau ?",
-    a: "Tout le monde. L'application et les formations sont structurées par niveaux : débutant, amateur, pro. Chaque contenu indique clairement ses prérequis.",
-  },
-  {
-    q: "Quelle différence entre l'application de performance et le coaching vidéo ?",
-    a: "L'application est ton outil quotidien : coaching digital, analytics, gameplan, suivi. Le coaching vidéo (Academy) propose des programmes approfondis avec des coachs reconnus. Les deux sont complémentaires.",
-  },
-  {
-    q: "Comment accéder aux formations achetées ?",
-    a: "Après achat, un lien d'accès direct à la formation t'est fourni. Accès illimité, lecture sur tous tes appareils.",
-  },
-  {
-    q: "L'application est-elle disponible ?",
-    a: "L'application arrive sur iOS et Android. Laisse ton email sur la page Application pour être prévenu du lancement. Un accès gratuit aux fonctionnalités de base sera proposé, avec un abonnement premium pour les fonctionnalités avancées (Coach Digital, Gameplan, Analytics complets).",
-  },
-  {
-    q: "Peut-on se faire rembourser une formation ?",
-    a: "Écris-nous via la page Contact : on étudie chaque demande au cas par cas et on répond vite.",
-  },
-  {
-    q: "Comment choisir la bonne formation ?",
-    a: "Chaque formation indique son niveau, sa discipline et ses objectifs. En cas de doute, contacte-nous — on t'oriente vers le bon contenu.",
-  },
-  {
-    q: "Les formations sont-elles en français ?",
-    a: "Oui, 100% en français. Contenu tourné et monté par notre équipe avec des coachs francophones.",
-  },
-];
+// Extrait le texte brut d'un ReactNode (réponses FAQ avec liens) pour le JSON-LD.
+function nodeToText(node: ReactNode): string {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(nodeToText).join("");
+  if (isValidElement(node)) {
+    return nodeToText((node.props as { children?: ReactNode }).children);
+  }
+  return "";
+}
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: nodeToText(item.a).replace(/\s+/g, " ").trim(),
+    },
+  })),
+};
 
 export function FAQ() {
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-
-  const toggleFaq = (index: number) => {
-    setOpenFaq(openFaq === index ? null : index);
-  };
-
   return (
-    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 selection:bg-[var(--color-accent-purple)] selection:text-white min-h-screen">
+    <div className="bg-[var(--color-bg-base)] text-[var(--color-text-primary)] min-h-screen relative overflow-hidden pt-32 pb-24 selection:bg-[var(--color-accent-primary)] selection:text-white">
+      <AmbientBackground />
+      <Seo
+        title="FAQ — MMA IQ"
+        description="Plans, formations, accès, résiliation, salles partenaires : les réponses aux questions qu'on nous pose le plus sur MMA IQ."
+        canonicalPath="/faq"
+        jsonLd={faqJsonLd}
+      />
+
       {/* Hero */}
-      <section className="px-6 max-w-3xl mx-auto text-center mb-16 relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(123,47,255,0.08)_0%,transparent_50%)] pointer-events-none blur-3xl"></div>
-        
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.23, 1, 0.32, 1] }}
-          className="relative z-10"
-        >
-          <Badge color="purple" className="mb-8 bg-white/5 border-white/10 text-white/80 shadow-[0_0_30px_rgba(123,47,255,0.2)]">
-            FAQ
-          </Badge>
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl mb-8 leading-[1.1] tracking-tighter drop-shadow-2xl">
+      <section className="px-6 max-w-3xl mx-auto text-center mb-16 relative z-10">
+        <motion.div variants={staggerContainer} initial="hidden" animate="visible">
+          <motion.div variants={textRevealVariant}>
+            <Badge
+              color="purple"
+              className="mb-8 bg-white/5 border border-white/10 text-[var(--color-text-primary)]/80"
+            >
+              FAQ
+            </Badge>
+          </motion.div>
+          <motion.h1
+            variants={textRevealVariant}
+            className="font-display text-display-xl mb-6 leading-[1.05] tracking-tighter text-white"
+          >
             Questions{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)]">
               fréquentes
             </span>
-          </h1>
-          <p className="font-body text-lg md:text-xl text-white/50 mb-12 leading-relaxed">
-            Tout ce que tu dois savoir sur <span className="font-days-one tracking-normal">MMA IQ</span>.
-          </p>
+          </motion.h1>
+          <motion.p
+            variants={textRevealVariant}
+            className="font-body text-lg md:text-xl text-[var(--color-text-secondary)] leading-relaxed"
+          >
+            Les réponses aux questions qu'on nous pose le plus.
+          </motion.p>
         </motion.div>
       </section>
 
-      {/* Accordion */}
+      {/* Accordéon */}
       <section className="px-6 max-w-3xl mx-auto relative z-10">
-        <div className="space-y-4">
-          {faqs.map((faq, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
+        <motion.div
+          variants={textRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+        >
+          <FaqAccordion items={faqs} headingLevel="h2" />
+        </motion.div>
+      </section>
+
+      {/* Sortie — la vraie réponse si la question n'est pas là */}
+      <section className="px-6 max-w-3xl mx-auto relative z-10 mt-20 md:mt-24">
+        <motion.div
+          variants={textRevealVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="text-center border border-white/10 rounded-2xl bg-white/[0.03] backdrop-blur-sm px-6 py-12 md:px-12"
+        >
+          <h2 className="font-display text-display-lg leading-none mb-4 text-white">
+            Une autre question ?
+          </h2>
+          <p className="font-body text-base md:text-lg text-[var(--color-text-secondary)] leading-relaxed mb-8 max-w-xl mx-auto">
+            Écris-nous, on répond sous 24h ouvrées.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--color-accent-primary)] hover:opacity-90 text-white rounded-full font-ui font-bold text-base shadow-[0_0_30px_rgba(123,47,255,0.4)] transition-all"
             >
-              <div 
-                className={`border rounded-2xl overflow-hidden transition-all duration-500 backdrop-blur-sm ${
-                  openFaq === i 
-                    ? "bg-white/[0.04] border-[var(--color-accent-purple)]/30 shadow-[0_10px_30px_-10px_rgba(123,47,255,0.15)]" 
-                    : "bg-white/[0.04] border-white/[0.05] hover:border-white/20 hover:bg-white/[0.03]"
-                }`}
-              >
-                <button
-                  className="w-full px-8 py-6 flex items-center justify-between text-left group"
-                  onClick={() => toggleFaq(i)}
-                >
-                  <span className={`font-display text-xl transition-colors duration-300 pr-8 ${
-                    openFaq === i ? "text-white" : "text-white/80 group-hover:text-white"
-                  }`}>
-                    {faq.q}
-                  </span>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all duration-500 ${
-                    openFaq === i 
-                      ? "bg-[var(--color-accent-purple)]/20 text-[var(--color-accent-purple)] rotate-180" 
-                      : "bg-white/5 text-white/50 group-hover:bg-white/10 group-hover:text-white"
-                  }`}>
-                    <ChevronDown className="w-5 h-5" />
-                  </div>
-                </button>
-                
-                <AnimatePresence>
-                  {openFaq === i && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                    >
-                      <div className="px-8 pb-8 pt-2">
-                        <div className="w-12 h-1 bg-gradient-to-r from-[var(--color-accent-purple)] to-transparent mb-6 opacity-50 rounded-full"></div>
-                        <p className="font-body text-white/60 leading-relaxed text-lg">
-                          {faq.a}
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              <Mail className="w-5 h-5" />
+              Pose ta question
+            </Link>
+            <Link
+              to="/tarifs"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/15 text-white rounded-full font-ui font-bold text-base transition-all"
+            >
+              Voir les tarifs
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </motion.div>
       </section>
     </div>
   );

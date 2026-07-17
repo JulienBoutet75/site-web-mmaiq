@@ -315,7 +315,8 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
     category: initialData?.category || "Technique",
     published: initialData?.published || false,
     thumbnail_url: initialData?.thumbnail_url || "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/default-formation.jpg",
-    trailer_video_url: initialData?.trailer_video_url || "",
+    // La colonne réelle est trailer_url (trailer_video_url n'existe pas)
+    trailer_url: initialData?.trailer_url || "",
   });
 
   const isSuperAdmin = profile?.role === 'super_admin';
@@ -331,7 +332,7 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
     setLoading(true);
     try {
       const url = await uploadFile("formations-videos", file, accessToken);
-      setFormData({ ...formData, trailer_video_url: url });
+      setFormData({ ...formData, trailer_url: url });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -523,8 +524,8 @@ function FormationForm({ coach, initialData, onCancel, onSuccess, categories }: 
                 label="Vidéo de présentation (Trailer)" 
                 accept="video" 
                 bucket="formations-videos"
-                onUpload={(url) => setFormData({ ...formData, trailer_video_url: url })} 
-                currentMedia={formData.trailer_video_url || undefined} 
+                onUpload={(url) => setFormData({ ...formData, trailer_url: url })}
+                currentMedia={formData.trailer_url || undefined}
                 uploadedBy="coach" 
               />
             </div>

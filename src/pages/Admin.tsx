@@ -573,8 +573,8 @@ function FormationsCRUD({ data, coachs, onUpdate, onOpenMedia }: { data: any[]; 
       discipline,
       coach_id,
       thumbnail_url: thumbUrl,
+      // La colonne réelle est trailer_url (trailer_video_url n'existe pas)
       trailer_url: videoUrl,
-      trailer_video_url: videoUrl,
       published: true,
       sort_order: 0
     };

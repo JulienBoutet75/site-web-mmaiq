@@ -135,6 +135,7 @@ const defaultSiteData: SiteData = {
   navLinks: [
     { name: "Application de performance", path: "/app" },
     { name: "Coaching vidéo", path: "/instructional" },
+    { name: "Tarifs", path: "/tarifs" },
     { name: "Shop", path: "/shop" },
     { name: "Blog", path: "/blog" },
     { name: "À propos", path: "/about" },
