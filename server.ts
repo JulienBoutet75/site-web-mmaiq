@@ -159,12 +159,24 @@ async function startServer() {
       return { ok: true as const, formationId };
     }
 
+    // formation_slug est NOT NULL dans la table purchases : on le résout
+    // depuis la formation (repli sur l'id si le slug manque).
+    let formationSlug: string | null = null;
+    const slugResp = await sbService(
+      `/rest/v1/formations?id=eq.${encodeURIComponent(formationId)}&select=slug&limit=1`
+    );
+    if (slugResp.ok) {
+      const rows = (await slugResp.json()) as any[];
+      formationSlug = rows?.[0]?.slug ?? null;
+    }
+
     const inserted = await sbService("/rest/v1/purchases", {
       method: "POST",
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify({
         user_id: userId,
         formation_id: formationId,
+        formation_slug: formationSlug ?? formationId,
         status: "completed",
         stripe_session_id: session.id,
         amount_cents: session.amount_total ?? 0,
@@ -445,7 +457,7 @@ async function startServer() {
 
     try {
       const resp = await sbService(
-        `/rest/v1/formations?id=eq.${encodeURIComponent(formationId)}&select=id,long_description&limit=1`
+        `/rest/v1/formations?id=eq.${encodeURIComponent(formationId)}&select=id,slug,long_description&limit=1`
       );
       const rows: any = resp.ok ? await resp.json() : [];
       const formation = rows?.[0];
@@ -480,6 +492,8 @@ async function startServer() {
         body: JSON.stringify({
           user_id: auth.user.id,
           formation_id: formationId,
+          // Colonne NOT NULL dans purchases (repli sur l'id sans slug)
+          formation_slug: formation.slug ?? formationId,
           status: "completed",
           stripe_session_id: null,
           amount_cents: 0,
