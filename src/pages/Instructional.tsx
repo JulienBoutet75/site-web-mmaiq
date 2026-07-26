@@ -611,7 +611,7 @@ export function Instructional() {
               {/* Asset local : l'ancienne URL Supabase (images/about/mission.jpg)
                   renvoyait une 400, le fichier n'existe plus dans le bucket. */}
               <img loading="lazy"
-                src="/app/academy-fighter.jpg"
+                src="/app/academy-fighter.webp"
                 alt="Combattant MMA IQ en action"
                 className="w-full h-full object-cover mix-blend-luminosity opacity-70"
               />
