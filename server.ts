@@ -1,4 +1,5 @@
 import express from "express";
+import compression from "compression";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -13,6 +14,10 @@ const __dirname = path.dirname(__filename);
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
+
+  // Compression gzip/brotli de toutes les réponses texte (JS/CSS/HTML/JSON).
+  // Gain majeur : le bundle JS/CSS passe de ~800 Ko à ~200 Ko sur le réseau.
+  app.use(compression());
 
   // L'adresse technique Render reste accessible : on renvoie les visiteurs
   // vers le domaine officiel. GET/HEAD seulement — les webhooks (Stripe) et
@@ -702,7 +707,19 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
+    app.use(
+      express.static(distPath, {
+        setHeaders: (res, filePath) => {
+          // Les assets Vite portent un hash de contenu dans leur nom
+          // (index-DmSCc0lX.js) : immuables → cache navigateur 1 an.
+          // Tout le reste (index.html, favicon, vidéos remplaçables) reste
+          // revalidé pour ne pas servir une version périmée.
+          if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+            res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+          }
+        },
+      })
+    );
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
     });
