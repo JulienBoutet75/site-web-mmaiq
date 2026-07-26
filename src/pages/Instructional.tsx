@@ -43,11 +43,6 @@ export function Instructional() {
   // New state for FAQ
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
-  // Vidéo de fond du hero : si l'URL devient inaccessible (bucket
-  // formations-videos passé en privé), on retire le <video> et le fond
-  // existant (dégradés/overlay) prend le relais.
-  const [heroVideoOk, setHeroVideoOk] = useState(true);
-
   useEffect(() => {
     loadData();
   }, []);
@@ -235,18 +230,15 @@ export function Instructional() {
     <div className="bg-[var(--color-bg-base)] text-white selection:bg-[var(--color-accent-red)] selection:text-white min-h-screen font-body">
       
       {/* BLOC 1 — HERO */}
-      <section className="relative w-full min-h-[85vh] flex flex-col items-center justify-center text-center overflow-hidden pt-32 pb-16">
+      <section className="relative w-full min-h-svh flex flex-col items-center justify-center text-center overflow-hidden pt-32 pb-16">
         <div className="absolute inset-0 z-0 bg-[var(--color-bg-base)]">
-          {/* À remplacer par un asset local public/ ou un bucket public :
-              cette URL cassera quand formations-videos passera en privé. */}
-          {heroVideoOk && (
-            <video
-              autoPlay loop muted playsInline
-              onError={() => setHeroVideoOk(false)}
-              className="w-full h-full object-cover opacity-50 relative"
-              src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/formations-videos/BMPCC%204K%20_%20Jessie%20Wilcox%20Boxing.mp4"
-            />
-          )}
+          {/* Asset local : l'ancienne vidéo Supabase pointait sur le bucket
+              formations-videos, supprimé depuis (404 → hero vide et lent). */}
+          <img
+            src="/app/academy-hero.webp"
+            alt=""
+            className="w-full h-full object-cover opacity-50"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-bg-base)]/70 via-[var(--color-bg-base)]/40 to-[var(--color-bg-base)]"></div>
         </div>
         
@@ -616,11 +608,12 @@ export function Instructional() {
           </div>
           <div className="w-full md:w-1/2">
             <div className="aspect-[4/5] bg-[var(--color-bg-base)] border border-[var(--color-accent-red)]/20 rounded-3xl overflow-hidden relative shadow-[0_0_50px_rgba(255,23,68,0.15)]">
-              <img loading="lazy" 
-                src="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/about/mission.jpg" 
-                alt="MMA IQ Setup"
+              {/* Asset local : l'ancienne URL Supabase (images/about/mission.jpg)
+                  renvoyait une 400, le fichier n'existe plus dans le bucket. */}
+              <img loading="lazy"
+                src="/app/academy-fighter.jpg"
+                alt="Combattant MMA IQ en action"
                 className="w-full h-full object-cover mix-blend-luminosity opacity-70"
-                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-surface)] to-transparent"></div>
               <div className="absolute bottom-10 left-10 right-10">

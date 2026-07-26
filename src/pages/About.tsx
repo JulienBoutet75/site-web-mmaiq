@@ -31,8 +31,9 @@ export function About() {
       />
       <AmbientBackground />
 
-      {/* SECTION 1 — HERO STATEMENT */}
-      <section className="relative w-full min-h-[80vh] flex flex-col items-center justify-center text-center px-4 pt-32 pb-10 md:pb-20">
+      {/* SECTION 1 — HERO STATEMENT : compact, la suite de la page reste
+          visible dès l'arrivée (pas de grand vide sous le manifeste) */}
+      <section className="relative w-full flex flex-col items-center justify-center text-center px-4 pt-32 pb-12 md:pt-40 md:pb-16">
         <div className="relative z-10 max-w-5xl mx-auto w-full">
           {/* Bebas ≈ 0,5 em/caractère : « LE MMA MÉRITAIT MIEUX. » (22 car.) demande
              ~40 px max à 375 px et ~34 px à 320 px — display-xl/2xl (planchers 40/48 px)
@@ -69,10 +70,12 @@ export function About() {
       {/* SECTION 2 — ORIGIN STORY */}
       <section className="max-w-7xl mx-auto px-6 py-12 md:py-24">
         <div className="flex flex-col lg:flex-row gap-12 md:gap-16 items-center">
+          {/* Section à la ligne de flottaison : animée au montage (animate) et non
+              au whileInView — l'observer peut rater un élément déjà visible au
+              chargement de la route lazy, laissant le bloc invisible. */}
           <motion.div
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
+            animate="visible"
             variants={speedImpactVariant}
             className="w-full lg:w-[60%]"
           >
@@ -88,8 +91,7 @@ export function About() {
 
           <motion.div
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
+            animate="visible"
             variants={staggerContainer}
             className="w-full lg:w-[40%] flex flex-col gap-4"
           >

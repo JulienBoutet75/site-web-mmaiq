@@ -59,7 +59,7 @@ export function Home() {
   return (
     <div className="bg-[var(--color-bg-base)] text-white selection:bg-[var(--color-accent-purple)] selection:text-white">
       {/* HERO — PROPOSITION DE VALEUR */}
-      <section className="relative min-h-[88vh] md:min-h-[92vh] flex items-center overflow-hidden w-full">
+      <section className="relative min-h-svh flex items-center overflow-hidden w-full">
         {/* Fond photo + voile sombre lisible */}
         <div className="absolute inset-0 z-0">
           <EditableImage
