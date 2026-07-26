@@ -14,6 +14,19 @@ async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
 
+  // L'adresse technique Render reste accessible : on renvoie les visiteurs
+  // vers le domaine officiel. GET/HEAD seulement — les webhooks (Stripe) et
+  // appels API en POST ne suivent pas les redirections.
+  app.use((req, res, next) => {
+    if (
+      req.hostname === "site-web-mmaiq.onrender.com" &&
+      (req.method === "GET" || req.method === "HEAD")
+    ) {
+      return res.redirect(301, `https://mmaiq.fr${req.originalUrl}`);
+    }
+    return next();
+  });
+
   // Le webhook Stripe exige le corps BRUT pour vérifier la signature :
   // on saute express.json() pour cette seule route (déclarée en express.raw).
   const jsonParser = express.json();
