@@ -607,6 +607,72 @@ async function startServer() {
     return price.id;
   };
 
+  // Une salle valide = présente dans partners_public (donc active). Retourne
+  // "unavailable" si Supabase ne répond pas — l'appelant décide du repli.
+  type GymPartner = { code: string; discount_percent: number; discount_months: number };
+  const lookupGymPartner = async (code: string): Promise<GymPartner | null | "unavailable"> => {
+    try {
+      const resp = await sbAnon(
+        `/rest/v1/partners_public?code=eq.${encodeURIComponent(code)}&select=code,discount_percent,discount_months&limit=1`
+      );
+      if (!resp.ok) return "unavailable";
+      const rows = (await resp.json()) as GymPartner[];
+      return rows[0] ?? null;
+    } catch {
+      return "unavailable";
+    }
+  };
+
+  // Garantit que le code promo Stripe de la salle existe et reflète la remise
+  // configurée dans l'admin (coupon partagé par palier percent×months). Si la
+  // remise a changé, l'ancien code promo est désactivé puis recréé. Retourne
+  // l'id du promotion code, ou null si la salle n'offre pas de remise.
+  const ensureGymPromotion = async (stripeClient: Stripe, partner: GymPartner): Promise<string | null> => {
+    const percent = Math.round(Number(partner.discount_percent) || 0);
+    const months = Math.round(Number(partner.discount_months) || 0);
+    if (percent <= 0 || months <= 0) return null;
+
+    const couponMatches = (coupon: Stripe.Coupon) =>
+      coupon.percent_off === percent &&
+      coupon.duration === "repeating" &&
+      coupon.duration_in_months === months;
+
+    const existing = (
+      await stripeClient.promotionCodes.list({ code: partner.code, active: true, limit: 1 })
+    ).data[0];
+    if (existing) {
+      const rawCoupon = existing.promotion?.coupon;
+      const coupon =
+        typeof rawCoupon === "string" ? await stripeClient.coupons.retrieve(rawCoupon) : rawCoupon;
+      if (coupon && couponMatches(coupon)) return existing.id;
+      await stripeClient.promotionCodes.update(existing.id, { active: false });
+    }
+
+    const couponId = `gym${percent}x${months}`;
+    try {
+      await stripeClient.coupons.retrieve(couponId);
+    } catch {
+      try {
+        await stripeClient.coupons.create({
+          id: couponId,
+          percent_off: percent,
+          duration: "repeating",
+          duration_in_months: months,
+          name: `Partenaire salle −${percent} % (${months} mois)`,
+        });
+      } catch (err: any) {
+        // Deux checkouts simultanés peuvent créer le même coupon.
+        if (err?.code !== "resource_already_exists") throw err;
+      }
+    }
+    const created = await stripeClient.promotionCodes.create({
+      promotion: { type: "coupon", coupon: couponId },
+      code: partner.code,
+      restrictions: { first_time_transaction: true },
+    });
+    return created.id;
+  };
+
   app.post("/api/create-subscription-checkout", async (req, res) => {
     const { planKey, interval, gymCode } = req.body ?? {};
     const stripeClient = getStripe();
@@ -617,7 +683,7 @@ async function startServer() {
       return res.status(400).json({ error: "Plan ou intervalle invalide" });
     }
 
-    const code =
+    const rawCode =
       typeof gymCode === "string" && GYM_CODE_PATTERN.test(gymCode.toUpperCase())
         ? gymCode.toUpperCase()
         : null;
@@ -627,6 +693,18 @@ async function startServer() {
       if (!priceId) {
         return res.status(500).json({ error: "Prix introuvable — lancer scripts/stripe-bootstrap.mjs" });
       }
+
+      // Un code inconnu du registre des salles ne doit ni polluer
+      // l'attribution (metadata gym_code) ni donner de remise. Registre
+      // injoignable → attribution au bénéfice du doute, promo au mieux.
+      let gymPartner: GymPartner | null = null;
+      let registryAvailable = true;
+      if (rawCode) {
+        const lookup = await lookupGymPartner(rawCode);
+        if (lookup === "unavailable") registryAvailable = false;
+        else gymPartner = lookup;
+      }
+      const code = rawCode && (gymPartner || !registryAvailable) ? rawCode : null;
 
       const origin = req.get("origin") || process.env.APP_URL || "http://localhost:3000";
       const base: Stripe.Checkout.SessionCreateParams = {
@@ -641,23 +719,32 @@ async function startServer() {
         metadata: { gym_code: code ?? "", plan_key: planKey },
       };
 
-      // Remise adhérent : le code promo Stripe porte le même nom que le
-      // code salle. S'il existe, on l'applique automatiquement ; sinon le
-      // champ code promo reste saisissable dans le Checkout.
+      // Remise adhérent : promo créée/synchronisée depuis la config de la
+      // salle. Un échec de promo ne bloque jamais le paiement, mais se voit
+      // dans les logs (l'adhérent paierait plein tarif).
+      let promotionCodeId: string | null = null;
+      try {
+        if (gymPartner) {
+          promotionCodeId = await ensureGymPromotion(stripeClient, gymPartner);
+        } else if (code && !registryAvailable) {
+          promotionCodeId =
+            (await stripeClient.promotionCodes.list({ code, active: true, limit: 1 })).data[0]?.id ?? null;
+        }
+      } catch (err) {
+        console.error(`⚠️ Promo salle ${code} indisponible — checkout plein tarif:`, err);
+      }
+
       let session: Stripe.Checkout.Session;
-      const promo = code
-        ? (await stripeClient.promotionCodes.list({ code, active: true, limit: 1 })).data[0]
-        : undefined;
       try {
         session = await stripeClient.checkout.sessions.create(
-          promo
-            ? { ...base, discounts: [{ promotion_code: promo.id }] }
+          promotionCodeId
+            ? { ...base, discounts: [{ promotion_code: promotionCodeId }] }
             : { ...base, allow_promotion_codes: true }
         );
       } catch (err) {
         // Ex. restriction "premier achat" refusée pour un client connu :
         // on retombe sur un checkout sans remise auto plutôt que d'échouer.
-        if (!promo) throw err;
+        if (!promotionCodeId) throw err;
         session = await stripeClient.checkout.sessions.create({ ...base, allow_promotion_codes: true });
       }
 

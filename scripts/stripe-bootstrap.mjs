@@ -9,7 +9,10 @@
 //   - 4 produits (Essentiel / Performance / Elite / Coach Suite)
 //   - 8 prix EUR récurrents (mensuel + annuel), lookup_key = "<plan>_<intervalle>"
 //   - le coupon partenaire "gym20x3" (−20 % pendant 3 mois)
-//   - un code promo par salle se crée ensuite depuis l'admin (Phase 1)
+//   - le code promo de chaque salle est créé automatiquement par le serveur
+//     au premier checkout (ensureGymPromotion, server.ts), d'après la remise
+//     configurée dans l'admin ; scripts/stripe-gym-code.mjs reste un secours
+
 
 import "dotenv/config";
 import Stripe from "stripe";
