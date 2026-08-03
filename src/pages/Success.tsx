@@ -119,13 +119,43 @@ export function Success() {
           </>
         )}
 
-        {(state === "ok" || state === "legacy") && (
+        {/* Arrivée sans session_id (vieux lien, navigation directe) : on ne peut
+            RIEN vérifier — on n'affiche donc jamais « paiement réussi » ici. */}
+        {state === "legacy" && (
+          <>
+            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-[var(--color-accent-primary)]">
+              <Mail size={40} />
+            </div>
+            <h1 className="text-3xl font-display mb-4">Retour de paiement</h1>
+            <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
+              Ce lien ne permet pas de confirmer un paiement. Si tu viens de payer, le reçu
+              Stripe est dans ta boîte mail et ton achat est bien enregistré — retrouve tes
+              formations dans <strong className="text-white">Mes formations</strong>, connecté
+              avec l'email utilisé au paiement.
+            </p>
+            <div className="space-y-4">
+              <Link to="/mes-formations">
+                <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
+                  Mes formations
+                  <ArrowRight size={18} />
+                </Button>
+              </Link>
+              <Link to="/contact">
+                <Button variant="outline" className="w-full py-4 rounded-xl border-white/10 hover:bg-white/5">
+                  Un doute ? Contacte-nous
+                </Button>
+              </Link>
+            </div>
+          </>
+        )}
+
+        {state === "ok" && (
           <>
             <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
               <CheckCircle2 size={40} />
             </div>
 
-            {state === "ok" && isSubscription ? (
+            {isSubscription ? (
               <>
                 <h1 className="text-3xl font-display mb-2">Abonnement activé !</h1>
                 {planName && (
@@ -168,7 +198,7 @@ export function Success() {
             )}
 
             <div className="space-y-4">
-              {state === "legacy" || !isSubscription ? (
+              {!isSubscription ? (
                 <Link to={isFormation ? "/mes-formations" : "/instructional"}>
                   <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
                     {isFormation ? "Accéder à mes formations" : "Découvrir les formations"}

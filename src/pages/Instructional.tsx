@@ -593,7 +593,7 @@ export function Instructional() {
             <div className="space-y-4">
               {[
                 "Aller directement à l'essentiel, sans blabla.",
-                "Une pédagogie validée et reconnue.",
+                "Une pédagogie claire : structure, répétition, feedback.",
                 "Des formats plus justes, à des prix raisonnables.",
                 "Totalement intégré à l'écosystème MMA IQ."
               ].map((benefit, i) => (

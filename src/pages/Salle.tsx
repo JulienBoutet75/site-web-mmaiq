@@ -19,13 +19,12 @@ interface CheckoutPlan {
   monthly: string;
   yearly: string;
   tagline: string;
-  popular?: boolean;
 }
 
 const CHECKOUT_PLANS: CheckoutPlan[] = [
   { key: "essentiel", name: "Essentiel", monthly: "5,99 €", yearly: "59,90 €", tagline: "L'essentiel pour progresser" },
   { key: "performance", name: "Performance", monthly: "9,99 €", yearly: "99,90 €", tagline: "Pour les compétiteurs" },
-  { key: "elite", name: "Elite", monthly: "19,99 €", yearly: "199,90 €", tagline: "L'expérience complète", popular: true },
+  { key: "elite", name: "Elite", monthly: "19,99 €", yearly: "199,90 €", tagline: "L'expérience complète" },
 ];
 
 interface PartnerPublic {
@@ -154,7 +153,7 @@ export function Salle() {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6">
             <span className="w-2 h-2 rounded-full bg-[var(--color-accent-primary)] animate-pulse"></span>
             <span className="text-xs font-ui font-bold tracking-widest uppercase text-white">
-              Partenaire officiel MMA IQ
+              Salle partenaire MMA IQ
             </span>
           </div>
 
@@ -211,15 +210,8 @@ export function Salle() {
                 {CHECKOUT_PLANS.map((plan) => (
                   <div
                     key={plan.key}
-                    className={`relative bg-white/[0.04] border rounded-2xl p-6 flex flex-col ${
-                      plan.popular ? "border-[var(--color-accent-primary)]/60 shadow-[0_0_30px_rgba(123,47,255,0.2)]" : "border-white/[0.08]"
-                    }`}
+                    className="relative bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 flex flex-col"
                   >
-                    {plan.popular && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[var(--color-accent-primary)] text-white text-[10px] font-ui font-bold uppercase tracking-widest">
-                        Populaire
-                      </span>
-                    )}
                     <h3 className="font-display text-xl uppercase tracking-wide mb-1">{plan.name}</h3>
                     <p className="text-xs text-[var(--color-text-secondary)] mb-4">{plan.tagline}</p>
                     <p className="font-display text-3xl mb-5">

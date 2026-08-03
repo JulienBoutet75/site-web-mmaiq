@@ -209,7 +209,7 @@ export function AppPage() {
             <PhoneFrame
               src="/app/videos/nutrition-scan.mp4"
               poster="/app/videos/nutrition-scan-poster.webp"
-              label="Le scan de repas IA de MMA IQ : aliments détectés avec 90% de confiance"
+              label="Le scan de repas IA de MMA IQ : aliments détectés automatiquement et macros estimées"
             />
           </div>
         </div>

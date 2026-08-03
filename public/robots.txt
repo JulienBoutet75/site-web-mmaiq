@@ -6,5 +6,5 @@ Disallow: /coach
 Disallow: /success
 Disallow: /cancel
 
-# Renseigne ton domaine de production puis décommente :
-# Sitemap: https://ton-domaine.com/sitemap.xml
+
+Sitemap: https://mmaiq.fr/sitemap.xml

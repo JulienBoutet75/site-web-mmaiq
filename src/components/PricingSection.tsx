@@ -14,7 +14,7 @@ const PLANS = [
     price: 0,
     period: 'gratuit',
     billing: '',
-    cta: 'Commencer gratuitement',
+    cta: "S'inscrire au lancement",
     features: [
       { label: "Plan d'entraînement", value: '1' },
       { label: 'Plan nutrition', value: '1' },
@@ -37,7 +37,7 @@ const PLANS = [
     price: 5.99,
     period: '/ mois',
     billing: 'ou 59,90€ / an (soit 4,99€ / mois)',
-    cta: 'Choisir Essentiel',
+    cta: "Rejoindre la liste d'attente",
     features: [
       { label: "Plan d'entraînement", value: '∞' },
       { label: 'Plan nutrition', value: '∞' },
@@ -60,7 +60,7 @@ const PLANS = [
     price: 9.99,
     period: '/ mois',
     billing: 'ou 99,90€ / an (soit 8,33€ / mois)',
-    cta: 'Choisir Performance',
+    cta: "Rejoindre la liste d'attente",
     features: [
       { label: "Plan d'entraînement", value: '∞' },
       { label: 'Plan nutrition', value: '∞' },
@@ -83,7 +83,7 @@ const PLANS = [
     price: 19.99,
     period: '/ mois',
     billing: 'ou 199,90€ / an (soit 16,66€ / mois)',
-    cta: 'Choisir Elite',
+    cta: "Rejoindre la liste d'attente",
     isPopular: true,
     features: [
       { label: "Plan d'entraînement", value: '∞' },
@@ -286,7 +286,7 @@ const CoachSuiteCard: React.FC<{ compact?: boolean }> = ({ compact = false }) =>
       </ul>
       <div className={compact ? '' : 'md:w-auto'}>
         <Link to="/app#download" className="block text-center px-6 py-3 md:py-4 bg-[var(--color-accent-primary)]/20 hover:bg-[var(--color-accent-primary)]/30 border border-[var(--color-accent-primary)]/30 text-white rounded-xl font-bold text-xs md:text-base transition-colors whitespace-nowrap">
-          Choisir Coach Suite
+          Rejoindre la liste d'attente
         </Link>
       </div>
     </div>

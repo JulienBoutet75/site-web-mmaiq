@@ -88,6 +88,22 @@ h1, h2, h3, h4, h5, h6, .font-display {
   background-size: 180px 180px;
 }
 
+/* Bandeau partenaires : défilement continu (TrustBar, >5 logos).
+   La piste contient la liste dupliquée → -50% boucle sans couture.
+   Coupé par la règle prefers-reduced-motion globale. */
+.trust-marquee {
+  animation: trust-scroll 36s linear infinite;
+}
+.trust-marquee:hover {
+  animation-play-state: paused;
+}
+@keyframes trust-scroll {
+  to { transform: translateX(-50%); }
+}
+.trust-marquee-mask {
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
 /* Halo doux réservé aux survols de cartes/CTA */
 @keyframes aura-pulse {
   0%, 100% { opacity: 0.3; transform: scale(1); }

@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { CheckCircle2, Loader2, AlertCircle, QrCode, FileSignature, Banknote, Infinity as InfinityIcon, ChevronDown } from "lucide-react";
 import { submitLead } from "../lib/supabase";
 import { AmbientBackground } from "../components/AmbientBackground";
+import { TrustBar } from "../components/TrustBar";
 
 // Grille par défaut du programme (décisions du 13 juil 2026) :
 // 20 % du HT encaissé, à vie tant que l'abonné paie, remise adhérent
@@ -101,11 +102,14 @@ export function Partenaires() {
             </span>
           </h1>
           <p className="text-lg sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed">
-            Recommandez MMA IQ à vos adhérents et touchez <strong className="text-white">20 % de chaque abonnement, chaque mois, à vie</strong>.
+            Recommandez MMA IQ à vos adhérents et touchez <strong className="text-white">20 % de chaque abonnement, chaque mois, tant qu'ils restent abonnés</strong>.
             Zéro encaissement, zéro administratif, zéro engagement : vous affichez un QR code, on s'occupe du reste.
           </p>
         </motion.div>
       </section>
+
+      {/* Les salles qui ont déjà rejoint le programme — vraie preuve sociale */}
+      <TrustBar path="partners.trust.title" defaultTitle="Ils nous font déjà confiance" className="relative z-10 !py-8" />
 
       {/* Simulateur */}
       <section className="relative z-10 px-6 pb-20 max-w-3xl mx-auto">
@@ -168,7 +172,7 @@ export function Partenaires() {
           </div>
 
           <p className="flex items-center justify-center gap-2 text-xs text-white/40 font-ui font-semibold uppercase tracking-widest mt-6">
-            <InfinityIcon className="w-4 h-4" /> Récurrent à vie, tant que vos adhérents restent abonnés
+            <InfinityIcon className="w-4 h-4" /> Récurrent, tant que vos adhérents restent abonnés
           </p>
         </div>
       </section>

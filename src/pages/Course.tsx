@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
   Play, ChevronDown, CheckCircle2, Clock, User, 
-  Star, ShoppingCart, ArrowLeft, Lock, Unlock,
+  ShoppingCart, ArrowLeft, Lock, Unlock,
   Info, AlertCircle, Check, PlayCircle, ArrowRight,
   Edit2, Save, X, Plus, Trash2, Loader2, UploadCloud
 } from "lucide-react";
@@ -86,9 +86,7 @@ export function Course() {
       discipline: formation.discipline,
       coach_bio: formation.coaches?.bio || "",
       coach_tagline: formation.coaches?.tagline || "",
-      duration: formation.duration || "",
-      rating: formation.rating,
-      reviews_count: formation.reviews_count
+      duration: formation.duration || ""
     });
     setEditChapters([...chapters]);
     setIsEditing(true);
@@ -119,9 +117,7 @@ export function Course() {
         thumbnail_url: editData.thumbnail_url,
         level: editData.level,
         discipline: editData.discipline,
-        duration: editData.duration,
-        rating: editData.rating,
-        reviews_count: editData.reviews_count
+        duration: editData.duration
       };
 
 
@@ -241,6 +237,13 @@ export function Course() {
           .single();
 
         if (fError) throw fError;
+        // Brouillon (published=false) : invisible en accès direct pour le
+        // public — seuls admins et coachs propriétaires peuvent le prévisualiser
+        // (le serveur refuse de toute façon l'achat d'un brouillon).
+        if (fData && fData.published === false && !isAdmin && !(profile?.role === 'coach' && fData.coach_id === profile?.id)) {
+          setFormation(null);
+          return;
+        }
         if (fData) {
           setFormation(fData);
 
@@ -590,37 +593,8 @@ export function Course() {
                       <span className="text-base font-bold">{formation.duration || "—"}</span>
                     )}
                   </div>
-                  {(isEditing || (formation.rating && formation.reviews_count)) && (
-                    <div className="flex items-center gap-2 text-white/60">
-                      <Star size={20} className="text-yellow-500 fill-yellow-500" />
-                      {isEditing && editData ? (
-                        <div className="flex gap-2">
-                          <input
-                            type="number"
-                            value={editData.rating ?? ""}
-                            onChange={(e) => {
-                              const val = parseFloat(e.target.value);
-                              setEditData({...editData, rating: isNaN(val) ? 0 : val});
-                            }}
-                            className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-16 outline-none focus:border-[var(--color-accent-primary)]"
-                            placeholder="Note"
-                          />
-                          <input
-                            type="number"
-                            value={editData.reviews_count ?? ""}
-                            onChange={(e) => {
-                              const val = parseInt(e.target.value);
-                              setEditData({...editData, reviews_count: isNaN(val) ? 0 : val});
-                            }}
-                            className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-20 outline-none focus:border-[var(--color-accent-primary)]"
-                            placeholder="Nb avis"
-                          />
-                        </div>
-                      ) : (
-                        <span className="text-base font-bold">{formation.rating} ({formation.reviews_count} avis)</span>
-                      )}
-                    </div>
-                  )}
+                  {/* Pas de note/avis tant qu'aucun vrai système d'avis n'existe :
+                      un rating saisi à la main détruirait la crédibilité du site. */}
                 </div>
 
                 {/* À propos de cette formation */}
@@ -932,11 +906,13 @@ export function Course() {
                       <div className={`text-base font-bold truncate ${isActive ? "text-white" : "text-[var(--color-text-secondary)] group-hover:text-white"}`}>
                         {ch.title}
                       </div>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-widest font-black">
-                          {ch.timestamp || "00:00-00:00"}
-                        </span>
-                      </div>
+                      {ch.timestamp && (
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-widest font-black">
+                            {ch.timestamp}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </button>
                 );

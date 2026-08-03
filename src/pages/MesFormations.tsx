@@ -251,7 +251,7 @@ export function MesFormations() {
 
                         <div className="mt-auto pt-5 border-t border-white/5">
                           <button className="w-full bg-[var(--color-accent-red)] hover:opacity-90 text-white font-ui font-bold py-3 px-5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-[0_0_15px_rgba(255,23,68,0.2)]">
-                            Reprendre <ArrowRight size={16} />
+                            Regarder <ArrowRight size={16} />
                           </button>
                         </div>
                       </div>

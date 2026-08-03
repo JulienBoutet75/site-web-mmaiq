@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { powerUpVariant, speedImpactVariant, speedImpactRightVariant, textRevealVariant } from "../animations";
 import PricingSection from "../components/PricingSection";
+import { TrustBar } from "../components/TrustBar";
 import { PhoneFrame } from "../components/PhoneFrame";
 import { FaqAccordion } from "../components/FaqAccordion";
 import { faqs } from "../data/faq";
@@ -48,7 +49,8 @@ export function Home() {
           fetchData("formations", "*", "&order=created_at.desc", accessToken)
         ]);
         setCoaches(c || []);
-        setFormations(f || []);
+        // Brouillons (published=false) jamais mis en avant sur l'accueil
+        setFormations((f || []).filter((x: any) => x.published !== false));
       } catch (err) {
         console.error("Error loading coaches/formations", err);
       }
@@ -116,6 +118,9 @@ export function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Logos des salles partenaires réelles — directement sur le fond, sans bandeau */}
+      <TrustBar />
 
       <div className="relative">
         {/* SECTION 1 & 2 MERGED — L'ÉCOSYSTÈME & LA MÉTHODE */}
@@ -245,7 +250,9 @@ export function Home() {
         </div>
       </section>
 
-      {/* SECTION 5 — LES FORMATIONS */}
+      {/* SECTION 5 — LES FORMATIONS (masquée tant qu'aucune formation n'est
+          publiée : un titre au-dessus d'un carrousel vide ferait site cassé) */}
+      {(formations.length > 0 || isAdmin) && (
       <section className="py-16 md:py-24 px-6 bg-[var(--color-bg-elevated)] border-t border-[var(--color-border)] relative overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10">
           <motion.div 
@@ -325,7 +332,7 @@ export function Home() {
                           <img loading="lazy"
                             src={formation.thumbnail_url}
                             alt={formation.title}
-                            className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                            className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
                           />
                         ) : (
@@ -406,6 +413,7 @@ export function Home() {
           </div>
         </div>
       </section>
+      )}
       </div>
 
       {/* SECTION 7 — ACCÈS PREMIUM */}
