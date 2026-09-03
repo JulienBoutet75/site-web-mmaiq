@@ -20,7 +20,7 @@ import { faqs } from "../data/faq";
 export function Home() {
   const montageRef = useRef<HTMLVideoElement>(null);
 
-  // La démo complète pèse ~4,5 Mo : on ne la télécharge et ne la lit que
+  // La démo complète pèse ~4,6 Mo : on ne la télécharge et ne la lit que
   // lorsqu'elle entre à l'écran, et pas du tout en prefers-reduced-motion.
   useEffect(() => {
     const el = montageRef.current;
@@ -161,7 +161,6 @@ export function Home() {
             {/* Montage produit complet : les 9 modules de l'app (01/09 → 09/09) */}
             <video
               ref={montageRef}
-              src="/app/videos/montage-full.mp4"
               poster="/app/videos/montage-full-poster.webp"
               aria-label="Démo complète de l'app MMA IQ : les 9 modules, de l'onboarding à la communauté"
               muted
@@ -169,7 +168,9 @@ export function Home() {
               playsInline
               preload="none"
               className="w-full h-full object-cover"
-            />
+            >
+              <source src="/app/videos/montage-full.mp4" type="video/mp4" />
+            </video>
           </motion.div>
         </div>
       </section>

@@ -803,6 +803,10 @@ async function startServer() {
           // revalidé pour ne pas servir une version périmée.
           if (filePath.includes(`${path.sep}assets${path.sep}`)) {
             res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+          } else if (/\.(mp4|webm)$/.test(filePath)) {
+            // Vidéos : nom non hashé mais plusieurs Mo — une semaine de cache
+            // évite un aller-retour de revalidation à chaque visite.
+            res.setHeader("Cache-Control", "public, max-age=604800");
           }
         },
       })

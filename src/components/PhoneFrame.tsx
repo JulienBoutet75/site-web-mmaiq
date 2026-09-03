@@ -14,7 +14,7 @@ interface PhoneFrameProps {
 
 /**
  * Cadre téléphone en CSS autour d'une vraie capture d'écran de l'app
- * (vidéos 480x980, barre de statut déjà rognée à l'encodage).
+ * (vidéos 768x1568, barre de statut déjà rognée à l'encodage).
  * Tilt 3D léger au survol souris — inactif au tactile et si l'utilisateur
  * préfère réduire les animations.
  */
@@ -68,7 +68,6 @@ export function PhoneFrame({ src, poster, label, className = '', eager = false }
         <div className="absolute top-[18px] left-1/2 -translate-x-1/2 w-20 h-[18px] bg-black rounded-full z-10" aria-hidden="true" />
         <video
           ref={videoRef}
-          src={src}
           poster={poster}
           aria-label={label}
           autoPlay={eager}
@@ -76,8 +75,12 @@ export function PhoneFrame({ src, poster, label, className = '', eager = false }
           loop
           playsInline
           preload={eager ? 'auto' : 'metadata'}
-          className="w-full rounded-[34px] aspect-[480/980] object-cover bg-[#111123]"
-        />
+          className="w-full rounded-[34px] aspect-[768/1568] object-cover bg-[#111123]"
+        >
+          {/* VP9 d'abord (~35 % plus léger à qualité égale), MP4 en repli. */}
+          <source src={src.replace(/\.mp4$/, '.webm')} type="video/webm" />
+          <source src={src} type="video/mp4" />
+        </video>
       </div>
     </div>
   );
