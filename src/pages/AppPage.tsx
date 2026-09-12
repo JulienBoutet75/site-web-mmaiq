@@ -41,6 +41,41 @@ const MODULES = [
   { img: '/app/modules/cutting.webp', title: 'CUTTING', desc: 'Cut Companion : coupe encadrée' },
 ];
 
+// Une description factuelle par capture. Chaque texte suit exactement le
+// parcours visible dans la vidéo au lieu de répéter une promesse marketing.
+const VIDEO_DEMOS = [
+  {
+    number: '01',
+    label: 'Tutoriels techniques',
+    title: 'Le geste, puis les consignes.',
+    description: "Choisis une zone du corps ou une discipline. Chaque fiche réunit la démonstration, l'objectif de l'exercice, son exécution et les points à surveiller.",
+    steps: ['Voir la technique en vidéo', "Suivre les étapes d'exécution", 'Repérer les erreurs à éviter'],
+    src: '/app/videos/tutoriels.mp4',
+    poster: '/app/videos/tutoriels-poster.webp',
+    videoLabel: "Un tutoriel MMA IQ avec sa démonstration, son objectif, ses consignes d'exécution et ses points d'attention",
+  },
+  {
+    number: '02',
+    label: 'Journal nutritionnel',
+    title: 'Une photo, puis tu gardes la main.',
+    description: "Photographie ton repas. L'app propose les aliments reconnus et leurs quantités : tu les vérifies avant de les ajouter à ton suivi de la journée.",
+    steps: ['Photographier le repas', 'Corriger aliments et quantités', 'Ajouter calories et macros au journal'],
+    src: '/app/videos/nutrition-scan.mp4',
+    poster: '/app/videos/nutrition-scan-poster.webp',
+    videoLabel: "Le scan d'un repas, la vérification des aliments détectés et leur ajout au journal nutritionnel",
+  },
+  {
+    number: '03',
+    label: 'Analyse de combat',
+    title: 'Retrouve les séquences qui comptent.',
+    description: "Importe un fichier ou un lien YouTube. Le résultat rassemble un résumé du combat et des séquences horodatées, classées par thème pour revenir directement aux actions clés.",
+    steps: ['Importer la vidéo du combat', 'Lire le résumé généré', 'Ouvrir les séquences striking et wrestling'],
+    src: '/app/videos/analyse-video.mp4',
+    poster: '/app/videos/analyse-video-poster.webp',
+    videoLabel: "Une analyse de combat avec un résumé et des séquences horodatées classées par thème",
+  },
+];
+
 export function AppPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState("");
@@ -133,157 +168,105 @@ export function AppPage() {
               label="Le module Performance de MMA IQ : score global et courbes d'évolution"
               eager
             />
-            <p className="text-center text-[10px] uppercase tracking-widest text-[var(--color-text-secondary)]/70 font-ui mt-4">Capture réelle de l'application</p>
+            <div className="max-w-[300px] mx-auto mt-5 flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-left">
+              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent-energy)] shadow-[0_0_12px_var(--color-accent-energy)]" aria-hidden="true"></span>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-text-secondary)]">Capture réelle · Performance</p>
+                <p className="mt-1 text-xs leading-relaxed text-white/80">Score global, évolution des macros et répartition des calories sur 4 semaines.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ==========================================
-          SECTION 1.5 — AUDIENCES
+          SECTION 1.5 — DÉMONSTRATIONS PRODUIT
           ========================================== */}
-      <section className="relative z-10 py-12 sm:py-32 px-4 sm:px-6 max-w-[1400px] mx-auto space-y-16 sm:space-y-40">
-        {/* Intro */}
-        <div className="text-center max-w-4xl mx-auto flex flex-col justify-center snap-center mb-8 sm:mb-0 relative py-12">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[600px] h-[300px] bg-[var(--color-accent-primary)]/30 blur-[120px] rounded-full pointer-events-none"></div>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mx-auto mb-6 relative z-10 shadow-[0_0_20px_rgba(123,47,255,0.15)]">
-            <span className="w-2 h-2 rounded-full bg-[var(--color-accent-primary)] animate-pulse"></span>
-            <span className="text-xs font-ui font-bold text-white tracking-widest uppercase">Évolue quel que soit ton niveau</span>
-          </div>
-          <h2 className="text-display-2xl font-display tracking-wide text-white mb-6 uppercase leading-[0.9] drop-shadow-[0_0_20px_rgba(255,255,255,0.1)] relative z-10">
-            L'APPLI QUI S'ADAPTE <br className="hidden sm:block"/>
-            <span className="text-gradient-primary">À TON PROFIL.</span>
+      <section id="product-demos" className="relative z-10 py-16 sm:py-28 px-4 sm:px-6 max-w-[1400px] mx-auto scroll-mt-24">
+        <div className="text-center max-w-3xl mx-auto relative mb-12 sm:mb-16">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[560px] h-[240px] bg-[var(--color-accent-primary)]/20 blur-[120px] rounded-full pointer-events-none" aria-hidden="true"></div>
+          <p className="relative z-10 text-xs font-ui font-bold text-[var(--color-violet-300)] tracking-[0.2em] uppercase mb-4">
+            Trois parcours réels
+          </p>
+          <h2 className="relative z-10 text-display-xl font-display tracking-wide text-white mb-5 uppercase leading-[0.92]">
+            Ce que l'app fait.<br />
+            <span className="text-gradient-primary">Écran par écran.</span>
           </h2>
-          <p className="text-[var(--color-text-secondary)] text-sm sm:text-lg font-body max-w-2xl mx-auto leading-relaxed relative z-10">
-            Du premier cours sur les tatamis jusqu'aux cages de professionnels, notre plateforme t'accompagne avec des outils pensés pour ton stade de développement.
+          <p className="relative z-10 text-[var(--color-text-secondary)] text-sm sm:text-lg font-body max-w-2xl mx-auto leading-relaxed">
+            Les vidéos ci-dessous sont des captures de l'application. Voici précisément ce qui se passe dans chacune d'elles.
           </p>
         </div>
 
-        {/* Débutants */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16 items-center snap-center py-6 sm:py-0">
-          <div className="order-2 lg:order-1 flex justify-center w-full mt-2 sm:mt-0">
-            <PhoneFrame
-              src="/app/videos/tutoriels.mp4"
-              poster="/app/videos/tutoriels-poster.webp"
-              label="La bibliothèque de tutoriels vidéo de MMA IQ"
-            />
-          </div>
-          <div className="order-1 lg:order-2 text-center lg:text-left px-2 sm:px-0 flex flex-col justify-end">
-            <div className="inline-flex items-center justify-center border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES DÉBUTANTS</div>
-            <h3 className="text-3xl sm:text-5xl font-body font-bold text-white mb-3 sm:mb-6 leading-tight">Les fondations, <br className="hidden sm:block"/>sans frustration.</h3>
-            <p className="text-white/70 text-sm sm:text-lg mb-4 sm:mb-8 leading-relaxed font-body max-w-sm mx-auto lg:mx-0">
-              Ne te perds plus sur YouTube. MMA IQ structure ton apprentissage avec un programme étape par étape.
-            </p>
-            <ul className="space-y-2 sm:space-y-4 text-left inline-block lg:block max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
-              <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
-                <span className="text-white/80 font-body">Programmes de démarrage complets.</span>
-              </li>
-              <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
-                <span className="text-white/80 font-body">Vidéos techniques par discipline et par thème.</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Amateurs */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16 items-center snap-center py-6 sm:py-0">
-          <div className="text-center lg:text-left px-2 sm:px-0 flex flex-col justify-end">
-            <div className="inline-flex items-center justify-center border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES AMATEURS</div>
-            <h3 className="text-3xl sm:text-5xl font-body font-bold text-white mb-3 sm:mb-6 leading-tight">Nutrition &<br className="hidden sm:block"/>Cutting.</h3>
-            <p className="text-white/70 text-sm sm:text-lg mb-4 sm:mb-8 leading-relaxed font-body max-w-sm mx-auto lg:mx-0">
-              Prépare tes combats avec la rigueur d'un pro. Prends ton assiette en photo : l'IA détecte les aliments et remplit tes macros.
-            </p>
-            <ul className="space-y-2 sm:space-y-4 text-left inline-block lg:block max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
-              <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
-                <span className="text-white/80 font-body">Scan de repas IA &amp; suivi des macros.</span>
-              </li>
-              <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
-                <span className="text-white/80 font-body">Protocole de fight week et déshydratation encadrée.</span>
-              </li>
-            </ul>
-          </div>
-          <div className="flex justify-center w-full mt-4 sm:mt-0">
-            <PhoneFrame
-              src="/app/videos/nutrition-scan.mp4"
-              poster="/app/videos/nutrition-scan-poster.webp"
-              label="Le scan de repas IA de MMA IQ : aliments détectés automatiquement et macros estimées"
-            />
-          </div>
-        </div>
-
-        {/* Pros */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16 items-center snap-center py-6 sm:py-0">
-          <div className="order-2 lg:order-1 flex justify-center w-full mt-2 sm:mt-0">
-            <PhoneFrame
-              src="/app/videos/analyse-video.mp4"
-              poster="/app/videos/analyse-video-poster.webp"
-              label="L'analyse vidéo IA de MMA IQ : résumé et cartes striking, wrestling, cardio"
-            />
-          </div>
-          <div className="order-1 lg:order-2 text-center lg:text-left px-2 sm:px-0 flex flex-col justify-end">
-            <div className="inline-flex items-center justify-center border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES PROS</div>
-            <h3 className="text-3xl sm:text-5xl font-body font-bold text-white mb-3 sm:mb-6 leading-tight">L'avantage <br className="hidden sm:block"/>statistique.</h3>
-            <p className="text-white/70 text-sm sm:text-lg mb-4 sm:mb-8 leading-relaxed font-body max-w-sm mx-auto lg:mx-0">
-              Le détail fait la différence. Importe un combat (fichier ou lien YouTube) et l'IA en décortique les patterns.
-            </p>
-            <ul className="space-y-2 sm:space-y-4 text-left inline-block lg:block max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
-              <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
-                <span className="text-white/80 font-body">Analyse vidéo IA : striking, wrestling, cardio, défense.</span>
-              </li>
-              <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
-                <span className="text-white/80 font-body">Dossier médical &amp; données santé connectées.</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Coachs — offre réelle Coach Suite, sans faux écran */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-16 items-center snap-center py-6 sm:py-0">
-          <div className="text-center lg:text-left px-2 sm:px-0 flex flex-col justify-end mt-4 sm:mt-0">
-            <div className="inline-flex items-center justify-center border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-4 sm:mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)] mx-auto lg:mx-0">POUR LES COACHS</div>
-            <h3 className="text-3xl sm:text-5xl font-body font-bold text-white mb-3 sm:mb-6 leading-tight">Tout ton roster <br className="hidden sm:block"/>dans la poche.</h3>
-            <p className="text-white/70 text-sm sm:text-lg mb-4 sm:mb-8 leading-relaxed font-body max-w-sm mx-auto lg:mx-0">
-              Gagne du temps en automatisant ta planification et en surveillant tes athlètes à distance.
-            </p>
-            <ul className="space-y-2 sm:space-y-4 text-left inline-block lg:block max-w-[280px] sm:max-w-none mx-auto lg:mx-0">
-              <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
-                <span className="text-white/80 font-body">Tableau de bord multi-athlètes.</span>
-              </li>
-              <li className="flex items-start gap-2 sm:gap-3 text-xs sm:text-base">
-                <CheckCircle2 className="w-4 h-4 sm:w-6 sm:h-6 text-[var(--color-accent-primary)] shrink-0 mt-0.5" />
-                <span className="text-white/80 font-body">Messagerie et mise en relation avec les pratiquants.</span>
-              </li>
-            </ul>
-          </div>
-          <div className="flex justify-center w-full mt-4 sm:mt-0">
-            <div className="relative w-full max-w-[420px] rounded-[24px] border border-[var(--color-tier-coach)]/30 bg-[var(--color-bg-surface)] p-6 sm:p-8 overflow-hidden">
-              <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--color-tier-coach)]/15 blur-[60px] pointer-events-none"></div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-4 text-[var(--color-tier-coach)] bg-[var(--color-tier-coach)]/10 border border-[var(--color-tier-coach)]/30">
-                <Users className="w-3 h-3" /> Offre dédiée
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6 items-stretch">
+          {VIDEO_DEMOS.map((demo) => (
+            <article
+              key={demo.number}
+              className="relative min-w-0 overflow-hidden rounded-[28px] sm:rounded-[32px] border border-white/10 bg-[var(--color-bg-surface)]/80 shadow-[0_24px_80px_rgba(0,0,0,0.22)]"
+            >
+              <div className="relative px-5 pt-8 pb-7 sm:px-7 sm:pt-10 sm:pb-8 bg-[linear-gradient(180deg,rgba(123,47,255,0.08),transparent)]">
+                <span className="absolute top-5 left-5 sm:left-7 font-display text-4xl text-white/[0.08]" aria-hidden="true">
+                  {demo.number}
+                </span>
+                <PhoneFrame
+                  src={demo.src}
+                  poster={demo.poster}
+                  label={demo.videoLabel}
+                />
               </div>
-              <h4 className="font-display text-2xl sm:text-3xl uppercase tracking-wide text-white mb-1">
-                <span className="font-days-one text-base sm:text-lg tracking-normal mr-2">MMA IQ</span>
-                <span className="text-[var(--color-tier-coach)]">Coach Suite</span>
-              </h4>
-              <div className="flex items-baseline gap-1 mb-5">
-                <span className="font-accent text-3xl text-white">19,99€</span>
-                <span className="text-[var(--color-text-secondary)] text-sm font-body">/ mois</span>
+
+              <div className="border-t border-white/10 p-6 sm:p-7">
+                <p className="text-[11px] font-ui font-bold uppercase tracking-[0.18em] text-[var(--color-violet-300)] mb-3">
+                  {demo.label}
+                </p>
+                <h3 className="font-display text-3xl leading-none tracking-wide text-white mb-4">
+                  {demo.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-[var(--color-text-secondary)] mb-6">
+                  {demo.description}
+                </p>
+                <ol className="space-y-3 border-t border-white/10 pt-5">
+                  {demo.steps.map((step, index) => (
+                    <li key={step} className="flex items-start gap-3 text-sm text-white/80">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--color-accent-primary)]/40 bg-[var(--color-accent-primary)]/10 text-[10px] font-bold text-[var(--color-violet-300)]">
+                        {index + 1}
+                      </span>
+                      <span className="pt-0.5 leading-snug">{step}</span>
+                    </li>
+                  ))}
+                </ol>
               </div>
-              <ul className="space-y-2.5 mb-6">
-                {['Outils coach complets', 'Suivi de performance des athlètes', 'Tableau de bord multi-athlètes', '150 crédits IA / mois'].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-white/80 font-body">
-                    <CheckCircle2 className="w-4 h-4 shrink-0 text-[var(--color-tier-coach)]" /> {f}
-                  </li>
+            </article>
+          ))}
+        </div>
+
+        {/* Offre coach, séparée des démonstrations vidéo pour ne pas brouiller leur lecture. */}
+        <div className="relative mt-12 sm:mt-16 overflow-hidden rounded-[28px] border border-[var(--color-tier-coach)]/25 bg-[linear-gradient(110deg,rgba(155,126,255,0.12),rgba(12,14,24,0.86)_45%)] p-6 sm:p-9">
+          <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-[var(--color-tier-coach)]/10 blur-[70px] pointer-events-none" aria-hidden="true"></div>
+          <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-7 lg:gap-12 items-center">
+            <div>
+              <p className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[var(--color-tier-coach)] mb-3">
+                <Users className="h-4 w-4" /> Pour les coachs
+              </p>
+              <h3 className="font-display text-3xl sm:text-4xl tracking-wide text-white mb-3">Le suivi de l'équipe, au même endroit.</h3>
+              <p className="max-w-2xl text-sm sm:text-base leading-relaxed text-[var(--color-text-secondary)]">
+                Coach Suite rassemble le planning, les données de performance et les échanges avec chaque athlète dans un tableau de bord multi-profils.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {['Planning partagé', 'Suivi multi-athlètes', 'Messagerie', '150 crédits IA / mois'].map((feature) => (
+                  <span key={feature} className="rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-white/75">
+                    {feature}
+                  </span>
                 ))}
-              </ul>
-              <Link to="/tarifs" className="inline-flex items-center gap-2 text-sm font-ui font-bold text-white bg-[var(--color-accent-primary)]/20 hover:bg-[var(--color-accent-primary)]/30 border border-[var(--color-accent-primary)]/30 px-5 py-3 rounded-xl transition-colors">
-                Voir l'offre coach <ChevronRight className="w-4 h-4" />
+              </div>
+            </div>
+
+            <div className="flex flex-col items-start lg:items-end gap-4 border-t border-white/10 pt-6 lg:border-l lg:border-t-0 lg:pl-10 lg:pt-0">
+              <div>
+                <span className="font-accent text-3xl text-white">19,99€</span>
+                <span className="text-[var(--color-text-secondary)] text-sm"> / mois</span>
+              </div>
+              <Link to="/tarifs" className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-tier-coach)]/30 bg-[var(--color-tier-coach)]/15 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-tier-coach)]/25">
+                Voir Coach Suite <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
@@ -291,46 +274,41 @@ export function AppPage() {
       </section>
 
       {/* ==========================================
-          SECTION 2 — FIGHT CAMP
+          SECTION 2 — SÉANCE CARDIO
           ========================================== */}
       <section className="relative z-10 py-20 sm:py-28 border-y border-white/5 bg-gradient-to-b from-transparent via-[var(--color-bg-elevated)]/40 to-transparent">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 sm:gap-16 items-center">
           <div>
             <div className="inline-flex items-center gap-2 border border-[var(--color-accent-primary)]/30 bg-[var(--color-accent-primary)]/10 text-[var(--color-accent-primary)] font-ui font-bold tracking-widest text-xs sm:text-sm px-4 py-1.5 rounded-full mb-6 uppercase shadow-[0_0_15px_rgba(123,47,255,0.15)]">
-              <Timer className="w-4 h-4" /> Fight Camp
+              <Timer className="w-4 h-4" /> Séance cardio
             </div>
             <h2 className="font-display text-display-lg mb-6 uppercase leading-[0.92] tracking-wide">
-              Une date de combat.<br/><span className="text-gradient-primary">Tout s'aligne.</span>
+              Lance ta séance.<br/><span className="text-gradient-primary">Garde les chiffres sous les yeux.</span>
             </h2>
             <p className="text-lg text-[var(--color-text-secondary)] mb-8 leading-relaxed max-w-xl">
-              Renseigne ta date de combat, ta discipline et ton poids cible : MMA IQ évalue la faisabilité de ta coupe,
-              planifie les phases du camp — perte de gras, fight week, refuel post-pesée — et réaligne automatiquement
-              tes plans d'entraînement et de nutrition. Le compte à rebours <span className="text-white font-bold">J-X</span> vit sur ton tableau de bord.
+              Depuis ton planning, choisis une activité avec ou sans GPS, puis démarre. Pendant l'effort, l'écran affiche le temps, la distance, l'allure, la vitesse instantanée et les calories.
             </p>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-10" aria-label="Étapes montrées dans la vidéo">
               {[
-                "Analyse de faisabilité de la coupe",
-                "Plans alignés sur le jour J",
-                "Fiche adversaire & gameplan intégrés",
-                "Garde-fous santé à chaque phase"
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm font-ui font-bold tracking-wide text-[var(--color-text-primary)]">
-                  <div className="w-6 h-6 rounded-full bg-[var(--color-accent-primary)]/20 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-accent-primary)]" />
-                  </div>
-                  <span>{item}</span>
-                </li>
+                { step: 'Avant', detail: "Choisir l'activité" },
+                { step: 'Départ', detail: 'Compte à rebours' },
+                { step: 'Pendant', detail: 'Mesures en direct' },
+              ].map((item) => (
+                <div key={item.step} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 sm:p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--color-violet-300)] mb-1.5">{item.step}</p>
+                  <p className="text-xs sm:text-sm leading-snug text-white/80">{item.detail}</p>
+                </div>
               ))}
-            </ul>
+            </div>
             <a href="#download" className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 hover:bg-[var(--color-accent-primary)] text-white rounded-full font-ui font-bold text-lg transition-all hover:shadow-[0_0_40px_rgba(123,47,255,0.5)] hover:scale-[1.02]">
-              Préparer mon prochain combat <ChevronRight className="w-5 h-5" />
+              Être prévenu du lancement <ChevronRight className="w-5 h-5" />
             </a>
           </div>
           <div className="flex justify-center">
             <PhoneFrame
               src="/app/videos/entrainement-live.mp4"
               poster="/app/videos/entrainement-live-poster.webp"
-              label="Une séance d'entraînement suivie en direct dans MMA IQ pendant un fight camp"
+              label="Le choix d'une activité cardio puis le suivi en direct du temps, de la distance, de l'allure et des calories"
             />
           </div>
         </div>
@@ -485,31 +463,31 @@ export function AppPage() {
             transition={{ duration: 0.8, type: "spring", delay: 0.2 }}
           >
             <h2 className="font-display text-display-lg mb-6 uppercase leading-[0.9] tracking-wide">
-              ÉCRASE TON ADVERSAIRE <span className="text-white/30">PAR LA STRATÉGIE</span>
+              Prépare le combat <span className="text-white/30">avant la cage.</span>
             </h2>
             <p className="text-lg text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-              Recherche ton adversaire, laisse l'IA remplir sa fiche — style de combat, faiblesses, gestion du risque —
-              puis génère les points d'attaque recommandés et la stratégie de combat suggérée. À partager avec ton coach.
+              Crée la fiche de ton adversaire à partir de son profil. L'écran organise ensuite les informations utiles à la préparation : style de combat, forces, faiblesses, gestion du risque et pistes tactiques.
             </p>
 
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
+            <div className="rounded-[24px] border border-white/10 bg-white/[0.04] p-5 sm:p-6 mb-10">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--color-violet-300)] mb-4">Dans cette capture</p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
               {[
-                "Fiche adversaire auto-remplie",
-                "Forces, faiblesses & patterns",
-                "Points d'attaque recommandés",
-                "Stratégie de combat suggérée"
+                "Profil et palmarès",
+                "Style et habitudes de combat",
+                "Forces et faiblesses",
+                "Points d'attaque et stratégie"
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm font-ui font-bold tracking-wide text-[var(--color-text-primary)]">
-                  <div className="w-6 h-6 rounded-full bg-[var(--color-accent-primary)]/20 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-accent-primary)]" />
-                  </div>
-                  <span>{item}</span>
+                <li key={i} className="flex items-start gap-3 text-sm text-white/80">
+                  <span className="font-display text-lg leading-none text-[var(--color-accent-primary)]">0{i + 1}</span>
+                  <span className="leading-snug">{item}</span>
                 </li>
               ))}
-            </ul>
+              </ul>
+            </div>
 
             <a href="#download" className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white/10 hover:bg-[var(--color-accent-primary)] text-white rounded-full font-ui font-bold text-lg transition-all shadow-[0_0_30px_rgba(255,255,255,0.3)] hover:shadow-[0_0_40px_rgba(123,47,255,0.5)] hover:scale-[1.02]">
-              Scouter mon adversaire <ChevronRight className="w-5 h-5" />
+              Être prévenu du lancement <ChevronRight className="w-5 h-5" />
             </a>
           </motion.div>
         </div>
