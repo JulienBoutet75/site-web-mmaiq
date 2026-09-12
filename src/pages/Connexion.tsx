@@ -3,11 +3,11 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { signIn, signUp, resetPassword, getProfile, supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'motion/react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
 // Page d'authentification : connexion / création de compte (élèves),
 // accès coach par clé et réinitialisation de mot de passe.
-// Convention d'URL : /connexion?mode=signup|signin&redirect=<chemin>
+// Convention d'URL : /connexion?mode=signup|signin|reset&redirect=<chemin>
 export function Connexion() {
   const [searchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'signin';
@@ -15,11 +15,13 @@ export function Connexion() {
 
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [isCoachMode, setIsCoachMode] = useState(false);
-  const [isResetMode, setIsResetMode] = useState(false);
+  const [isResetMode, setIsResetMode] = useState(searchParams.get('mode') === 'reset');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [accessKey, setAccessKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,10 +42,10 @@ export function Connexion() {
   }, [success]);
 
   const inputClass = "w-full bg-[var(--color-bg-surface)] border border-white/10 rounded-xl py-3 px-4 text-white placeholder:text-white/55 focus:outline-none focus:border-[var(--color-accent-primary)] transition-colors";
-  const submitClass = "w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(123,47,255,0.3)]";
+  const submitClass = "w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] text-white font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(123,47,255,0.3)]";
 
   // Convention de redirection : admin/super_admin → /admin, coach → /coach/dashboard,
-  // sinon ?redirect=… puis /instructional par défaut.
+  // sinon ?redirect=… puis l'espace personnel par défaut.
   const redirectAfterAuth = (profile: any, user: any) => {
     const isAdminEmail = import.meta.env.VITE_ADMIN_EMAIL && user?.email === import.meta.env.VITE_ADMIN_EMAIL;
     if (profile?.role === 'super_admin' || profile?.role === 'admin' || isAdminEmail) {
@@ -51,13 +53,15 @@ export function Connexion() {
     } else if (profile?.role === 'coach') {
       navigate('/coach/dashboard');
     } else {
-      navigate(redirectTo || '/instructional');
+      navigate(redirectTo || '/mes-formations');
     }
   };
 
   const switchMode = (nextMode: 'signin' | 'signup') => {
     setMode(nextMode);
     setIsCoachMode(false);
+    setShowPassword(false);
+    setShowPasswordConfirm(false);
     setError(null);
     setSuccess(null);
   };
@@ -175,7 +179,7 @@ export function Connexion() {
     : isCoachMode
       ? "Accès coach par clé"
       : mode === 'signup'
-        ? "Crée ton compte gratuit pour accéder aux teasers"
+        ? "Crée ton compte gratuit pour retrouver tes formations"
         : "Connecte-toi à ton espace";
 
   return (
@@ -185,9 +189,10 @@ export function Connexion() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md bg-[var(--color-bg-surface)] border border-white/10 rounded-2xl p-8 shadow-2xl"
       >
-        <div className="relative text-center mb-8">
-          <Link to="/" className="absolute left-0 top-0 text-[var(--color-text-secondary)] hover:text-white transition-colors">
-            <ArrowLeft className="w-6 h-6" />
+        <div className="text-center mb-8">
+          <Link to="/" className="flex w-fit min-h-11 items-center gap-2 mb-4 text-sm text-[var(--color-text-secondary)] hover:text-white transition-colors">
+            <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+            Retour à l’accueil
           </Link>
           <Link to="/" className="inline-block mb-4">
             <h1 className="font-display text-2xl text-white tracking-tighter">
@@ -222,9 +227,14 @@ export function Connexion() {
         {isResetMode ? (
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Email</label>
+              <label htmlFor="reset-email" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Email</label>
               <input
+                id="reset-email"
+                name="email"
                 type="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                spellCheck={false}
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -250,16 +260,22 @@ export function Connexion() {
         ) : isCoachMode ? (
           <form onSubmit={handleCoachLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Clé d'accès Coach</label>
+              <label htmlFor="coach-access-key" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Clé d'accès Coach</label>
               <input
+                id="coach-access-key"
+                name="access-key"
                 type="text"
+                autoComplete="off"
+                autoCapitalize="characters"
+                spellCheck={false}
+                aria-describedby="coach-access-key-help"
                 required
                 value={accessKey}
                 onChange={(e) => setAccessKey(e.target.value.toUpperCase())}
                 className={`${inputClass} font-ui tracking-widest uppercase`}
                 placeholder="EX: A7B9X2Y4"
               />
-              <p className="text-xs text-[var(--color-text-secondary)] mt-2 ml-1">
+              <p id="coach-access-key-help" className="text-xs text-[var(--color-text-secondary)] mt-2 ml-1">
                 Entrez la clé d'accès fournie par l'administrateur.
               </p>
             </div>
@@ -284,6 +300,7 @@ export function Connexion() {
               <button
                 type="button"
                 onClick={() => switchMode('signin')}
+                aria-pressed={mode === 'signin'}
                 className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signin' ? 'bg-[var(--color-accent-primary)] text-white' : 'text-[var(--color-text-secondary)] hover:text-white'}`}
               >
                 Se connecter
@@ -291,6 +308,7 @@ export function Connexion() {
               <button
                 type="button"
                 onClick={() => switchMode('signup')}
+                aria-pressed={mode === 'signup'}
                 className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${mode === 'signup' ? 'bg-[var(--color-accent-primary)] text-white' : 'text-[var(--color-text-secondary)] hover:text-white'}`}
               >
                 Créer un compte
@@ -298,9 +316,14 @@ export function Connexion() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Email</label>
+              <label htmlFor="auth-email" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Email</label>
               <input
+                id="auth-email"
+                name="email"
                 type="email"
+                autoComplete={mode === 'signup' ? 'email' : 'username'}
+                autoCapitalize="none"
+                spellCheck={false}
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -309,34 +332,53 @@ export function Connexion() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Mot de passe</label>
-              <input
-                type="password"
-                required
-                minLength={mode === 'signup' ? 8 : undefined}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={inputClass}
-                placeholder="••••••••"
-              />
+              <label htmlFor="auth-password" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Mot de passe</label>
+              <div className="relative">
+                <input
+                  id="auth-password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                  aria-describedby={mode === 'signup' ? 'password-help' : undefined}
+                  required
+                  minLength={mode === 'signup' ? 8 : undefined}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`${inputClass} pr-14`}
+                  placeholder="••••••••"
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-controls="auth-password" aria-pressed={showPassword}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--color-text-secondary)] hover:text-white">
+                  {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+                </button>
+              </div>
               {mode === 'signup' && (
-                <p className="text-xs text-[var(--color-text-secondary)] mt-2 ml-1">
+                <p id="password-help" className="text-xs text-[var(--color-text-secondary)] mt-2 ml-1">
                   8 caractères minimum.
                 </p>
               )}
             </div>
             {mode === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Confirmer le mot de passe</label>
-                <input
-                  type="password"
-                  required
-                  minLength={8}
-                  value={passwordConfirm}
-                  onChange={(e) => setPasswordConfirm(e.target.value)}
-                  className={inputClass}
-                  placeholder="••••••••"
-                />
+                <label htmlFor="auth-password-confirm" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2 ml-1">Confirmer le mot de passe</label>
+                <div className="relative">
+                  <input
+                    id="auth-password-confirm"
+                    name="password-confirmation"
+                    type={showPasswordConfirm ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    required
+                    minLength={8}
+                    value={passwordConfirm}
+                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                    className={`${inputClass} pr-14`}
+                    placeholder="••••••••"
+                  />
+                  <button type="button" onClick={() => setShowPasswordConfirm(!showPasswordConfirm)} aria-label={showPasswordConfirm ? 'Masquer la confirmation du mot de passe' : 'Afficher la confirmation du mot de passe'} aria-controls="auth-password-confirm" aria-pressed={showPasswordConfirm}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-lg text-[var(--color-text-secondary)] hover:text-white">
+                    {showPasswordConfirm ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+                  </button>
+                </div>
               </div>
             )}
 

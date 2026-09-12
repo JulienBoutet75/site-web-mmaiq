@@ -1,537 +1,310 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, useInView, useMotionValue, animate, useTransform, AnimatePresence } from 'motion/react';
-import { CheckCircle2, Minus, Infinity as InfinityIcon, X, ArrowRight, Sparkles, Users } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowRight, Check, ChevronDown, Users } from 'lucide-react';
+import { useMmaIqAccount } from '../context/MmaIqAccountContext';
+import type { SubscriptionCheckoutInput } from '../services/stripeService';
 
-// Plans en miroir EXACT du paywall in-app (mma_perf_lab paywall_page.dart) :
-// mêmes noms, mêmes prix, mêmes features, mêmes couleurs de tiers.
-const PLANS = [
-  {
-    id: 'free',
-    name: 'Free',
-    subtitle: 'Version limitée gratuite',
-    accent: '#8892B0',
-    price: 0,
-    period: 'gratuit',
-    billing: '',
-    cta: "S'inscrire au lancement",
-    features: [
-      { label: "Plan d'entraînement", value: '1' },
-      { label: 'Plan nutrition', value: '1' },
-      { label: 'Cours vidéos', value: '1' },
-      { label: 'Visu Perf', value: 'Lim.' },
-      { label: 'Gameplan', value: '—' },
-      { label: 'Crédits IA / mois', value: '5' },
-      { label: 'Marketplace', value: '—' },
-      { label: 'Espace médecine', value: '—' },
-      { label: 'Connexion Coach', value: '—' },
-      { label: 'Mise en relation', value: '—' },
-      { label: 'Support prioritaire', value: '—' },
-    ]
-  },
-  {
-    id: 'essentiel',
-    name: 'Essentiel',
-    subtitle: "L'essentiel pour progresser",
-    accent: '#E8C97A',
-    price: 5.99,
-    period: '/ mois',
-    billing: 'ou 59,90€ / an (soit 4,99€ / mois)',
-    cta: "Rejoindre la liste d'attente",
-    features: [
-      { label: "Plan d'entraînement", value: '∞' },
-      { label: 'Plan nutrition', value: '∞' },
-      { label: 'Cours vidéos', value: '5' },
-      { label: 'Visu Perf', value: '✓' },
-      { label: 'Gameplan', value: 'Lim.' },
-      { label: 'Crédits IA / mois', value: '30' },
-      { label: 'Marketplace', value: '—' },
-      { label: 'Espace médecine', value: '—' },
-      { label: 'Connexion Coach', value: '—' },
-      { label: 'Mise en relation', value: '—' },
-      { label: 'Support prioritaire', value: '—' },
-    ]
-  },
-  {
-    id: 'performance',
-    name: 'Performance',
-    subtitle: 'Pour les compétiteurs',
-    accent: '#B0BEC5',
-    price: 9.99,
-    period: '/ mois',
-    billing: 'ou 99,90€ / an (soit 8,33€ / mois)',
-    cta: "Rejoindre la liste d'attente",
-    features: [
-      { label: "Plan d'entraînement", value: '∞' },
-      { label: 'Plan nutrition', value: '∞' },
-      { label: 'Cours vidéos', value: '∞' },
-      { label: 'Visu Perf', value: '✓' },
-      { label: 'Gameplan', value: '✓' },
-      { label: 'Crédits IA / mois', value: '80' },
-      { label: 'Marketplace', value: '✓' },
-      { label: 'Espace médecine', value: '✓' },
-      { label: 'Connexion Coach', value: '✓' },
-      { label: 'Mise en relation', value: '—' },
-      { label: 'Support prioritaire', value: '—' },
-    ]
-  },
-  {
-    id: 'elite',
-    name: 'Elite',
-    subtitle: "L'expérience complète",
-    accent: '#D4AF37',
-    price: 19.99,
-    period: '/ mois',
-    billing: 'ou 199,90€ / an (soit 16,66€ / mois)',
-    cta: "Rejoindre la liste d'attente",
-    isPopular: true,
-    features: [
-      { label: "Plan d'entraînement", value: '∞' },
-      { label: 'Plan nutrition', value: '∞' },
-      { label: 'Cours vidéos', value: '∞' },
-      { label: 'Visu Perf', value: '✓' },
-      { label: 'Gameplan', value: '✓' },
-      { label: 'Crédits IA / mois', value: '200' },
-      { label: 'Marketplace', value: '✓' },
-      { label: 'Espace médecine', value: '✓' },
-      { label: 'Connexion Coach', value: '✓' },
-      { label: 'Mise en relation', value: '✓' },
-      { label: 'Support prioritaire', value: '✓' },
-    ]
-  }
+const CHECKOUT_ENABLED = import.meta.env.VITE_ENABLE_CHECKOUT === 'true';
+
+type Plan = {
+  id: string;
+  name: string;
+  subtitle: string;
+  price: number;
+  billing: string;
+  highlights: string[];
+  features: string[];
+};
+
+// Prix et droits conservés à l'identique du paywall de l'application.
+// Les cartes résument l'offre ; le tableau garde toutes les différences.
+const FEATURE_LABELS = [
+  "Plan d'entraînement", 'Plan nutrition', "Tutoriels techniques dans l'app",
+  'Visu Perf', 'Gameplan', 'Crédits IA / mois', 'Marketplace', 'Espace médecine',
+  'Connexion Coach', 'Mise en relation', 'Support prioritaire',
 ];
 
-const COACH_PLAN = {
-  name: 'Coach Suite',
-  accent: '#9B7EFF',
-  price: '19,99€',
-  period: '/ mois',
-  billing: 'ou 199,90€ / an (soit 16,66€ / mois)',
-  features: [
-    'Outils coach complets',
-    'Suivi de performance des athlètes',
-    'Tableau de bord multi-athlètes',
-    'Messagerie avec les pratiquants',
-    'Mise en relation pratiquants',
-    '150 crédits IA / mois',
-    'Support client prioritaire',
-  ]
-};
+const PLANS: Plan[] = [
+  {
+    id: 'free', name: 'Free', subtitle: 'Pour découvrir les outils', price: 0,
+    billing: 'Version gratuite avec accès limité.',
+    highlights: [
+      "1 plan d'entraînement et 1 plan nutrition", "1 tutoriel technique dans l'app",
+      'Suivi de performance limité', '5 crédits IA par mois',
+    ],
+    features: ['1', '1', '1', 'Lim.', '—', '5', '—', '—', '—', '—', '—'],
+  },
+  {
+    id: 'essentiel', name: 'Essentiel', subtitle: "L'essentiel pour progresser", price: 5.99,
+    billing: 'ou 59,90 € / an, soit 4,99 € / mois',
+    highlights: [
+      "Plans d'entraînement et nutrition illimités", "5 tutoriels techniques dans l'app",
+      'Suivi de performance inclus, gameplan limité', '30 crédits IA par mois',
+    ],
+    features: ['∞', '∞', '5', '✓', 'Lim.', '30', '—', '—', '—', '—', '—'],
+  },
+  {
+    id: 'performance', name: 'Performance', subtitle: 'Pour les compétiteurs', price: 9.99,
+    billing: 'ou 99,90 € / an, soit 8,33 € / mois',
+    highlights: [
+      'Plans et tutoriels techniques illimités', 'Gameplan et suivi de performance',
+      'Connexion coach, espace médecine et marketplace', '80 crédits IA par mois',
+    ],
+    features: ['∞', '∞', '∞', '✓', '✓', '80', '✓', '✓', '✓', '—', '—'],
+  },
+  {
+    id: 'elite', name: 'Elite', subtitle: "L'expérience complète", price: 19.99,
+    billing: 'ou 199,90 € / an, soit 16,66 € / mois',
+    highlights: [
+      'Tous les outils de Performance', '200 crédits IA par mois',
+      'Mise en relation', 'Support prioritaire',
+    ],
+    features: ['∞', '∞', '∞', '✓', '✓', '200', '✓', '✓', '✓', '✓', '✓'],
+  },
+];
 
-const FeatureItem: React.FC<{ label: string, value: string | number }> = ({ label, value }) => {
-  let icon;
-  if (value === '✓') {
-    icon = <CheckCircle2 className="w-3 h-3 md:w-5 md:h-5 text-[var(--color-accent-primary)]" />;
-  } else if (value === '—') {
-    icon = <Minus className="w-3 h-3 md:w-5 md:h-5 text-[var(--color-text-muted)]" />;
-  } else if (value === '∞') {
-    icon = (
-      <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 2, repeat: Infinity }}>
-        <InfinityIcon className="w-3 h-3 md:w-5 md:h-5 text-[var(--color-accent-gold)]" />
-      </motion.div>
+const COACH_FEATURES = [
+  'Outils coach complets', 'Suivi de performance des athlètes',
+  'Tableau de bord multi-athlètes', 'Messagerie avec les pratiquants',
+  'Mise en relation pratiquants', '150 crédits IA par mois', 'Support client prioritaire',
+];
+
+const priceLabel = (price: number) => price === 0 ? '0' : price.toFixed(2).replace('.', ',');
+const valueLabel = (value: string) => ({ '✓': 'Inclus', '—': 'Non inclus', '∞': 'Illimité', 'Lim.': 'Limité' }[value] ?? value);
+
+function LaunchLink({
+  primary = false,
+  planKey,
+  interval = 'monthly',
+  gymCode,
+}: {
+  primary?: boolean;
+  planKey?: SubscriptionCheckoutInput['planKey'];
+  interval?: SubscriptionCheckoutInput['interval'];
+  gymCode?: string;
+}) {
+  const { beginSubscriptionCheckout, checkoutPending, loading } = useMmaIqAccount();
+  const classes = `inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-violet-300)] ${
+    primary
+      ? 'bg-[var(--color-accent-primary)] text-white hover:bg-[var(--color-violet-600)]'
+      : 'border border-white/20 bg-white/5 text-white hover:bg-white/10'
+  }`;
+  if (CHECKOUT_ENABLED && planKey) {
+    return (
+      <button
+        type="button"
+        disabled={checkoutPending || loading}
+        onClick={() => beginSubscriptionCheckout({ planKey, interval, gymCode: gymCode?.trim() || null }).catch(() => {})}
+        className={`${classes} disabled:cursor-wait disabled:opacity-60`}
+      >
+        {checkoutPending ? 'Ouverture du paiement…' : 'Choisir cette formule'}
+        <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+      </button>
     );
-  } else {
-    icon = <span className="text-[var(--color-accent-primary)] font-bold text-[10px] md:text-sm">{value}</span>;
   }
-
   return (
-    <div className="flex items-center justify-between py-1 md:py-3 border-b border-white/5 last:border-0">
-      <span className="text-[var(--color-text-secondary)] font-body text-[9px] md:text-sm">{label}</span>
-      <div className="flex items-center justify-center w-3 h-3 md:w-6 md:h-6">
-        {icon}
-      </div>
-    </div>
-  );
-};
-
-const AnimatedPrice: React.FC<{ price: number, isFree: boolean }> = ({ price, isFree }) => {
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, (latest) => latest.toFixed(2).replace('.', ','));
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (inView && !isFree) {
-      animate(count, price, { duration: 1.5, ease: "easeOut" });
-    }
-  }, [inView, price, isFree, count]);
-
-  if (isFree) return (
-    <div className="flex items-baseline justify-center gap-1">
-      <span className="font-accent text-3xl md:text-5xl text-white">0</span>
-      <span className="text-sm md:text-2xl text-[var(--color-text-secondary)]">€</span>
-    </div>
-  );
-
-  return (
-    <div ref={ref} className="flex items-baseline justify-center gap-1">
-      <span className="font-accent text-3xl md:text-5xl text-white">
-        <motion.span>{rounded}</motion.span>
-      </span>
-      <span className="text-sm md:text-2xl text-[var(--color-text-secondary)]">€</span>
-    </div>
-  );
-};
-
-const PlanCard: React.FC<{ plan: any, index: number }> = ({ plan, index }) => {
-  const isElite = plan.isPopular;
-
-  const cardContent = (
-    <div className={`flex flex-col h-full p-5 md:p-8 bg-white/5 backdrop-blur-[20px] ${isElite ? 'rounded-[14px]' : 'rounded-xl md:rounded-2xl'}`}>
-      <div className="text-center mb-4 md:mb-8">
-        {isElite && (
-          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-[9px] md:text-xs font-bold uppercase tracking-wider mb-3"
-               style={{ color: plan.accent, backgroundColor: `${plan.accent}1A`, border: `1px solid ${plan.accent}4D` }}>
-            <Sparkles className="w-3 h-3" /> Le plus populaire
-          </div>
-        )}
-        <h3 className="font-display text-center mb-4">
-          <div className="font-days-one text-sm md:text-xl text-white uppercase tracking-wider mb-1">MMA IQ</div>
-          <div className="text-xl md:text-4xl font-bold uppercase tracking-tighter" style={{ color: plan.accent }}>
-            {plan.name}
-          </div>
-        </h3>
-        <p className="text-[var(--color-text-secondary)] text-[10px] md:text-sm font-body mb-2 md:mb-6">{plan.subtitle}</p>
-
-        <div className="mb-1 md:mb-4 flex items-baseline justify-center gap-1">
-          <AnimatedPrice price={plan.price} isFree={plan.price === 0} />
-          <span className="text-[var(--color-text-secondary)] text-xs md:text-lg font-body">{plan.period}</span>
-        </div>
-        {plan.billing && (
-          <p className="text-[var(--color-text-secondary)] text-[9px] md:text-xs font-body uppercase tracking-widest opacity-80">{plan.billing}</p>
-        )}
-        {!plan.billing && <p className="text-transparent text-[9px] md:text-xs uppercase tracking-wider select-none">&nbsp;</p>}
-      </div>
-
-      <div className="h-px w-full mb-2 md:mb-6" style={{ background: `linear-gradient(to right, transparent, ${plan.accent}80, transparent)` }} />
-
-      <div className="flex-grow space-y-0 md:space-y-1 mb-3 md:mb-8">
-        {plan.features.map((feat: any, idx: number) => (
-          <FeatureItem key={idx} label={feat.label} value={feat.value} />
-        ))}
-      </div>
-
-      {/* CTA : l'app n'est pas encore lancée — chaque plan mène à la liste d'attente */}
-      {isElite ? (
-        <div className="relative group/btn w-full mt-auto">
-          <Link to="/app#download" className="relative block text-center w-full py-2.5 md:py-4 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-transform group-hover/btn:scale-[1.02] shadow-[0_0_20px_rgba(123,47,255,0.4)] overflow-hidden">
-            <span className="relative z-10">{plan.cta}</span>
-          </Link>
-        </div>
-      ) : plan.id === 'performance' ? (
-        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-primary)]/80 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
-          {plan.cta}
-        </Link>
-      ) : plan.id === 'essentiel' ? (
-        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-[var(--color-accent-primary)]/20 hover:bg-[var(--color-accent-primary)]/30 border border-[var(--color-accent-primary)]/30 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
-          {plan.cta}
-        </Link>
-      ) : (
-        <Link to="/app#download" className="block text-center w-full py-2.5 md:py-4 bg-transparent hover:bg-white/5 border border-white/20 text-white rounded-lg md:rounded-xl font-bold text-xs md:text-lg transition-colors mt-auto">
-          {plan.cta}
-        </Link>
-      )}
-    </div>
-  );
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 60 }}
-      animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: index * 0.08 } }}
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-      className={`relative h-full ${isElite ? 'lg:-mt-4 lg:mb-4 lg:w-[calc(100%+20px)] lg:-ml-[10px] z-10 mt-2 md:mt-0' : 'z-0'}`}
+    <Link
+      to="/app#download"
+      className={classes}
     >
-      {isElite ? (
-        <div className="relative p-[2px] rounded-2xl overflow-visible h-full shadow-[0_0_40px_rgba(212,175,55,0.35),0_0_80px_rgba(123,47,255,0.15)]" style={{ background: `linear-gradient(135deg, ${plan.accent}66, transparent)` }}>
-          <div className="relative h-full rounded-[14px] overflow-hidden">
-            {cardContent}
-          </div>
-        </div>
-      ) : (
-        <div className="h-full rounded-2xl border" style={{ borderColor: plan.id === 'free' ? 'rgba(255,255,255,0.1)' : `${plan.accent}4D` }}>
-          {cardContent}
-        </div>
-      )}
-    </motion.div>
+      Être prévenu du lancement <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+    </Link>
   );
-};
+}
 
-const CoachSuiteCard: React.FC<{ compact?: boolean }> = ({ compact = false }) => (
-  <div className="relative rounded-2xl border overflow-hidden" style={{ borderColor: `${COACH_PLAN.accent}4D` }}>
-    <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(circle at 0% 0%, ${COACH_PLAN.accent}14 0%, transparent 60%)` }} />
-    <div className={`relative flex flex-col ${compact ? '' : 'md:flex-row md:items-center'} gap-6 p-6 md:p-8 bg-white/5 backdrop-blur-[20px]`}>
-      <div className={compact ? '' : 'md:w-1/3'}>
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-wider mb-3"
-             style={{ color: COACH_PLAN.accent, backgroundColor: `${COACH_PLAN.accent}1A`, border: `1px solid ${COACH_PLAN.accent}4D` }}>
-          <Users className="w-3 h-3" /> Pour les coachs
-        </div>
-        <h3 className="font-display mb-1">
-          <span className="font-days-one text-sm md:text-lg text-white uppercase tracking-wider mr-2">MMA IQ</span>
-          <span className="text-xl md:text-3xl font-bold uppercase tracking-tighter" style={{ color: COACH_PLAN.accent }}>{COACH_PLAN.name}</span>
-        </h3>
-        <div className="flex items-baseline gap-1 mt-3">
-          <span className="font-accent text-3xl md:text-4xl text-white">{COACH_PLAN.price}</span>
-          <span className="text-[var(--color-text-secondary)] text-sm font-body">{COACH_PLAN.period}</span>
-        </div>
-        <p className="text-[var(--color-text-secondary)] text-[10px] md:text-xs font-body uppercase tracking-widest opacity-80 mt-1">{COACH_PLAN.billing}</p>
-      </div>
-      <ul className={`grid ${compact ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'} gap-x-6 gap-y-2 flex-1`}>
-        {COACH_PLAN.features.map((f, i) => (
-          <li key={i} className="flex items-center gap-2 text-xs md:text-sm text-[var(--color-text-primary)] font-body">
-            <CheckCircle2 className="w-4 h-4 shrink-0" style={{ color: COACH_PLAN.accent }} />
-            {f}
+function AcademyNote() {
+  return (
+    <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
+      Les tutoriels techniques sont inclus selon ton plan. Les formations approfondies de{' '}
+      <Link to="/instructional" className="font-semibold text-white underline underline-offset-4 hover:text-[var(--color-violet-300)]">MMA IQ Academy</Link>
+      {' '}sont en préparation et seront vendues à l’unité, en complément de l’abonnement.
+    </p>
+  );
+}
+
+function PlanCard({ plan, interval, selected, gymCode }: { plan: Plan; interval: SubscriptionCheckoutInput['interval']; selected: boolean; gymCode: string }) {
+  const isPerformance = plan.id === 'performance';
+
+  return (
+    <article id={`plan-${plan.id}`} className={`flex min-w-0 scroll-mt-24 flex-col rounded-2xl border p-6 ${
+      selected || isPerformance
+        ? 'border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/10'
+        : 'border-white/15 bg-[var(--color-bg-surface)]'
+    }`}>
+      <h3 className="font-display text-3xl tracking-wide text-white">{plan.name}</h3>
+      <p className={`mt-2 text-sm leading-relaxed ${isPerformance ? 'text-[var(--color-violet-300)]' : 'text-[var(--color-text-secondary)]'}`}>
+        {plan.subtitle}
+      </p>
+      <p className="mt-6 flex flex-wrap items-baseline gap-x-2 text-white">
+        <span className="text-4xl font-semibold tracking-tight">{priceLabel(plan.price)} €</span>
+        <span className="text-sm text-[var(--color-text-secondary)]">{plan.price === 0 ? 'gratuit' : '/ mois'}</span>
+      </p>
+      <p className="mt-3 min-h-12 text-sm leading-relaxed text-[var(--color-text-secondary)]">{plan.billing}</p>
+      <ul className="my-6 flex-1 space-y-4 border-t border-white/15 pt-6">
+        {plan.highlights.map((highlight) => (
+          <li key={highlight} className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-primary)]">
+            <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-violet-300)]" aria-hidden="true" />
+            {highlight}
           </li>
         ))}
       </ul>
-      <div className={compact ? '' : 'md:w-auto'}>
-        <Link to="/app#download" className="block text-center px-6 py-3 md:py-4 bg-[var(--color-accent-primary)]/20 hover:bg-[var(--color-accent-primary)]/30 border border-[var(--color-accent-primary)]/30 text-white rounded-xl font-bold text-xs md:text-base transition-colors whitespace-nowrap">
-          Rejoindre la liste d'attente
-        </Link>
-      </div>
-    </div>
-  </div>
-);
+      <LaunchLink
+        primary={isPerformance}
+        planKey={plan.id === 'free' ? undefined : plan.id as SubscriptionCheckoutInput['planKey']}
+        interval={interval}
+        gymCode={gymCode}
+      />
+    </article>
+  );
+}
 
-const ValueCell = ({ value }: { value: string | number }) => {
-  if (value === '✓') {
-    return <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-accent-primary)] mx-auto" />;
-  } else if (value === '—') {
-    return <Minus className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-text-muted)] mx-auto" />;
-  } else if (value === '∞') {
-    return <InfinityIcon className="w-4 h-4 md:w-5 md:h-5 text-[var(--color-accent-gold)] mx-auto" />;
-  } else {
-    return <span className="text-[var(--color-accent-primary)] font-bold text-[10px] md:text-sm">{value}</span>;
+export default function PricingSection({ compact = false }: { compact?: boolean }) {
+  const [searchParams] = useSearchParams();
+  const requestedInterval = searchParams.get('interval') === 'yearly' ? 'yearly' : 'monthly';
+  const requestedPlan = searchParams.get('plan');
+  const [interval, setInterval] = useState<SubscriptionCheckoutInput['interval']>(requestedInterval);
+  const [gymCode, setGymCode] = useState('');
+  const managementStarted = useRef(false);
+  const { checkoutError, beginSubscriptionManagement } = useMmaIqAccount();
+
+  useEffect(() => {
+    if (compact || searchParams.get('manage') !== '1' || managementStarted.current) return;
+    managementStarted.current = true;
+    beginSubscriptionManagement().catch(() => {});
+  }, [beginSubscriptionManagement, compact, searchParams]);
+  if (compact) {
+    return (
+      <section className="border-y border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-6 py-14 font-body sm:py-20">
+        <div className="mx-auto grid max-w-6xl items-center gap-8 md:grid-cols-[1fr_auto] md:gap-12">
+          <div className="max-w-2xl">
+            <p className="mb-3 text-sm font-semibold text-[var(--color-violet-300)]">Les offres prévues au lancement</p>
+            <h2 className="font-display text-4xl leading-none text-white sm:text-5xl">Une version gratuite pour commencer.</h2>
+            <p className="mb-5 mt-5 text-base leading-relaxed text-[var(--color-text-secondary)]">
+              Les plans payants démarreront à <span className="font-semibold text-white">5,99 € / mois</span>.
+              En attendant, l’inscription pour être prévenu du lancement est gratuite.
+            </p>
+            <AcademyNote />
+          </div>
+          <div className="flex flex-col gap-3">
+            <Link to="/tarifs" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/20 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/5">
+              Comparer les offres <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <LaunchLink primary />
+          </div>
+        </div>
+      </section>
+    );
   }
-};
-
-export default function PricingSection() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  // A11y modale (aria-modal) : focus sur « Fermer » à l'ouverture, fermeture
-  // par Échap, focus rendu au bouton déclencheur à la fermeture.
-  useEffect(() => {
-    if (!isModalOpen) return;
-    closeButtonRef.current?.focus();
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsModalOpen(false);
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-      triggerRef.current?.focus();
-    };
-  }, [isModalOpen]);
-
-  useEffect(() => {
-    if (!isModalOpen) return;
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-          setActiveIndex(Number(entry.target.getAttribute('data-index')));
-        }
-      });
-    }, { root: scrollRef.current, threshold: 0.5 });
-
-    const cards = document.querySelectorAll('.mobile-plan-card');
-    cards.forEach(card => observer.observe(card));
-
-    return () => observer.disconnect();
-  }, [isModalOpen]);
-
-  // Disable body scroll when modal is open
-  useEffect(() => {
-    if (isModalOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isModalOpen]);
 
   return (
-    <section className="py-24 bg-[var(--color-bg-base)] relative border-t border-[var(--color-border)] overflow-hidden">
-      <style>{`
-        @keyframes shimmer {
-          100% { transform: translateX(100%); }
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-10 md:mb-16">
-          <h2 className="text-xl sm:text-2xl md:text-5xl font-display uppercase tracking-tighter text-white mb-4 flex flex-row flex-wrap items-center justify-center gap-1 sm:gap-2 md:gap-4">
-            <span>Vivez pleinement l'expérience</span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] tracking-widest font-days-one tracking-normal">
-              MMA IQ
-            </span>
-          </h2>
-
-          <p className="text-sm md:text-base font-body text-[var(--color-text-secondary)]">
-            Sans engagement. Annulable à tout moment. Jusqu'à −17% avec l'abonnement annuel.
+    <section className="bg-[var(--color-bg-base)] px-6 py-12 font-body sm:py-16">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-8 max-w-2xl">
+          <h2 className="font-display text-3xl text-white sm:text-4xl">Les offres pour les pratiquants</h2>
+          <p className="mt-3 text-base leading-relaxed text-[var(--color-text-secondary)]">
+            Une version gratuite et trois plans payants prévus au lancement.
+            Jusqu’à −17 % avec la facturation annuelle.
           </p>
         </div>
 
-        {/* Comparison Table */}
-        <div className="mb-8 md:mb-16 w-full">
-          <table className="w-full text-left border-collapse table-fixed">
-            <thead>
-              <tr>
-                <th className="p-1 md:p-4 border-b border-white/10 w-[28%] md:w-1/3"></th>
-                {PLANS.map((plan) => (
-                  <th key={plan.id} className="p-1 md:p-4 border-b border-white/10 text-center">
-                    <div className="flex flex-col items-center">
-                      <span className="font-display text-[9px] md:text-xl text-white uppercase tracking-tighter">
-                        <span className="font-days-one text-[7px] md:text-xs mr-1">MMA IQ</span>
-                        <span style={{ color: plan.accent }}>{plan.name}</span>
-                      </span>
-                      <span className="block text-[8px] md:text-sm text-white/60 font-body normal-case mt-1">
-                        {plan.price === 0 ? '0€' : `${String(plan.price).replace('.', ',')}€${plan.period}`}
-                      </span>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {PLANS[0].features.map((feat, i) => (
-                <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                  <td className="p-1 py-2.5 md:p-4 text-white font-body text-[10px] md:text-base leading-tight pr-1">{feat.label}</td>
-                  <td className="p-1 py-2.5 md:p-4 text-center"><ValueCell value={PLANS[0].features[i].value} /></td>
-                  <td className="p-1 py-2.5 md:p-4 text-center"><ValueCell value={PLANS[1].features[i].value} /></td>
-                  <td className="p-1 py-2.5 md:p-4 text-center"><ValueCell value={PLANS[2].features[i].value} /></td>
-                  <td className="p-1 py-2.5 md:p-4 text-center"><ValueCell value={PLANS[3].features[i].value} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="text-[10px] md:text-xs text-[var(--color-text-secondary)] font-body mt-3 text-center">
-            Les crédits IA alimentent les gameplans, analyses vidéo, scans de repas et le coach IA.
-          </p>
-        </div>
-
-        {/* Coach Suite */}
-        <div className="mb-12 md:mb-16">
-          <CoachSuiteCard />
-        </div>
-
-        {/* CTA Button */}
-        <div className="flex justify-center mt-8 md:mt-12">
-          <motion.div
-            className="relative group inline-block"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] rounded-full blur-xl opacity-70 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
-            <button
-              ref={triggerRef}
-              onClick={() => setIsModalOpen(true)}
-              className="relative flex items-center justify-center px-6 py-3 md:px-8 md:py-4 font-display tracking-wider text-sm md:text-xl text-white transition-all duration-300 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] rounded-full hover:scale-110 shadow-[0_0_40px_rgba(123,47,255,0.6)] border border-white/30 overflow-hidden"
-            >
-              CHOISIR MON OFFRE <ArrowRight className="ml-2 md:ml-3 w-4 h-4 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
-            </button>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Modal / Popup */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl"
-            onClick={() => setIsModalOpen(false)}
-          >
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              aria-label="Sélectionnez votre plan"
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative w-full max-w-[1200px] bg-[var(--color-bg-base)] rounded-[32px] shadow-[0_0_50px_rgba(123,47,255,0.2)] overflow-hidden border border-white/10 max-h-[90vh] flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close Button */}
-              <button
-                ref={closeButtonRef}
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 z-[110] p-3 text-white hover:text-white bg-white/10 hover:bg-[var(--color-accent-primary)] rounded-full transition-all duration-300 shadow-lg border border-white/20"
-                aria-label="Fermer"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              <div className="p-0 md:p-12 overflow-y-auto custom-scrollbar">
-                <div className="text-center mt-12 mb-8 md:mb-12 px-6">
-                  <h3 className="text-2xl md:text-5xl font-display uppercase text-white tracking-widest">
-                    Sélectionnez votre <span className="text-[var(--color-accent-primary)]">plan</span>
-                  </h3>
-                  <div className="h-1 w-24 bg-[var(--color-accent-primary)] mx-auto mt-4 rounded-full" />
-                </div>
-
-                {/* Desktop / Tablet Grid */}
-                <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch pb-4 px-12">
-                  {PLANS.map((plan, i) => (
-                    <PlanCard key={plan.id} plan={plan} index={i} />
-                  ))}
-                </div>
-                <div className="hidden md:block px-12 pb-8">
-                  <CoachSuiteCard />
-                </div>
-
-                {/* Mobile Scroll */}
-                <div className="md:hidden relative pb-12">
-                  <div
-                    ref={scrollRef}
-                    className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-4 scrollbar-hide px-[10vw]"
-                  >
-                    {PLANS.map((plan, i) => (
-                      <div
-                        key={plan.id}
-                        data-index={i}
-                        className="mobile-plan-card snap-center flex-shrink-0 w-[80vw]"
-                      >
-                        <PlanCard plan={plan} index={i} />
-                      </div>
-                    ))}
-                    <div data-index={4} className="mobile-plan-card snap-center flex-shrink-0 w-[80vw]">
-                      <CoachSuiteCard compact />
-                    </div>
-                  </div>
-
-                  {/* Pagination Dots */}
-                  <div className="flex justify-center gap-2 mt-6">
-                    {[...PLANS, COACH_PLAN].map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-2 h-2 rounded-full transition-all duration-300 ${activeIndex === i ? 'bg-[var(--color-accent-primary)] w-6' : 'bg-white/20'}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+        {CHECKOUT_ENABLED && (
+          <div className="mb-8 flex flex-wrap items-center gap-3" aria-label="Périodicité de paiement">
+            <button type="button" onClick={() => setInterval('monthly')} aria-pressed={interval === 'monthly'} className={`rounded-xl px-5 py-3 text-sm font-semibold ${interval === 'monthly' ? 'bg-[var(--color-accent-primary)] text-white' : 'border border-white/15 text-[var(--color-text-secondary)]'}`}>Mensuel</button>
+            <button type="button" disabled={gymCode.trim().length > 0} onClick={() => setInterval('yearly')} aria-pressed={interval === 'yearly'} className={`rounded-xl px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40 ${interval === 'yearly' ? 'bg-[var(--color-accent-primary)] text-white' : 'border border-white/15 text-[var(--color-text-secondary)]'}`}>Annuel</button>
+            <label className="w-full max-w-xs text-sm font-semibold text-white">
+              Code club <span className="font-normal text-[var(--color-text-secondary)]">(facultatif)</span>
+              <input
+                value={gymCode}
+                onChange={(event) => {
+                  const value = event.target.value.toUpperCase();
+                  setGymCode(value);
+                  if (value.trim()) setInterval('monthly');
+                }}
+                maxLength={14}
+                autoComplete="off"
+                placeholder="EX. CLUBMMA"
+                className="mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-white/5 px-4 uppercase text-white outline-none focus:border-[var(--color-accent-primary)]"
+              />
+            </label>
+            {gymCode.trim() && <p className="w-full text-sm text-[var(--color-text-secondary)]">Les avantages exprimés en mois s'appliquent à la formule mensuelle.</p>}
+            {checkoutError && <p className="w-full text-sm text-red-300" role="alert">{checkoutError}</p>}
+          </div>
         )}
-      </AnimatePresence>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          {PLANS.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} interval={interval} selected={plan.id === requestedPlan} gymCode={gymCode} />
+          ))}
+        </div>
+
+        <div className="mt-6 max-w-4xl space-y-3">
+          <p className="text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            L’application est en préparation. L’inscription au lancement est gratuite et ne souscrit aucun abonnement.
+            Les abonnements seront annulables à tout moment, avec effet à la fin de la période payée.
+          </p>
+          <AcademyNote />
+        </div>
+
+        <details className="group mt-8 overflow-hidden rounded-2xl border border-white/15 bg-[var(--color-bg-surface)]">
+          <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 p-5 text-base font-semibold text-white marker:content-none focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[var(--color-violet-300)] [&::-webkit-details-marker]:hidden">
+            Comparer toutes les fonctionnalités
+            <ChevronDown className="h-5 w-5 shrink-0 transition-transform group-open:rotate-180" aria-hidden="true" />
+          </summary>
+          <p id="pricing-scroll-help" className="border-t border-white/10 px-5 py-4 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            Sur petit écran, fais défiler le tableau horizontalement pour comparer les quatre plans.
+          </p>
+          <div className="overflow-x-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[var(--color-violet-300)]" tabIndex={0} role="region" aria-label="Comparaison des offres" aria-describedby="pricing-scroll-help">
+            <table className="w-full min-w-[780px] border-collapse text-left text-sm">
+              <caption className="sr-only">Fonctionnalités des abonnements MMA IQ prévus au lancement</caption>
+              <thead>
+                <tr className="border-y border-white/15 bg-white/5">
+                  <th scope="col" className="w-[28%] p-5 font-semibold text-white">Fonctionnalité</th>
+                  {PLANS.map((plan) => (
+                    <th key={plan.id} scope="col" className="p-5 text-center font-semibold text-white">
+                      {plan.name}
+                      <span className="mt-1 block whitespace-nowrap font-normal text-[var(--color-text-secondary)]">{priceLabel(plan.price)} €{plan.price > 0 ? ' / mois' : ''}</span>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {FEATURE_LABELS.map((label, index) => (
+                  <tr key={label} className="border-b border-white/10 last:border-b-0">
+                    <th scope="row" className="p-5 font-medium text-white">{label}</th>
+                    {PLANS.map((plan) => (
+                      <td key={plan.id} className="p-5 text-center text-[var(--color-text-secondary)]">{valueLabel(plan.features[index])}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="border-t border-white/10 p-5 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            Visu Perf correspond au suivi de performance. Les crédits IA alimentent les gameplans,
+            les analyses vidéo, les scans de repas et le coach IA.
+          </p>
+        </details>
+
+        <section id="coach-suite" className="mt-12 scroll-mt-24 rounded-2xl border border-[var(--color-tier-coach)]/40 bg-[var(--color-bg-elevated)] p-6 sm:mt-16 sm:p-8" aria-labelledby="coach-suite-title">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1.25fr] lg:gap-12">
+            <div>
+              <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-tier-coach)]"><Users className="h-5 w-5" aria-hidden="true" /> Pour les coachs · Au lancement</p>
+              <h2 id="coach-suite-title" className="font-display text-4xl text-white">Coach Suite</h2>
+              <p className="mt-3 max-w-md text-base leading-relaxed text-[var(--color-text-secondary)]">Réunis le suivi de tes athlètes et tes échanges dans un espace dédié.</p>
+              <p className="mt-6 flex flex-wrap items-baseline gap-2 text-white"><span className="text-4xl font-semibold tracking-tight">19,99 €</span><span className="text-sm text-[var(--color-text-secondary)]">/ mois</span></p>
+              <p className="mb-6 mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">ou 199,90 € / an, soit 16,66 € / mois</p>
+              <LaunchLink planKey="coach_suite" interval={interval} gymCode={gymCode} />
+            </div>
+            <ul className="grid content-center gap-4 sm:grid-cols-2">
+              {COACH_FEATURES.map((feature) => (
+                <li key={feature} className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-primary)]">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-tier-coach)]" aria-hidden="true" />{feature}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      </div>
     </section>
   );
 }

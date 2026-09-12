@@ -32,7 +32,6 @@ export function VideoPlayer({ url, className, poster }: VideoPlayerProps) {
       poster={poster}
       className={`w-full h-full object-cover ${className}`}
       playsInline
-      referrerPolicy="no-referrer"
     />
   );
 }

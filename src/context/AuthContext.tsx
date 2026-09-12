@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase, getSession, getProfile, signOut as supabaseSignOut } from '../lib/supabase';
 
 // Profil issu de la table profiles (id, email, role).
@@ -25,6 +25,8 @@ interface AuthContextType {
   session: any | null;
   profile: Profile | null;
   loading: boolean;
+  passwordRecoveryPending: boolean;
+  consumePasswordRecovery: () => void;
   signOut: () => Promise<void>;
   // Pose user+profile immédiatement après une connexion réussie (voir primeAuth).
   primeAuth: (user: any, profile: Profile | null) => void;
@@ -39,6 +41,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mémorise seulement le type du callback avant que le SDK nettoie l'URL.
+// Une session existante ne déclenche jamais ce parcours à elle seule.
+const initialPasswordRecovery = typeof window !== 'undefined' && [
+  new URLSearchParams(window.location.search),
+  new URLSearchParams(window.location.hash.slice(1)),
+].some(params => params.get('type') === 'recovery');
+
 function readCoachSession(): CoachSession | null {
   if (typeof localStorage === 'undefined') return null;
   try {
@@ -52,7 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<any | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [passwordRecoveryPending, setPasswordRecoveryPending] = useState(initialPasswordRecovery);
   const [coachSession, setCoachSessionState] = useState<CoachSession | null>(readCoachSession);
+  const consumePasswordRecovery = useCallback(() => setPasswordRecoveryPending(false), []);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,7 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Session initiale puis écoute des changements (connexion, refresh, déconnexion).
     getSession().then(applySession);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (!cancelled && event === 'PASSWORD_RECOVERY') setPasswordRecoveryPending(true);
       // setTimeout : évite le blocage connu de supabase-js quand on requête
       // la base directement depuis le callback d'auth.
       setTimeout(() => applySession(nextSession), 0);
@@ -121,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('sb_access_token');
     }
     setCoachSessionState(null);
+    setPasswordRecoveryPending(false);
     setSession(null);
     setProfile(null);
   };
@@ -143,6 +156,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         profile,
         loading,
+        passwordRecoveryPending,
+        consumePasswordRecovery,
         signOut,
         primeAuth,
         accessToken,

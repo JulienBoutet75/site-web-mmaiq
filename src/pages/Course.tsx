@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
   Play, ChevronDown, CheckCircle2, Clock, User, 
@@ -16,6 +16,33 @@ import { createFormationCheckout, redeemAccessCode, getVideoUrl } from "../servi
 import { MediaUploader } from "../components/admin/MediaUploader";
 import { showToast } from "../utils/ui";
 
+// Un extrait déjà public peut être lu sans compte. Les URLs signées et les
+// fichiers de chapitres restent réservés au parcours d'accès existant.
+function getPublicTrailerUrl(value: unknown, chapters: any[]): string | null {
+  if (typeof value !== 'string' || !value) return null;
+  try {
+    const trailer = new URL(value);
+    if (trailer.protocol !== 'https:' || trailer.username || trailer.password) return null;
+    const youtubeHosts = ['youtube.com', 'www.youtube.com', 'm.youtube.com', 'youtu.be'];
+    const youtubeId = (url: URL) => {
+      if (!youtubeHosts.includes(url.hostname)) return null;
+      return url.hostname === 'youtu.be' ? url.pathname.split('/')[1] : url.searchParams.get('v') || url.pathname.match(/^\/(?:embed|shorts)\/([^/]+)/)?.[1];
+    };
+    const mediaPath = (url: URL) => youtubeId(url)
+      ? `youtube:${youtubeId(url)}`
+      : `${url.origin}${decodeURIComponent(url.pathname).replace(/\/object\/(public|sign|authenticated)\//, '/object/')}`;
+    if (chapters.some(chapter => {
+      try { return mediaPath(new URL(chapter.video_url)) === mediaPath(trailer); }
+      catch { return false; }
+    })) return null;
+    const isYouTube = Boolean(youtubeId(trailer));
+    const isPublicStorage = trailer.pathname.startsWith('/storage/v1/object/public/');
+    return isYouTube || isPublicStorage ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 export function Course() {
   const { slug } = useParams();
   const { user, session, profile, isAdmin } = useAuth();
@@ -24,6 +51,8 @@ export function Course() {
   const [formation, setFormation] = useState<any>(null);
   const [chapters, setChapters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [hasPurchased, setHasPurchased] = useState(false);
   const [activeChapter, setActiveChapter] = useState<any>(null);
   // Modale post-échec d'achat : 'unconfigured' si le serveur répond que
@@ -32,6 +61,7 @@ export function Course() {
   const [enteredCode, setEnteredCode] = useState('');
   const [codeError, setCodeError] = useState(false);
   const [redeeming, setRedeeming] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
 
   // URLs de lecture résolues côté serveur (signées quand le bucket est privé)
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
@@ -48,6 +78,7 @@ export function Course() {
   // isAdmin (useAuth) couvre les rôles admin/super_admin ET l'admin reconnu
   // par email (fallback VITE_ADMIN_EMAIL sans ligne profiles).
   const canEdit = isAdmin || (profile?.role === 'coach' && formation?.coach_id === profile?.id);
+  const publicTrailerUrl = useMemo(() => !loading && !loadError ? getPublicTrailerUrl(formation?.trailer_url, chapters) : null, [formation?.trailer_url, chapters, loading, loadError]);
 
   // Chemins de redirection auth (convention /connexion?mode=...&redirect=...)
   const coursePath = `/course/${slug}`;
@@ -225,9 +256,16 @@ export function Course() {
   };
 
   useEffect(() => {
+    let cancelled = false;
     async function loadData() {
       if (!slug) return;
       setLoading(true);
+      setLoadError(false);
+      setFormation(null);
+      setChapters([]);
+      setActiveChapter(null);
+      setChapterUrl(null);
+      setHasPurchased(false);
       try {
         // 1. Load formation + coach
         const { data: fData, error: fError } = await supabase
@@ -237,6 +275,7 @@ export function Course() {
           .single();
 
         if (fError) throw fError;
+        if (cancelled) return;
         // Brouillon (published=false) : invisible en accès direct pour le
         // public — seuls admins et coachs propriétaires peuvent le prévisualiser
         // (le serveur refuse de toute façon l'achat d'un brouillon).
@@ -245,8 +284,6 @@ export function Course() {
           return;
         }
         if (fData) {
-          setFormation(fData);
-
           // 2. Load chapters
           const { data: chData, error: chError } = await supabase
             .from("formation_chapters")
@@ -255,6 +292,8 @@ export function Course() {
             .order("sort_order");
 
           if (chError) throw chError;
+          if (cancelled) return;
+          setFormation(fData);
           setChapters(chData || []);
 
           // 3. Check purchase if logged in (seule source de vérité : purchases)
@@ -265,27 +304,37 @@ export function Course() {
               .eq("user_id", user.id)
               .eq("formation_id", fData.id)
               .eq("status", "completed");
+            if (cancelled) return;
             setHasPurchased(!!(pData && pData.length > 0));
           } else {
             setHasPurchased(false);
           }
         }
-      } catch (err) {
+      } catch (err: any) {
+        if (cancelled) return;
         console.error("Error loading formation:", err);
+        setLoadError(err?.code !== 'PGRST116');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     loadData();
-  }, [slug, user?.id]);
+    return () => { cancelled = true; };
+  }, [slug, user?.id, isAdmin, profile?.role, profile?.id, loadAttempt]);
 
-  // Teaser : URL résolue côté serveur pour les utilisateurs connectés
-  // (signée si le bucket est privé, URL stockée en mode dégradé).
+  // Seul l'extrait déjà public est lisible sans compte. La résolution d'un
+  // média privé reste authentifiée ; aucun repli vers une URL de chapitre.
   useEffect(() => {
     let cancelled = false;
     async function loadTrailer() {
+      if (publicTrailerUrl) {
+        setTrailerUrl(publicTrailerUrl);
+        setTrailerLoading(false);
+        return;
+      }
       if (!formation?.trailer_url || !user || !session?.access_token) {
         setTrailerUrl(null);
+        setTrailerLoading(false);
         return;
       }
       setTrailerLoading(true);
@@ -294,15 +343,14 @@ export function Course() {
         if (!cancelled) setTrailerUrl(url);
       } catch (err) {
         console.error("Erreur de chargement du teaser:", err);
-        // Repli : URL stockée telle quelle (bucket encore public)
-        if (!cancelled) setTrailerUrl(formation.trailer_url);
+        if (!cancelled) setTrailerUrl(null);
       } finally {
         if (!cancelled) setTrailerLoading(false);
       }
     }
     loadTrailer();
     return () => { cancelled = true; };
-  }, [formation?.id, formation?.trailer_url, user?.id, session?.access_token]);
+  }, [formation?.id, formation?.trailer_url, publicTrailerUrl, user?.id, session?.access_token]);
 
   if (loading) {
     return (
@@ -315,7 +363,8 @@ export function Course() {
   if (!formation) {
     return (
       <div className="min-h-screen bg-[var(--color-bg-base)] flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="text-3xl font-display mb-4 text-white">Formation introuvable</h2>
+        <h1 className="text-3xl font-display mb-4 text-white">{loadError ? "La formation n'a pas pu être chargée" : "Formation introuvable"}</h1>
+        {loadError && <Button onClick={() => setLoadAttempt(attempt => attempt + 1)} className="mb-4">Réessayer</Button>}
         <Link to="/instructional">
           <Button variant="outline" className="text-white border-white/20">Retour à l'Academy</Button>
         </Link>
@@ -324,6 +373,8 @@ export function Course() {
   }
 
   const coach = formation.coaches;
+  const levelLabels: Record<string, string> = { debutant: 'Débutant', amateur: 'Amateur', pro: 'Pro' };
+  const displayedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(formation.price_cents / 100);
   const longDescData = typeof formation.long_description === 'string' && formation.long_description.startsWith('{')
     ? JSON.parse(formation.long_description)
     : (typeof formation.long_description === 'object' && formation.long_description !== null) 
@@ -362,11 +413,13 @@ export function Course() {
   };
 
   const handlePurchase = async () => {
+    if (purchasing) return;
     if (!user || !session?.access_token) {
       navigate(signupUrl);
       return;
     }
 
+    setPurchasing(true);
     try {
       // Le prix est résolu côté serveur depuis la table formations
       await createFormationCheckout(formation.id, session.access_token);
@@ -374,6 +427,8 @@ export function Course() {
       // Le placeholder « bientôt disponible » est réservé au cas où le
       // serveur indique explicitement que Stripe n'est pas configuré.
       setPurchaseModal(error?.message === 'Stripe is not configured' ? 'unconfigured' : 'error');
+    } finally {
+      setPurchasing(false);
     }
   };
 
@@ -391,7 +446,7 @@ export function Course() {
     setActiveChapter(ch);
     setChapterUrl(null);
     setChapterLoading(true);
-    window.scrollTo({ top: 400, behavior: 'smooth' });
+    document.getElementById('course-player')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     try {
       const { url } = await getVideoUrl(formation.id, ch.id, session.access_token);
       setChapterUrl(url);
@@ -430,7 +485,7 @@ export function Course() {
             ) : (
               <Button 
                 onClick={startEditing}
-                className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold"
+                className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] text-white font-bold"
               >
                 <Edit2 size={20} className="mr-2" /> Modifier la page
               </Button>
@@ -440,7 +495,7 @@ export function Course() {
       )}
 
       {/* Hero Section - Coach Focused */}
-      <section className="relative pt-20 pb-24 overflow-hidden">
+      <section className="relative pt-4 pb-12 md:pb-16 overflow-hidden">
         {/* Background effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl opacity-20 pointer-events-none">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-[var(--color-accent-primary)] blur-[150px] rounded-full"></div>
@@ -448,8 +503,34 @@ export function Course() {
         </div>
 
         <div className="px-6 max-w-7xl mx-auto relative z-10">
+          <Link to="/instructional" className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-white mb-6"><ArrowLeft size={16} /> Toutes les formations</Link>
+          <div className="flex flex-col lg:flex-row lg:items-center gap-8 mb-10 pb-10 border-b border-white/10">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[var(--color-accent-primary)] mb-3">MMA IQ Academy · Formation vidéo</p>
+              <h1 className="text-3xl md:text-5xl font-display leading-tight mb-5">{isEditing && editData ? editData.title : formation.title}</h1>
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-[var(--color-text-secondary)]">
+                {formation.level && <span>{levelLabels[formation.level] || formation.level}</span>}
+                {formation.duration && <span className="flex items-center gap-2"><Clock size={16} /> {formation.duration}</span>}
+                {chapters.length > 0 && <span>{chapters.length} chapitre{chapters.length > 1 ? 's' : ''}</span>}
+              </div>
+            </div>
+            {!canEdit && <div className="w-full lg:w-80 shrink-0 rounded-2xl border border-white/15 bg-[var(--color-bg-surface)] p-6">
+              {hasPurchased ? <>
+                <p className="flex items-center gap-2 text-green-400 mb-4"><CheckCircle2 size={18} /> Dans ta bibliothèque</p>
+                <Button onClick={() => document.getElementById('course-programme')?.scrollIntoView({ behavior: 'smooth' })} className="w-full py-3">Voir les chapitres</Button>
+              </> : <>
+                <p className="font-display text-3xl mb-1">{displayedPrice}</p>
+                <p className="text-sm text-[var(--color-text-secondary)] mb-5">Achat unique · Accès dans ton compte</p>
+                <Button onClick={handlePurchase} disabled={purchasing} className="w-full py-3 flex items-center justify-center gap-2 bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)]">
+                  {purchasing ? <Loader2 size={18} className="animate-spin" /> : <ShoppingCart size={18} />}
+                  {purchasing ? 'Chargement…' : 'Acheter la formation'}
+                </Button>
+                <p className="mt-3 text-sm text-[var(--color-text-secondary)]">Séparée de l'abonnement à l'app MMA IQ.</p>
+              </>}
+            </div>}
+          </div>
           {/* Coach Info (Top) */}
-          <motion.div 
+          {(coach || isEditing) && <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -457,12 +538,12 @@ export function Course() {
           >
             {/* Coach Photo */}
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden shrink-0 border border-white/10">
-              <img loading="lazy" src={coach?.photo_url} alt={coach?.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+              {coach?.photo_url ? <img loading="lazy" src={coach.photo_url} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : <User className="w-full h-full p-6 text-white/40" />}
             </div>
             
             {/* Coach Details */}
             <div className="space-y-2 md:space-y-4 flex-1">
-              <div className="flex gap-2 mb-2">
+              <div className="flex flex-wrap gap-2 mb-2">
                 <Badge color="red" className="bg-red-500/20 border-red-500/30 text-red-500 uppercase tracking-widest px-3 py-1.5 backdrop-blur-md text-xs shadow-lg">
                   {isEditing && editData ? (
                     <select 
@@ -491,9 +572,9 @@ export function Course() {
                 </Badge>
               </div>
               <div className="text-xs md:text-sm text-[var(--color-accent-primary)] font-bold uppercase tracking-[0.2em]">Profil du Coach</div>
-              <h1 className="text-2xl md:text-5xl font-display leading-[0.85] tracking-tighter">
+              <h2 className="text-2xl md:text-4xl font-display leading-tight">
                 {coach?.name}
-              </h1>
+              </h2>
               {isEditing && editData ? (
                 <input 
                   value={editData.coach_tagline}
@@ -523,15 +604,15 @@ export function Course() {
               </div>
 
               <div className="flex flex-wrap justify-start gap-2 md:gap-4 pt-1">
-                <Link to={`/coaches/${coach?.slug}`}>
+                {coach?.slug && <Link to={`/coaches/${coach.slug}`}>
                   <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full px-4 py-1.5 font-bold transition-all flex items-center gap-2 text-xs md:text-sm">
                     <User size={14} />
-                    Voir ma page coach
+                    Voir son profil
                   </Button>
-                </Link>
+                </Link>}
               </div>
             </div>
-          </motion.div>
+          </motion.div>}
 
           <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-center md:items-start">
             {/* Left Column: Photo, Title, About */}
@@ -638,46 +719,23 @@ export function Course() {
                   </div>
                 </div>
               ) : formation?.trailer_url ? (
-                user ? (
-                  <div className="w-full aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative group">
-                    {trailerLoading ? (
-                      <div className="w-full h-full flex items-center justify-center bg-black/40">
-                        <Loader2 size={32} className="animate-spin text-[var(--color-accent-primary)]" />
-                      </div>
-                    ) : (
-                      <VideoPlayer
-                        url={trailerUrl || ''}
-                        poster={formation.thumbnail_url}
-                        className="w-full h-full"
-                      />
-                    )}
-                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full border border-white/10 pointer-events-none">
-                      Extrait Gratuit
+                <div className="w-full aspect-video rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 relative bg-black">
+                  {trailerLoading ? (
+                    <div role="status" aria-label="Chargement de l'extrait" className="w-full h-full flex items-center justify-center">
+                      <Loader2 size={32} className="animate-spin text-[var(--color-accent-primary)]" />
                     </div>
-                  </div>
-                ) : (
-                  /* Teaser verrouillé : compte gratuit requis */
-                  <div className="w-full aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative">
-                    {formation.thumbnail_url && (
-                      <img loading="lazy"
-                        src={formation.thumbnail_url}
-                        alt={formation.title}
-                        className="w-full h-full object-cover opacity-30"
-                        referrerPolicy="no-referrer"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center gap-4">
-                      <Lock className="text-[var(--color-accent-primary)]" size={40} />
-                      <h3 className="text-xl md:text-2xl font-display">Crée ton compte gratuit pour regarder le teaser</h3>
-                      <Link to={signupUrl}>
-                        <Button className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold rounded-xl px-6 py-3 flex items-center gap-2">
-                          <PlayCircle size={18} />
-                          Créer mon compte gratuit
-                        </Button>
-                      </Link>
+                  ) : publicTrailerUrl || (user && trailerUrl) ? (
+                    <>
+                      <VideoPlayer url={publicTrailerUrl || trailerUrl || ''} poster={formation.thumbnail_url} className="w-full h-full" />
+                      <div className="absolute top-3 right-3 bg-black/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full pointer-events-none">Extrait gratuit</div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center gap-3">
+                      <PlayCircle size={32} className="text-[var(--color-accent-primary)]" />
+                      <p className="text-sm text-[var(--color-text-secondary)]">L'extrait n'est pas disponible en accès public pour le moment. Tu peux consulter le programme ci-dessous.</p>
                     </div>
-                  </div>
-                )
+                  )}
+                </div>
               ) : null}
 
               {/* Ce que vous allez apprendre */}
@@ -730,11 +788,11 @@ export function Course() {
         </div>
       </section>
 
-      <div className="px-6 max-w-4xl mx-auto py-24 space-y-12">
-        <div className="w-full">
-          {/* Video Player Section */}
-          <section className="space-y-8">
-            <div className="flex items-center justify-between">
+      <div className="px-6 max-w-4xl mx-auto py-8 md:py-12 space-y-8">
+        <div id="course-player" className="w-full scroll-mt-28">
+          {/* Les chapitres restent soumis à l'achat et à la vérification serveur. */}
+          {(activeChapter || isEditing) && <section className="space-y-8">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <h2 className="text-3xl font-display flex items-center gap-4">
                 <PlayCircle size={32} className="text-[var(--color-accent-primary)]" />
                 {activeChapter ? `Chapitre : ${activeChapter.title}` : (isEditing && editData ? editData.title : formation.title)}
@@ -749,7 +807,7 @@ export function Course() {
               )}
             </div>
             
-            <div className="relative aspect-video rounded-[3rem] overflow-hidden shadow-2xl border border-white/5 bg-black group">
+            <div className="relative aspect-video rounded-2xl md:rounded-3xl overflow-hidden border border-white/5 bg-black group">
               {isEditing && editData ? (
                 <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-md flex items-center justify-center p-12">
                   <div className="w-full max-w-md space-y-4">
@@ -779,10 +837,10 @@ export function Course() {
                     <div className="absolute inset-0 z-30 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
                       <Lock className="text-[var(--color-accent-primary)] mb-4" size={48} />
                       <h3 className="text-2xl font-display mb-2">Contenu verrouillé</h3>
-                      <p className="text-white/70 mb-6 max-w-sm">Crée ton compte gratuit pour regarder le teaser de cette formation.</p>
-                      <Link to={signupUrl}>
-                        <Button className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold rounded-xl px-6 py-3">
-                          Créer mon compte gratuit
+                      <p className="text-white/70 mb-6 max-w-sm">Connecte-toi pour retrouver tes formations et accéder aux chapitres achetés.</p>
+                      <Link to={signinUrl}>
+                        <Button className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] text-white font-bold rounded-xl px-6 py-3">
+                          Se connecter
                         </Button>
                       </Link>
                     </div>
@@ -795,12 +853,13 @@ export function Course() {
                       <form onSubmit={handleCodeSubmit} className="flex gap-2 w-full max-w-xs">
                         <input
                           type="text"
+                          aria-label="Code d'accès à la formation"
                           placeholder="Entrez votre code"
                           value={enteredCode}
                           onChange={(e) => setEnteredCode(e.target.value)}
-                          className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
+                          className="flex-1 min-w-0 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
                         />
-                        <Button type="submit" disabled={redeeming} className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] disabled:opacity-50">
+                        <Button type="submit" disabled={redeeming} className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] disabled:opacity-50">
                           {redeeming ? <Loader2 size={18} className="animate-spin" /> : "Débloquer"}
                         </Button>
                       </form>
@@ -817,12 +876,12 @@ export function Course() {
                 <p className="text-white/70 leading-relaxed whitespace-pre-wrap">{activeChapter.description}</p>
               </div>
             )}
-          </section>
+          </section>}
         </div>
 
         {/* Chapters Section */}
-        <div className="w-full">
-          <div className="bg-[var(--color-bg-surface)] border border-white/5 rounded-[3rem] p-10 shadow-2xl">
+        <div id="course-programme" className="w-full scroll-mt-28">
+          <div className="bg-[var(--color-bg-surface)] border border-white/5 rounded-3xl p-5 md:p-10">
             <div className="flex items-center justify-between mb-10">
               <h3 className="text-2xl font-display">Programme</h3>
               <div className="flex items-center gap-3">
@@ -908,7 +967,7 @@ export function Course() {
                       </div>
                       {ch.timestamp && (
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-widest font-black">
+                          <span className="text-xs text-[var(--color-text-secondary)]">
                             {ch.timestamp}
                           </span>
                         </div>
@@ -929,7 +988,7 @@ export function Course() {
             <div className="text-center md:text-left">
               <h2 className="text-2xl md:text-3xl font-display mb-2">Prêt à passer au niveau supérieur ?</h2>
               <p className="text-base text-[var(--color-text-secondary)] max-w-lg">
-                Débloquez l'accès complet à cette formation et apprenez les techniques des meilleurs coachs MMA.
+                Retrouve tous les chapitres de cette formation dans ton compte Academy. L'achat est séparé de l'abonnement à l'app.
               </p>
             </div>
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-6 text-center min-w-[250px] w-full md:w-auto">
@@ -945,16 +1004,17 @@ export function Course() {
                     />
                     <span>€</span>
                   </div>
-                ) : `${(formation.price_cents / 100).toFixed(2)} €`}
+                ) : displayedPrice}
               </div>
               {!canEdit && (
                 <div className="space-y-4">
                   <Button 
                     onClick={handlePurchase}
-                    className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] text-white font-bold text-base shadow-[0_10px_20px_-10px_rgba(123,47,255,0.5)] transition-all flex items-center justify-center gap-2"
+                    disabled={purchasing}
+                    className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] text-white font-bold text-base shadow-[0_10px_20px_-10px_rgba(123,47,255,0.5)] transition-all flex items-center justify-center gap-2"
                   >
                     <ShoppingCart size={18} />
-                    Acheter maintenant
+                    {purchasing ? 'Chargement…' : 'Acheter la formation'}
                   </Button>
                   
                   <div className="pt-4 border-t border-white/10">
@@ -962,10 +1022,11 @@ export function Course() {
                     <form onSubmit={handleCodeSubmit} className="flex gap-2">
                       <input 
                         type="text" 
+                        aria-label="Code d'accès à la formation"
                         placeholder="Entrez votre code"
                         value={enteredCode}
                         onChange={(e) => setEnteredCode(e.target.value)}
-                        className={`flex-1 bg-[var(--color-bg-base)] border rounded-lg px-3 py-2 text-sm outline-none transition-colors ${codeError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-[var(--color-accent-primary)]'}`}
+                        className={`flex-1 min-w-0 bg-[var(--color-bg-base)] border rounded-lg px-3 py-2 text-sm outline-none transition-colors ${codeError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-[var(--color-accent-primary)]'}`}
                       />
                       <button type="submit" disabled={redeeming} className="border border-white/20 hover:bg-white/10 text-xs px-3 rounded-lg text-white font-semibold transition-colors disabled:opacity-50">
                         {redeeming ? "..." : "Valider"}
@@ -1018,7 +1079,7 @@ export function Course() {
               )}
               <Button
                 onClick={() => setPurchaseModal(null)}
-                className="w-full py-5 rounded-2xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] font-bold text-lg"
+                className="w-full py-5 rounded-2xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] font-bold text-lg"
               >
                 Compris !
               </Button>

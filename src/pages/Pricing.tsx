@@ -1,32 +1,25 @@
-import { motion } from "motion/react";
-import { Badge } from "../components/ui/Badge";
-import PricingSection from "../components/PricingSection";
+import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import PricingSection from '../components/PricingSection';
+import { Seo } from '../components/Seo';
 
 export function Pricing() {
   return (
-    <div className="bg-[var(--color-bg-base)] text-white pt-32 min-h-screen selection:bg-[var(--color-accent-purple)] selection:text-white">
-      <section className="px-6 max-w-3xl mx-auto text-center relative">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.23, 1, 0.32, 1] }}
-          className="relative z-10"
-        >
-          <Badge color="purple" className="mb-8 bg-white/5 border-white/10 text-white/80">
-            TARIFS
-          </Badge>
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl mb-6 leading-[1.1] tracking-tighter">
-            Un plan pour chaque{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)]">
-              étape
-            </span>
-          </h1>
-          <p className="font-body text-lg md:text-xl text-[var(--color-text-secondary)] leading-relaxed">
-            L'application arrive sur iOS et Android. Compare les plans et inscris-toi
-            pour être prévenu du lancement.
-          </p>
-        </motion.div>
-      </section>
+    <div className="min-h-screen bg-[var(--color-bg-base)] pb-12 pt-28 font-body text-white selection:bg-[var(--color-accent-primary)] sm:pt-36">
+      <Seo title="Tarifs MMA IQ — Les offres prévues au lancement" description="Compare la version gratuite, Essentiel, Performance, Elite et Coach Suite. Inscris-toi gratuitement pour être prévenu du lancement de MMA IQ." canonicalPath="/tarifs" />
+      <header className="mx-auto max-w-7xl px-6">
+        <p className="mb-4 text-sm font-semibold text-[var(--color-violet-300)]">Bientôt sur iOS et Android</p>
+        <h1 className="max-w-3xl font-display text-5xl leading-none sm:text-6xl lg:text-7xl">Les tarifs, en toute clarté.</h1>
+        <p className="mt-5 max-w-2xl text-base leading-relaxed text-[var(--color-text-secondary)] sm:text-lg">
+          Découvre les offres prévues pour l’application. Tu peux dès maintenant laisser ton email pour être prévenu du lancement.
+        </p>
+        <div className="mt-7 flex flex-col items-start gap-3">
+          <Link to="/app#download" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--color-accent-primary)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-violet-600)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-violet-300)]">
+            Être prévenu du lancement <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+          <p className="text-sm text-[var(--color-text-secondary)]">Inscription gratuite, sans engagement.</p>
+        </div>
+      </header>
       <PricingSection />
     </div>
   );

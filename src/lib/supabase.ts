@@ -37,8 +37,9 @@ export async function signOut() {
   if (error) throw new Error(error.message);
 }
 
-export async function resetPassword(email) {
-  const { error } = await supabase.auth.resetPasswordForEmail(email);
+export async function resetPassword(email: string) {
+  const redirectTo = new URL('/connexion/nouveau-mot-de-passe', window.location.origin).href;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
   if (error) throw new Error(error.message);
 }
 

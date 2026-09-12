@@ -1,0 +1,841 @@
+{
+  "date": "2026-09-12",
+  "source": "Public site inspected with Chrome CDP; no form submissions or payments",
+  "pages": [
+    {
+      "url": "https://mmaiq.fr/",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollHeight": 7265,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "PROGRESSE EN MMA AVEC MÉTHODE.",
+          "y": 321
+        },
+        {
+          "tag": "H2",
+          "text": "UN ÉCOSYSTÈME COMPLET. UN SEUL OBJECTIF.",
+          "y": 1097
+        },
+        {
+          "tag": "H2",
+          "text": "ENTRAÎNE-TOI AVEC MÉTHODE.",
+          "y": 2071
+        },
+        {
+          "tag": "H3",
+          "text": "ÉVALUE TON NIVEAU",
+          "y": 2427
+        },
+        {
+          "tag": "H3",
+          "text": "SUIS TON PLAN",
+          "y": 3144
+        },
+        {
+          "tag": "H3",
+          "text": "MESURE L'IMPACT",
+          "y": 3862
+        },
+        {
+          "tag": "H2",
+          "text": "VIVEZ PLEINEMENT L'EXPÉRIENCE\nMMA IQ",
+          "y": 4445
+        },
+        {
+          "tag": "H3",
+          "text": "MMA IQCOACH SUITE",
+          "y": 5509
+        },
+        {
+          "tag": "H2",
+          "text": "QUESTIONS FRÉQUENTES",
+          "y": 5998
+        },
+        {
+          "tag": "H3",
+          "text": "MMA IQ, c'est quoi exactement ?",
+          "y": 6092
+        },
+        {
+          "tag": "H3",
+          "text": "Combien ça coûte ?",
+          "y": 6375
+        },
+        {
+          "tag": "H3",
+          "text": "Puis-je résilier à tout moment ?",
+          "y": 6481
+        },
+        {
+          "tag": "H3",
+          "text": "Quelle différence entre l'application et les formations ?",
+          "y": 6587
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 7034,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "PROGRESSE EN MMA AVEC MÉTHODE.",
+          "y": 275
+        },
+        {
+          "tag": "H2",
+          "text": "UN ÉCOSYSTÈME COMPLET. UN SEUL OBJECTIF.",
+          "y": 909
+        },
+        {
+          "tag": "H2",
+          "text": "ENTRAÎNE-TOI AVEC MÉTHODE.",
+          "y": 1429
+        },
+        {
+          "tag": "H3",
+          "text": "ÉVALUE TON NIVEAU",
+          "y": 2089
+        },
+        {
+          "tag": "H3",
+          "text": "SUIS TON PLAN",
+          "y": 2888
+        },
+        {
+          "tag": "H3",
+          "text": "MESURE L'IMPACT",
+          "y": 3687
+        },
+        {
+          "tag": "H2",
+          "text": "VIVEZ PLEINEMENT L'EXPÉRIENCE\nMMA IQ",
+          "y": 4027
+        },
+        {
+          "tag": "H3",
+          "text": "MMA IQCOACH SUITE",
+          "y": 4794
+        },
+        {
+          "tag": "H2",
+          "text": "QUESTIONS FRÉQUENTES",
+          "y": 5419
+        },
+        {
+          "tag": "H3",
+          "text": "MMA IQ, c'est quoi exactement ?",
+          "y": 5506
+        },
+        {
+          "tag": "H3",
+          "text": "Combien ça coûte ?",
+          "y": 5864
+        },
+        {
+          "tag": "H3",
+          "text": "Puis-je résilier à tout moment ?",
+          "y": 5962
+        },
+        {
+          "tag": "H3",
+          "text": "Quelle différence entre l'application et les formations ?",
+          "y": 6060
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/about",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollHeight": 3308,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "LE MMA MÉRITAIT MIEUX.\nON L'A CONSTRUIT.",
+          "y": 160
+        },
+        {
+          "tag": "H2",
+          "text": "TROP DE CONTENU. PAS ASSEZ DE MÉTHODE.",
+          "y": 686
+        },
+        {
+          "tag": "H2",
+          "text": "CE QUI NOUS DÉFINIT",
+          "y": 1233
+        },
+        {
+          "tag": "H3",
+          "text": "NOTRE VISION",
+          "y": 1400
+        },
+        {
+          "tag": "H3",
+          "text": "NOTRE MÉTHODE",
+          "y": 1400
+        },
+        {
+          "tag": "H3",
+          "text": "NOTRE ÉQUIPE",
+          "y": 1400
+        },
+        {
+          "tag": "H2",
+          "text": "CE QU'ON COUVRE",
+          "y": 1707
+        },
+        {
+          "tag": "H3",
+          "text": "DISCIPLINES",
+          "y": 1849
+        },
+        {
+          "tag": "H3",
+          "text": "PILIERS DE PERFORMANCE",
+          "y": 2041
+        },
+        {
+          "tag": "H2",
+          "text": "ON CONSTRUIT CE QU'ON UTILISE.",
+          "y": 2386
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/app/",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollHeight": 7115,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "IL Y A UN AVANT\nET UN APRÈS MMA IQ.",
+          "y": 267
+        },
+        {
+          "tag": "H2",
+          "text": "CE QUE L'APP FAIT.\nÉCRAN PAR ÉCRAN.",
+          "y": 1030
+        },
+        {
+          "tag": "H3",
+          "text": "Le geste, puis les consignes.",
+          "y": 2010
+        },
+        {
+          "tag": "H3",
+          "text": "Une photo, puis tu gardes la main.",
+          "y": 2010
+        },
+        {
+          "tag": "H3",
+          "text": "Retrouve les séquences qui comptent.",
+          "y": 2010
+        },
+        {
+          "tag": "H3",
+          "text": "Le suivi de l'équipe, au même endroit.",
+          "y": 2476
+        },
+        {
+          "tag": "H2",
+          "text": "LANCE TA SÉANCE.\nGARDE LES CHIFFRES SOUS LES YEUX.",
+          "y": 2985
+        },
+        {
+          "tag": "H2",
+          "text": "L'AVANT / APRÈS EST BRUTAL",
+          "y": 3643
+        },
+        {
+          "tag": "H3",
+          "text": "SANS MMA IQ",
+          "y": 3799
+        },
+        {
+          "tag": "H3",
+          "text": "AVEC MMA IQ",
+          "y": 3799
+        },
+        {
+          "tag": "H2",
+          "text": "8 MODULES.\nUN SEUL OBJECTIF.",
+          "y": 4529
+        },
+        {
+          "tag": "H2",
+          "text": "PRÉPARE LE COMBAT AVANT LA CAGE.",
+          "y": 5499
+        },
+        {
+          "tag": "H2",
+          "text": "PRÊT À PASSER AU NIVEAU SUPÉRIEUR ?",
+          "y": 6254
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/app/",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 10152,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "IL Y A UN AVANT\nET UN APRÈS MMA IQ.",
+          "y": 134
+        },
+        {
+          "tag": "H2",
+          "text": "CE QUE L'APP FAIT.\nÉCRAN PAR ÉCRAN.",
+          "y": 1250
+        },
+        {
+          "tag": "H3",
+          "text": "Le geste, puis les consignes.",
+          "y": 2062
+        },
+        {
+          "tag": "H3",
+          "text": "Une photo, puis tu gardes la main.",
+          "y": 2987
+        },
+        {
+          "tag": "H3",
+          "text": "Retrouve les séquences qui comptent.",
+          "y": 3942
+        },
+        {
+          "tag": "H3",
+          "text": "Le suivi de l'équipe, au même endroit.",
+          "y": 4399
+        },
+        {
+          "tag": "H2",
+          "text": "LANCE TA SÉANCE.\nGARDE LES CHIFFRES SOUS LES YEUX.",
+          "y": 5014
+        },
+        {
+          "tag": "H2",
+          "text": "L'AVANT / APRÈS EST BRUTAL",
+          "y": 6156
+        },
+        {
+          "tag": "H3",
+          "text": "SANS MMA IQ",
+          "y": 6292
+        },
+        {
+          "tag": "H3",
+          "text": "AVEC MMA IQ",
+          "y": 6292
+        },
+        {
+          "tag": "H2",
+          "text": "8 MODULES.\nUN SEUL OBJECTIF.",
+          "y": 6706
+        },
+        {
+          "tag": "H2",
+          "text": "PRÉPARE LE COMBAT AVANT LA CAGE.",
+          "y": 8168
+        },
+        {
+          "tag": "H2",
+          "text": "PRÊT À PASSER AU NIVEAU SUPÉRIEUR ?",
+          "y": 8805
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/connexion",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 844,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "MMA IQ ACADEMY",
+          "y": 169
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/contact",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 2243,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "Une question, une proposition, un partenariat ?",
+          "y": 185
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/instructional",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollHeight": 4601,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "Le savoir combat,\nà l'essentiel.",
+          "y": 374
+        },
+        {
+          "tag": "H2",
+          "text": "Des coachs qui savent transmettre.",
+          "y": 1129
+        },
+        {
+          "tag": "H3",
+          "text": "Johnny Frachey",
+          "y": 1498
+        },
+        {
+          "tag": "H2",
+          "text": "Pourquoi choisir\nMMA IQ ACADEMY ?",
+          "y": 2666
+        },
+        {
+          "tag": "H2",
+          "text": "Vos questions, nos réponses.",
+          "y": 3595
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/instructional",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 5125,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "Le savoir combat,\nà l'essentiel.",
+          "y": 329
+        },
+        {
+          "tag": "H2",
+          "text": "Des coachs qui savent transmettre.",
+          "y": 941
+        },
+        {
+          "tag": "H3",
+          "text": "Johnny Frachey",
+          "y": 1382
+        },
+        {
+          "tag": "H2",
+          "text": "Pourquoi choisir\nMMA IQ ACADEMY ?",
+          "y": 2428
+        },
+        {
+          "tag": "H2",
+          "text": "Vos questions, nos réponses.",
+          "y": 3766
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/partenaires",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollHeight": 3051,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "VOS ADHÉRENTS PROGRESSENT.\nVOTRE CLUB EST PAYÉ POUR ÇA.",
+          "y": 182
+        },
+        {
+          "tag": "H2",
+          "text": "COMBIEN POUR VOTRE CLUB ?",
+          "y": 555
+        },
+        {
+          "tag": "H2",
+          "text": "TROIS ÉTAPES, DIX MINUTES",
+          "y": 1057
+        },
+        {
+          "tag": "H3",
+          "text": "ON SIGNE ENSEMBLE",
+          "y": 1214
+        },
+        {
+          "tag": "H3",
+          "text": "VOUS AFFICHEZ LE QR",
+          "y": 1214
+        },
+        {
+          "tag": "H3",
+          "text": "VOUS ÊTES PAYÉ",
+          "y": 1214
+        },
+        {
+          "tag": "H2",
+          "text": "QUESTIONS FRÉQUENTES",
+          "y": 1469
+        },
+        {
+          "tag": "H2",
+          "text": "DEVENIR CLUB PARTENAIRE",
+          "y": 1996
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/tarifs",
+      "width": 1440,
+      "height": 1000,
+      "scrollWidth": 1440,
+      "scrollHeight": 2343,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "Un plan pour chaque étape",
+          "y": 185
+        },
+        {
+          "tag": "H2",
+          "text": "VIVEZ PLEINEMENT L'EXPÉRIENCE\nMMA IQ",
+          "y": 450
+        },
+        {
+          "tag": "H3",
+          "text": "MMA IQCOACH SUITE",
+          "y": 1514
+        }
+      ],
+      "brokenImages": []
+    },
+    {
+      "url": "https://mmaiq.fr/tarifs",
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 2590,
+      "headings": [
+        {
+          "tag": "H1",
+          "text": "Un plan pour chaque étape",
+          "y": 185
+        },
+        {
+          "tag": "H2",
+          "text": "VIVEZ PLEINEMENT L'EXPÉRIENCE\nMMA IQ",
+          "y": 499
+        },
+        {
+          "tag": "H3",
+          "text": "MMA IQCOACH SUITE",
+          "y": 1266
+        }
+      ],
+      "brokenImages": []
+    }
+  ],
+  "interactions": [
+    {
+      "case": "menu-375x667",
+      "menu": {
+        "height": 667,
+        "scrollHeight": 795,
+        "overflowY": "hidden"
+      },
+      "links": [
+        {
+          "text": "ACCUEIL\n→",
+          "top": 112,
+          "bottom": 161
+        },
+        {
+          "text": "APPLICATION DE PERFORMANCE\n→",
+          "top": 177,
+          "bottom": 226
+        },
+        {
+          "text": "COACHING VIDÉO\n→",
+          "top": 242,
+          "bottom": 291
+        },
+        {
+          "text": "À PROPOS\n→",
+          "top": 307,
+          "bottom": 356
+        },
+        {
+          "text": "FAQ\n→",
+          "top": 372,
+          "bottom": 421
+        },
+        {
+          "text": "CONTACT\n→",
+          "top": 437,
+          "bottom": 486
+        },
+        {
+          "text": "SE CONNECTER\n→",
+          "top": 502,
+          "bottom": 551
+        }
+      ]
+    },
+    {
+      "case": "menu-844x390",
+      "menu": {
+        "height": 390,
+        "scrollHeight": 590,
+        "overflowY": "hidden"
+      },
+      "links": [
+        {
+          "text": "ACCUEIL\n→",
+          "top": 112,
+          "bottom": 166.5
+        },
+        {
+          "text": "APPLICATION DE PERFORMANCE\n→",
+          "top": 182.5,
+          "bottom": 237
+        },
+        {
+          "text": "COACHING VIDÉO\n→",
+          "top": 253,
+          "bottom": 307.5
+        },
+        {
+          "text": "À PROPOS\n→",
+          "top": 323.5,
+          "bottom": 378
+        },
+        {
+          "text": "FAQ\n→",
+          "top": 394,
+          "bottom": 448.5
+        },
+        {
+          "text": "CONTACT\n→",
+          "top": 464.5,
+          "bottom": 519
+        },
+        {
+          "text": "SE CONNECTER\n→",
+          "top": 535,
+          "bottom": 589.5
+        }
+      ]
+    },
+    {
+      "case": "pricing-sizes",
+      "sizes": [
+        {
+          "text": "MMA IQFREE",
+          "fontSize": "9px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "MMA IQ",
+          "fontSize": "8.1px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "FREE",
+          "fontSize": "9px",
+          "color": "rgb(136, 146, 176)"
+        },
+        {
+          "text": "0€",
+          "fontSize": "8px",
+          "color": "oklab(0.999994 0.0000455677 0.0000200868 / 0.6)"
+        },
+        {
+          "text": "MMA IQESSENTIEL",
+          "fontSize": "9px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "MMA IQ",
+          "fontSize": "8.1px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "ESSENTIEL",
+          "fontSize": "9px",
+          "color": "rgb(232, 201, 122)"
+        },
+        {
+          "text": "5,99€/ mois",
+          "fontSize": "8px",
+          "color": "oklab(0.999994 0.0000455677 0.0000200868 / 0.6)"
+        },
+        {
+          "text": "MMA IQPERFORMANCE",
+          "fontSize": "9px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "MMA IQ",
+          "fontSize": "8.1px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "PERFORMANCE",
+          "fontSize": "9px",
+          "color": "rgb(176, 190, 197)"
+        },
+        {
+          "text": "9,99€/ mois",
+          "fontSize": "8px",
+          "color": "oklab(0.999994 0.0000455677 0.0000200868 / 0.6)"
+        },
+        {
+          "text": "MMA IQELITE",
+          "fontSize": "9px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "MMA IQ",
+          "fontSize": "8.1px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "ELITE",
+          "fontSize": "9px",
+          "color": "rgb(212, 175, 55)"
+        },
+        {
+          "text": "19,99€/ mois",
+          "fontSize": "8px",
+          "color": "oklab(0.999994 0.0000455677 0.0000200868 / 0.6)"
+        },
+        {
+          "text": "Plan d'entraînement",
+          "fontSize": "10px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "1",
+          "fontSize": "16px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(255, 255, 255)"
+        },
+        {
+          "text": "",
+          "fontSize": "16px",
+          "color": "rgb(255, 255, 255)"
+        }
+      ]
+    },
+    {
+      "case": "pricing-modal"
+    },
+    {
+      "case": "pricing-to-waitlist",
+      "url": "https://mmaiq.fr/app#download",
+      "scrollY": 8677,
+      "formTop": 95.5,
+      "form": "PRÊT À PASSER AU NIVEAU SUPÉRIEUR ?\n\nL'application arrive sur iOS et Android. Laisse ton email pour être prévenu du lancement.\n\nEmail\nMe prévenir\nCode salle :\n\nGRATUIT • SANS ENGAGEMENT • IOS & ANDROID"
+    },
+    {
+      "case": "academy-cta",
+      "scrollY": 1613,
+      "text": "Catalogue en préparation\n\nLes premières formations arrivent très bientôt."
+    },
+    {
+      "case": "auth-labels",
+      "inputs": [
+        {
+          "type": "email",
+          "labels": [],
+          "autocomplete": ""
+        },
+        {
+          "type": "password",
+          "labels": [],
+          "autocomplete": ""
+        }
+      ]
+    },
+    {
+      "case": "tablet",
+      "scrollWidth": 1024,
+      "links": [
+        {
+          "text": "Application de performance",
+          "x": 145.8125,
+          "right": 249.34375,
+          "width": 103.53125
+        },
+        {
+          "text": "Coaching vidéo",
+          "x": 353.453125,
+          "right": 420.1875,
+          "width": 66.734375
+        },
+        {
+          "text": "À propos",
+          "x": 478.515625,
+          "right": 528.375,
+          "width": 49.859375
+        },
+        {
+          "text": "FAQ",
+          "x": 561.328125,
+          "right": 589.140625,
+          "width": 27.8125
+        },
+        {
+          "text": "Contact",
+          "x": 613.140625,
+          "right": 670.828125,
+          "width": 57.6875
+        },
+        {
+          "text": "Se connecter",
+          "x": 719.828125,
+          "right": 806.28125,
+          "width": 86.453125
+        },
+        {
+          "text": "DÉCOUVRIR L'APP",
+          "x": 822.28125,
+          "right": 1000,
+          "width": 177.71875
+        }
+      ]
+    }
+  ]
+}

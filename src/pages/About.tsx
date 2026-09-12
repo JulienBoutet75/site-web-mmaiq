@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { AmbientBackground } from '../components/AmbientBackground';
 import { Seo } from '../components/Seo';
+import { CoachIntroduction } from '../components/CoachIntroduction';
+import { fetchData } from '../lib/supabase';
 import { EASE_SIGNATURE, powerUpVariant, staggerContainer, textRevealVariant, speedImpactVariant, speedImpactRightVariant } from '../animations';
 
 const disciplines = [
@@ -16,12 +19,20 @@ const piliers = [
 ];
 
 const ecosystemCards = [
-  { title: "Une application", desc: "Plans d'entraînement, nutrition, suivi de performance et gameplans tactiques.", to: "/app" },
-  { title: "Des cours vidéo", desc: "Des coachs reconnus qui transmettent leur méthode, à l'essentiel.", to: "/instructional" },
+  { title: "Une application en préparation", desc: "Entraînement, nutrition et suivi de progression. Bientôt sur iOS et Android.", to: "/app" },
+  { title: "MMA IQ Academy", desc: "Des formations vidéo pour approfondir une technique, vendues à l'unité.", to: "/instructional" },
   { title: "Un écosystème connecté", desc: "Combattants, coachs et clubs sur la même plateforme — avec un programme salles partenaires dédié.", to: "/partenaires" },
 ];
 
 export function About() {
+  const [coaches, setCoaches] = useState<any[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchData('coaches', 'id,name,slug,photo_url,tagline,bio', '&order=name.asc')
+      .then(data => { if (!cancelled) setCoaches(data || []); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
   return (
     <div className="bg-[var(--color-bg-base)] text-[var(--color-text-primary)] min-h-screen font-body relative">
       <Seo
@@ -52,7 +63,7 @@ export function About() {
               variants={textRevealVariant}
               className="block text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-purple)] to-[var(--color-accent-magenta)]"
             >
-              ON L'A CONSTRUIT.
+              ON PRÉPARE LA SUITE.
             </motion.span>
           </motion.h1>
           <motion.p
@@ -62,7 +73,7 @@ export function About() {
             transition={{ duration: 0.4, ease: EASE_SIGNATURE, delay: 0.3 }}
             className="text-[var(--color-text-secondary)] text-base md:text-[20px] max-w-2xl mx-auto px-4"
           >
-            Une app, des cours vidéo, une méthode. Tout au même endroit.
+            Une application en préparation, une Academy et un programme pour les salles.
           </motion.p>
         </div>
       </section>
@@ -82,10 +93,10 @@ export function About() {
             <span className="text-[var(--color-accent-primary)] uppercase tracking-widest text-sm font-bold mb-4 block">POURQUOI <span className="font-days-one tracking-normal">MMA IQ</span></span>
             <h2 className="font-display text-display-lg leading-none mb-6 text-white">TROP DE CONTENU. PAS ASSEZ DE MÉTHODE.</h2>
             <p className="text-[var(--color-text-primary)] text-base md:text-[16px] mb-8 leading-relaxed">
-              <span className="font-days-one tracking-normal">MMA IQ</span> est né d'un constat simple : le MMA manque d'outils structurés pour progresser vraiment. Du contenu partout, éparpillé sur dix plateformes, et aucune méthode pour relier le tout. Alors on a réuni l'essentiel au même endroit : une app de performance, des formations premium et un réseau de salles partenaires, connectés.
+              <span className="font-days-one tracking-normal">MMA IQ</span> prépare des outils pour structurer la pratique du MMA : organiser ses séances, retrouver des consignes techniques et suivre sa progression. L'application est en cours de préparation pour iOS et Android. L'Academy développe un catalogue de formations distinct, et les salles peuvent découvrir notre programme partenaires.
             </p>
             <div className="border-l-[3px] border-[var(--color-accent-primary)] bg-[var(--color-accent-primary)]/[0.08] p-5 rounded-r-lg">
-              <p className="italic text-[18px] text-white">"On a construit la plateforme qu'on aurait voulu avoir."</p>
+              <p className="text-lg text-white">Notre objectif : des repères concrets, séance après séance.</p>
             </div>
           </motion.div>
 
@@ -113,6 +124,8 @@ export function About() {
         </div>
       </section>
 
+      <CoachIntroduction coaches={coaches} />
+
       {/* SECTION 3 — VISION / MÉTHODE / ÉQUIPE */}
       <section className="max-w-7xl mx-auto px-6 py-12 md:py-20">
         <motion.h2
@@ -133,9 +146,9 @@ export function About() {
           className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6"
         >
           {[
-            { title: "NOTRE VISION", desc: "Démocratiser l'accès à un coaching structuré et data-driven. Du débutant au pro, chacun mérite une méthode." },
-            { title: "NOTRE MÉTHODE", desc: "Anti-blabla. Chaque contenu est concret, actionnable, testé terrain. Structure + répétition + feedback = progression." },
-            { title: "NOTRE ÉQUIPE", desc: "Coachs reconnus, développeurs passionnés de MMA, experts en performance. Tous passés par le tatami avant l'écran." },
+            { title: "NOTRE VISION", desc: "Rendre les outils de suivi et de préparation accessibles aux pratiquants de MMA." },
+            { title: "NOTRE APPROCHE", desc: "Un programme, des consignes et des indicateurs de progression réunis dans une application." },
+            { title: "LE PROJET AUJOURD'HUI", desc: "Des captures réelles de l'app sont disponibles. Inscris-toi pour être prévenu de son lancement." },
           ].map((card) => (
             <motion.div
               key={card.title}
@@ -215,7 +228,7 @@ export function About() {
             variants={textRevealVariant}
             className="font-display text-display-xl text-white mb-6"
           >
-            ON CONSTRUIT CE QU'ON UTILISE.
+            DÉCOUVRE LE PROJET EN IMAGES.
           </motion.h2>
           <motion.p
             initial="hidden"
@@ -224,8 +237,7 @@ export function About() {
             variants={textRevealVariant}
             className="text-[var(--color-text-primary)] text-lg md:text-[20px] mb-12"
           >
-            Pas une startup tech qui regarde le MMA de loin.<br className="hidden md:block" />
-            Des gens du milieu, pour le milieu.
+            Explore les démonstrations de l'application et découvre l'Academy.
           </motion.p>
 
           <motion.div

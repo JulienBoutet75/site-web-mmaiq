@@ -235,7 +235,7 @@ export function MediaUploader({
             </div>
           ) : fileType === 'video' ? (
             <div className={`relative ${aspectRatio === 1 ? 'aspect-square' : 'aspect-video'} bg-black flex items-center justify-center`}>
-              <video src={preview || undefined} className="w-full h-full object-cover opacity-50" referrerPolicy="no-referrer" />
+              <video src={preview || undefined} className="w-full h-full object-cover opacity-50" />
               <PlayCircle className="absolute w-12 h-12 text-white/80" />
             </div>
           ) : (

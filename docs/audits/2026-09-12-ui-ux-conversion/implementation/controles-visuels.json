@@ -1,0 +1,170 @@
+{
+  "checks": [
+    {
+      "ok": true,
+      "name": "home-layout-320",
+      "data": {
+        "width": 320,
+        "scrollWidth": 320,
+        "forms": 2,
+        "h1": "Ta semaine de MMA, avec un plan clair.",
+        "button": {
+          "x": 24,
+          "y": 634.859375,
+          "width": 272,
+          "height": 56,
+          "top": 634.859375,
+          "right": 296,
+          "bottom": 690.859375,
+          "left": 24
+        },
+        "coaches": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "home-layout-390",
+      "data": {
+        "width": 390,
+        "scrollWidth": 390,
+        "forms": 2,
+        "h1": "Ta semaine de MMA, avec un plan clair.",
+        "button": {
+          "x": 24,
+          "y": 585.90625,
+          "width": 342,
+          "height": 56,
+          "top": 585.90625,
+          "right": 366,
+          "bottom": 641.90625,
+          "left": 24
+        },
+        "coaches": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "home-layout-768",
+      "data": {
+        "width": 768,
+        "scrollWidth": 768,
+        "forms": 2,
+        "h1": "Ta semaine de MMA, avec un plan clair.",
+        "button": {
+          "x": 443.09375,
+          "y": 532.125,
+          "width": 156.90625,
+          "height": 56,
+          "top": 532.125,
+          "right": 600,
+          "bottom": 588.125,
+          "left": 443.09375
+        },
+        "coaches": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "home-layout-1024",
+      "data": {
+        "width": 1024,
+        "scrollWidth": 1024,
+        "forms": 2,
+        "h1": "Ta semaine de MMA, avec un plan clair.",
+        "button": {
+          "x": 414.28125,
+          "y": 576.46875,
+          "width": 156.90625,
+          "height": 56,
+          "top": 576.46875,
+          "right": 571.1875,
+          "bottom": 632.46875,
+          "left": 414.28125
+        },
+        "coaches": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "home-layout-1440",
+      "data": {
+        "width": 1440,
+        "scrollWidth": 1440,
+        "forms": 2,
+        "h1": "Ta semaine de MMA, avec un plan clair.",
+        "button": {
+          "x": 523.09375,
+          "y": 605.5625,
+          "width": 156.90625,
+          "height": 56,
+          "top": 605.5625,
+          "right": 680,
+          "bottom": 661.5625,
+          "left": 523.09375
+        },
+        "coaches": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "controlled-demos-and-initial-cta",
+      "data": {
+        "paused": true,
+        "nativeControls": true,
+        "sticky": false
+      }
+    },
+    {
+      "ok": true,
+      "name": "demo-keyboard-navigation",
+      "data": {
+        "selected": "demo-tab-1",
+        "focus": "demo-tab-1",
+        "src": "/app/videos/tutoriels.webm"
+      }
+    },
+    {
+      "ok": true,
+      "name": "module-assets",
+      "data": {
+        "total": 8,
+        "loaded": true
+      }
+    },
+    {
+      "ok": true,
+      "name": "readable-price-comparison",
+      "data": {
+        "minFont": 14,
+        "scrollWidth": 390,
+        "width": 390,
+        "dialog": false,
+        "headings": [
+          "Free",
+          "Essentiel",
+          "Performance",
+          "Elite"
+        ]
+      }
+    },
+    {
+      "ok": true,
+      "name": "about-current-status-and-coach",
+      "data": {
+        "coach": true,
+        "title": "LE MMA MÉRITAIT MIEUX.\nON PRÉPARE LA SUITE."
+      }
+    },
+    {
+      "ok": true,
+      "name": "expired-recovery-route",
+      "data": {
+        "mainCount": 1,
+        "invalid": true,
+        "href": "/connexion?mode=reset"
+      }
+    }
+  ],
+  "passed": 11,
+  "total": 11
+}

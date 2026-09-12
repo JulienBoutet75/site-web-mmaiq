@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { lazy, Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { MotionConfig } from "motion/react";
 import { Layout } from "./components/Layout";
 import { Home } from "./pages/Home";
 import { AdminProvider } from "./context/adminContext";
 import { SiteProvider } from "./context/SiteContext";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import { MmaIqAccountProvider } from "./context/MmaIqAccountContext";
 import { AdminToolbar } from "./components/admin/AdminToolbar";
 import { MediathequeDrawer } from "./components/admin/MediathequeDrawer";
 
@@ -35,6 +36,7 @@ const Salle = lazy(() => import("./pages/Salle").then(m => ({ default: m.Salle }
 const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
 const CoachDashboard = lazy(() => import("./pages/CoachDashboard").then(m => ({ default: m.CoachDashboard })));
 const Connexion = lazy(() => import("./pages/Connexion").then(m => ({ default: m.Connexion })));
+const ResetPassword = lazy(() => import("./pages/ResetPassword").then(m => ({ default: m.ResetPassword })));
 const Success = lazy(() => import("./pages/Success").then(m => ({ default: m.Success })));
 const Cancel = lazy(() => import("./pages/Cancel").then(m => ({ default: m.Cancel })));
 const NotFound = lazy(() => import("./pages/NotFound").then(m => ({ default: m.NotFound })));
@@ -50,18 +52,38 @@ function PageLoader() {
   );
 }
 
+function PasswordRecoveryRedirect() {
+  const { passwordRecoveryPending, consumePasswordRecovery, loading } = useAuth();
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loading || !passwordRecoveryPending) return;
+    // Consommé aussi sur la bonne page : quitter le formulaire ne doit pas
+    // réactiver la redirection. Aucun jeton n'est recopié dans la nouvelle URL.
+    consumePasswordRecovery();
+    if (pathname !== '/connexion/nouveau-mot-de-passe') {
+      navigate('/connexion/nouveau-mot-de-passe', { replace: true });
+    }
+  }, [loading, passwordRecoveryPending, consumePasswordRecovery, pathname, navigate]);
+
+  return null;
+}
+
 export default function App() {
   return (
     // reducedMotion="user" : toutes les animations motion/react respectent
     // prefers-reduced-motion sans réglage composant par composant.
     <MotionConfig reducedMotion="user">
       <AuthProvider>
-        <SiteProvider>
-          <AdminProvider>
-            <Router>
-              <Layout>
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
+        <MmaIqAccountProvider>
+          <SiteProvider>
+            <AdminProvider>
+              <Router>
+                <PasswordRecoveryRedirect />
+                <Layout>
+                  <Suspense fallback={<PageLoader />}>
+                    <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/app" element={<AppPage />} />
                     <Route path="/instructional" element={<Instructional />} />
@@ -82,20 +104,22 @@ export default function App() {
                     <Route path="/coach" element={<CoachDashboard />} />
                     <Route path="/coach/dashboard" element={<CoachDashboard />} />
                     <Route path="/connexion" element={<Connexion />} />
+                    <Route path="/connexion/nouveau-mot-de-passe" element={<ResetPassword />} />
                     <Route path="/success" element={<Success />} />
                     <Route path="/cancel" element={<Cancel />} />
                     <Route path="/mentions-legales" element={<MentionsLegales />} />
                     <Route path="/confidentialite" element={<Confidentialite />} />
                     <Route path="/cgv" element={<CGV />} />
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </Layout>
-              <AdminToolbar />
-              <MediathequeDrawer />
-            </Router>
-          </AdminProvider>
-        </SiteProvider>
+                    </Routes>
+                  </Suspense>
+                </Layout>
+                <AdminToolbar />
+                <MediathequeDrawer />
+              </Router>
+            </AdminProvider>
+          </SiteProvider>
+        </MmaIqAccountProvider>
       </AuthProvider>
     </MotionConfig>
   );

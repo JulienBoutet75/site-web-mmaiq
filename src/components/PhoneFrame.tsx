@@ -1,14 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 
 interface PhoneFrameProps {
-  /** chemin public du mp4 (boucle muette) */
+  /** Chemin public de la démonstration vidéo. */
   src: string;
   /** image poster affichée avant lecture */
   poster: string;
   /** description accessible du contenu */
   label: string;
   className?: string;
-  /** charge la vidéo dès le rendu (hero) au lieu d'attendre */
+  /** Précharge les métadonnées de la démonstration du premier écran. */
   eager?: boolean;
 }
 
@@ -20,24 +20,6 @@ interface PhoneFrameProps {
  */
 export function PhoneFrame({ src, poster, label, className = '', eager = false }: PhoneFrameProps) {
   const frameRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Lecture uniquement quand le téléphone est à l'écran (économie de bande
-  // passante) et jamais si l'utilisateur préfère réduire les animations.
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el || eager) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) el.play().catch(() => {});
-        else el.pause();
-      },
-      { threshold: 0.3 }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [eager]);
 
   const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const el = frameRef.current;
@@ -64,17 +46,14 @@ export function PhoneFrame({ src, poster, label, className = '', eager = false }
         ref={frameRef}
         className="relative rounded-[44px] border border-white/15 bg-[var(--color-bg-surface)] p-2.5 shadow-2xl transition-transform duration-200 ease-out will-change-transform"
       >
-        {/* Dynamic island */}
-        <div className="absolute top-[18px] left-1/2 -translate-x-1/2 w-20 h-[18px] bg-black rounded-full z-10" aria-hidden="true" />
         <video
-          ref={videoRef}
           poster={poster}
           aria-label={label}
-          autoPlay={eager}
+          controls
           muted
           loop
           playsInline
-          preload={eager ? 'auto' : 'metadata'}
+          preload={eager ? 'metadata' : 'none'}
           className="w-full rounded-[34px] aspect-[768/1568] object-cover bg-[#111123]"
         >
           {/* VP9 d'abord (~35 % plus léger à qualité égale), MP4 en repli. */}
