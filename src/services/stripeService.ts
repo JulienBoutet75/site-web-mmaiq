@@ -13,6 +13,12 @@ export function getStripe() {
 
 // Abonnement (programme salles) : le serveur choisit le prix par lookup_key,
 // le client n'envoie qu'une clé de plan + le code salle pour l'attribution.
+export interface SubscriptionCheckoutInput {
+  planKey: "essentiel" | "performance" | "elite" | "coach_suite";
+  interval: "monthly" | "yearly";
+  gymCode?: string | null;
+}
+
 export async function createSubscriptionCheckout(
   planKey: "essentiel" | "performance" | "elite" | "coach_suite",
   interval: "monthly" | "yearly",
