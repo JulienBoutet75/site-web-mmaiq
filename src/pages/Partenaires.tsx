@@ -1,43 +1,38 @@
 import { useMemo, useState, FormEvent } from "react";
 import { motion } from "motion/react";
-import { CheckCircle2, Loader2, AlertCircle, QrCode, FileSignature, Banknote, Infinity as InfinityIcon, ChevronDown } from "lucide-react";
+import { CheckCircle2, Loader2, AlertCircle, QrCode, FileSignature, Banknote, ChevronDown } from "lucide-react";
 import { submitLead } from "../lib/supabase";
 import { AmbientBackground } from "../components/AmbientBackground";
 import { TrustBar } from "../components/TrustBar";
-
-// Grille par défaut du programme (décisions du 13 juil 2026) :
-// 20 % du HT encaissé, à vie tant que l'abonné paie, remise adhérent
-// −20 % pendant 3 mois. Les taux réels sont configurables par salle
-// dans l'admin ; cette page présente l'offre standard.
-const COMMISSION_RATE = 0.20;
-const VAT = 1.2;
+import { ACTIVE_PRICING, CLUB_OFFER_REFERENCE, formatEuroCents, isClubDiscountEligible } from "../config/subscriptionCommercial";
 
 const SIM_PLANS = [
-  { id: "essentiel", name: "Essentiel", price: 5.99 },
-  { id: "performance", name: "Performance", price: 9.99 },
-  { id: "elite", name: "Elite", price: 19.99 },
+  { id: "essentiel", name: "Essentiel", yearlyCents: ACTIVE_PRICING.prices.essentiel.yearlyCents },
+  { id: "performance", name: "Performance", yearlyCents: ACTIVE_PRICING.prices.performance.yearlyCents },
+  { id: "elite", name: "Elite", yearlyCents: ACTIVE_PRICING.prices.elite.yearlyCents },
 ] as const;
+const VAT_DIVISOR = 1.2;
 
 const FAQ_ITEMS = [
   {
     q: "Qu'est-ce que ça demande à mon club ?",
-    a: "Rien de plus qu'afficher un QR code dans la salle et en parler à vos adhérents. Pas de stock, pas d'encaissement, pas d'administratif : la commission arrive par virement avec un relevé détaillé, et c'est nous qui générons la facture à votre nom (auto-facturation avec mandat, prévue au contrat).",
+    a: "Afficher le QR code ou partager le lien avec vos adhérents. Ils créent leur compte et paient directement MMA IQ sur Stripe ; le club n'encaisse pas leur abonnement.",
   },
   {
     q: "Combien de temps dure la commission ?",
-    a: "À vie : tant qu'un adhérent que vous avez apporté reste abonné, vous touchez votre pourcentage, chaque mois. Vous construisez une rente, pas une prime ponctuelle.",
+    a: "Le simulateur de référence calcule 10 % sur chaque abonnement annuel vendu. La rémunération des renouvellements et sa durée sont précisées dans le contrat du partenariat.",
   },
   {
     q: "Mon club est une association loi 1901, c'est possible ?",
-    a: "Oui. Les commissions sont des recettes lucratives accessoires, exonérées d'impôts commerciaux jusqu'à 80 011 € par an si la gestion du club est désintéressée. Et si votre club préfère ne percevoir aucun flux, on bascule l'avantage à 100 % vers vos adhérents.",
+    a: "Oui. Le montage prévu distingue les salles privées, rémunérées par contrat, et les associations sportives, accompagnées dans le cadre d'un contrat de sponsoring adapté à leur situation.",
   },
   {
     q: "Quel engagement je prends ?",
-    a: "Aucune exclusivité, aucun objectif imposé, résiliation libre. Le contrat est un simple contrat d'apporteur d'affaires de deux pages : vous présentez l'app, on s'occupe de tout le reste.",
+    a: "Le club partage son code ou son QR et les adhérents paient directement MMA IQ sur Stripe. Les conditions de durée, de versement et de fin de partenariat sont fixées dans le contrat.",
   },
   {
     q: "Et mes adhérents, qu'est-ce qu'ils y gagnent ?",
-    a: "Une réduction réservée aux membres de votre club (−20 % pendant 3 mois au lancement), et une app qui les fait progresser entre les cours : entraînement, nutrition, cutting, gameplan et analyse vidéo IA.",
+    a: "L'offre de référence prévoit −10 % sur Performance et Elite. La durée exacte de l'avantage est indiquée sur la page du club avant le paiement.",
   },
 ];
 
@@ -54,8 +49,17 @@ export function Partenaires() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const plan = SIM_PLANS.find((p) => p.id === planId)!;
-  const perMember = useMemo(() => (plan.price / VAT) * COMMISSION_RATE, [plan]);
-  const monthly = useMemo(() => perMember * members, [perMember, members]);
+  const billedAnnualCents = useMemo(
+    () => isClubDiscountEligible(plan.id)
+      ? Math.round(plan.yearlyCents * (1 - CLUB_OFFER_REFERENCE.discountPercent / 100))
+      : plan.yearlyCents,
+    [plan],
+  );
+  const perMemberCents = useMemo(
+    () => Math.round(Math.round(billedAnnualCents / VAT_DIVISOR) * CLUB_OFFER_REFERENCE.clubCommissionRate),
+    [billedAnnualCents],
+  );
+  const annualCommissionCents = useMemo(() => perMemberCents * members, [perMemberCents, members]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -102,7 +106,7 @@ export function Partenaires() {
             </span>
           </h1>
           <p className="text-lg sm:text-xl text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed">
-            Recommandez MMA IQ à vos adhérents et touchez <strong className="text-white">20 % de chaque abonnement, chaque mois, tant qu'ils restent abonnés</strong>.
+            Recommandez MMA IQ à vos adhérents. La simulation de référence prévoit <strong className="text-white">10 % du montant HT encaissé sur chaque abonnement annuel vendu</strong>.
             Zéro encaissement, zéro administratif, zéro engagement : vous affichez un QR code, on s'occupe du reste.
           </p>
         </motion.div>
@@ -130,7 +134,7 @@ export function Partenaires() {
                     : "bg-white/5 border-white/10 text-[var(--color-text-secondary)] hover:bg-white/10"
                 }`}
               >
-                {p.name} · {p.price.toFixed(2).replace(".", ",")} €
+                {p.name} · {formatEuroCents(p.yearlyCents)} / an
               </button>
             ))}
           </div>
@@ -152,27 +156,27 @@ export function Partenaires() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
             <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-              <p className="text-xs font-ui font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-2">Par adhérent</p>
+              <p className="text-xs font-ui font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-2">Par adhérent / an</p>
               <p className="font-display text-3xl text-white tabular-nums">
-                {perMember.toFixed(2).replace(".", ",")} €<span className="text-base text-white/50">/mois</span>
+                {formatEuroCents(perMemberCents)}
               </p>
             </div>
             <div className="bg-[var(--color-accent-primary)]/10 border border-[var(--color-accent-primary)]/30 rounded-2xl p-5">
-              <p className="text-xs font-ui font-bold uppercase tracking-widest text-[var(--color-violet-300)] mb-2">Votre club touche</p>
+              <p className="text-xs font-ui font-bold uppercase tracking-widest text-[var(--color-violet-300)] mb-2">Votre club / an</p>
               <p className="font-display text-3xl text-white tabular-nums">
-                {monthly.toFixed(0)} €<span className="text-base text-white/50">/mois</span>
+                {formatEuroCents(annualCommissionCents)}
               </p>
             </div>
             <div className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-5">
-              <p className="text-xs font-ui font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-2">Sur 12 mois</p>
+              <p className="text-xs font-ui font-bold uppercase tracking-widest text-[var(--color-text-secondary)] mb-2">Équivalent mensuel</p>
               <p className="font-display text-3xl text-white tabular-nums">
-                {(monthly * 12).toFixed(0)} €
+                {formatEuroCents(Math.round(annualCommissionCents / 12))}
               </p>
             </div>
           </div>
 
           <p className="flex items-center justify-center gap-2 text-xs text-white/40 font-ui font-semibold uppercase tracking-widest mt-6">
-            <InfinityIcon className="w-4 h-4" /> Récurrent, tant que vos adhérents restent abonnés
+            Simulation sur le HT du catalogue de lancement, remise membre déduite pour Performance et Elite
           </p>
         </div>
       </section>
@@ -186,7 +190,7 @@ export function Partenaires() {
           {[
             { icon: <FileSignature className="w-5 h-5" />, step: "1", title: "On signe ensemble", desc: "Un contrat d'apporteur d'affaires de deux pages, signé en rendez-vous. Votre code et votre page club sont créés dans la minute." },
             { icon: <QrCode className="w-5 h-5" />, step: "2", title: "Vous affichez le QR", desc: "Affiche fournie, prête à imprimer. Vos adhérents scannent, s'inscrivent, et sont rattachés à votre club automatiquement." },
-            { icon: <Banknote className="w-5 h-5" />, step: "3", title: "Vous êtes payé", desc: "20 % de chaque abonnement, versés par virement chaque trimestre avec un relevé détaillé. La facture ? On la génère pour vous." },
+            { icon: <Banknote className="w-5 h-5" />, step: "3", title: "Vous êtes payé", desc: "La référence est de 10 % du HT encaissé sur l'abonnement annuel vendu. Les modalités de versement figurent dans votre contrat." },
           ].map((item) => (
             <div key={item.step} className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-4">

@@ -62,7 +62,7 @@ async function openPoster(partner: any) {
   const url = partnerUrl(partner.slug);
   const qr = await QRCode.toDataURL(url, { width: 720, margin: 1, color: { dark: "#17111F", light: "#FFFFFF" } });
   const name = escapeHtml(partner.name);
-  const hasDiscount = partner.discount_percent > 0;
+  const hasDiscount = partner.discount_percent > 0 && partner.discount_months > 0;
   const win = window.open("", "_blank");
   if (!win) {
     showToast("Popup bloquée : autorise les popups pour imprimer l'affiche.");
@@ -92,7 +92,7 @@ async function openPoster(partner: any) {
   <div class="page">
     <div class="brand"><span>MMA IQ</span><span class="x">×</span><span class="club">${name}</span></div>
     <h1>Progresse<br>entre les cours.<br><span class="grad">Ton club est partenaire.</span></h1>
-    <p class="sub">L'app tout-en-un du combattant : entraînement, nutrition, cutting, gameplan et analyse vidéo IA. Ta pré-inscription soutient directement ton club.</p>
+    <p class="sub">L'app tout-en-un du combattant : entraînement, nutrition, cutting, gameplan et analyse vidéo IA. Retrouve ici l'offre partenaire de ton club.</p>
     ${hasDiscount ? `<div class="promo">−${partner.discount_percent}&nbsp;% pendant ${partner.discount_months}&nbsp;mois pour les membres ${name}</div>` : ""}
     <img class="qr" src="${qr}" alt="QR code ${name}">
     <p class="scan">Scanne le QR ou va sur <strong>mmaiq.fr/s/${escapeHtml(partner.slug)}</strong></p>
@@ -321,7 +321,7 @@ export function PartnersCRUD({ data, leads, onUpdate }: { data: any[]; leads: an
             <p className="text-xs font-ui text-[var(--color-text-secondary)] mb-4">
               Sera créé avec le lien <span className="text-white">/s/{uniqueSlug(slugify(form.name), new Set(data.map((p) => p.slug)))}</span>,
               le code <span className="text-[var(--color-accent-primary)] font-bold tracking-widest">{uniqueCode(codeFromSlug(slugify(form.name)), new Set(data.map((p) => p.code)))}</span>,
-              commission 20 % et remise −20 % × 3 mois (modifiables ensuite).
+              sans commission ni remise tant que les conditions commerciales ne sont pas renseignées.
             </p>
           )}
           <button
@@ -366,9 +366,9 @@ export function PartnersCRUD({ data, leads, onUpdate }: { data: any[]; leads: an
                   <td className="px-4 py-3">
                     <span className="font-bold tracking-widest text-[var(--color-accent-primary)]">{p.code}</span>
                   </td>
-                  <td className="px-4 py-3 tabular-nums">{(p.commission_rate * 100).toFixed(0)} % <span className="text-xs text-[var(--color-text-secondary)]">à vie</span></td>
+                  <td className="px-4 py-3 tabular-nums">{(p.commission_rate * 100).toFixed(0)} %</td>
                   <td className="px-4 py-3 tabular-nums">
-                    {p.discount_percent > 0 ? `−${p.discount_percent} % × ${p.discount_months} mois` : "—"}
+                    {p.discount_percent > 0 && p.discount_months > 0 ? `−${p.discount_percent} % × ${p.discount_months} mois` : "À configurer"}
                   </td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center gap-1.5 tabular-nums">
@@ -448,7 +448,7 @@ export function PartnersCRUD({ data, leads, onUpdate }: { data: any[]; leads: an
                 <input className={inputCls} value={editing.logo_url || ""} onChange={(e) => setEditing({ ...editing, logo_url: e.target.value })} placeholder="https://…" />
               </div>
               <div>
-                <label className={labelCls}>Commission (% du HT, à vie)</label>
+                <label className={labelCls}>Commission (% du HT encaissé)</label>
                 <input className={inputCls} type="number" min={0} max={50} step={1} value={editing.commission_pct} onChange={(e) => setEditing({ ...editing, commission_pct: e.target.value })} />
               </div>
               <div>

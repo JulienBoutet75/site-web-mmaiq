@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Check, ChevronDown, Users } from 'lucide-react';
 import { useMmaIqAccount } from '../context/MmaIqAccountContext';
 import type { SubscriptionCheckoutInput } from '../services/stripeService';
+import { ACTIVE_PRICING, formatEuroCents } from '../config/subscriptionCommercial';
 
 const CHECKOUT_ENABLED = import.meta.env.VITE_ENABLE_CHECKOUT === 'true';
 
@@ -10,8 +11,8 @@ type Plan = {
   id: string;
   name: string;
   subtitle: string;
-  price: number;
-  billing: string;
+  monthlyCents: number;
+  yearlyCents: number;
   highlights: string[];
   features: string[];
 };
@@ -26,8 +27,7 @@ const FEATURE_LABELS = [
 
 const PLANS: Plan[] = [
   {
-    id: 'free', name: 'Free', subtitle: 'Pour découvrir les outils', price: 0,
-    billing: 'Version gratuite avec accès limité.',
+    id: 'free', name: 'Free', subtitle: 'Pour découvrir les outils', monthlyCents: 0, yearlyCents: 0,
     highlights: [
       "1 plan d'entraînement et 1 plan nutrition", "1 tutoriel technique dans l'app",
       'Suivi de performance limité', '5 crédits IA par mois',
@@ -35,8 +35,7 @@ const PLANS: Plan[] = [
     features: ['1', '1', '1', 'Lim.', '—', '5', '—', '—', '—', '—', '—'],
   },
   {
-    id: 'essentiel', name: 'Essentiel', subtitle: "L'essentiel pour progresser", price: 5.99,
-    billing: 'ou 59,90 € / an, soit 4,99 € / mois',
+    id: 'essentiel', name: 'Essentiel', subtitle: "L'essentiel pour progresser", ...ACTIVE_PRICING.prices.essentiel,
     highlights: [
       "Plans d'entraînement et nutrition illimités", "5 tutoriels techniques dans l'app",
       'Suivi de performance inclus, gameplan limité', '30 crédits IA par mois',
@@ -44,8 +43,7 @@ const PLANS: Plan[] = [
     features: ['∞', '∞', '5', '✓', 'Lim.', '30', '—', '—', '—', '—', '—'],
   },
   {
-    id: 'performance', name: 'Performance', subtitle: 'Pour les compétiteurs', price: 9.99,
-    billing: 'ou 99,90 € / an, soit 8,33 € / mois',
+    id: 'performance', name: 'Performance', subtitle: 'Pour les compétiteurs', ...ACTIVE_PRICING.prices.performance,
     highlights: [
       'Plans et tutoriels techniques illimités', 'Gameplan et suivi de performance',
       'Connexion coach, espace médecine et marketplace', '80 crédits IA par mois',
@@ -53,8 +51,7 @@ const PLANS: Plan[] = [
     features: ['∞', '∞', '∞', '✓', '✓', '80', '✓', '✓', '✓', '—', '—'],
   },
   {
-    id: 'elite', name: 'Elite', subtitle: "L'expérience complète", price: 19.99,
-    billing: 'ou 199,90 € / an, soit 16,66 € / mois',
+    id: 'elite', name: 'Elite', subtitle: "L'expérience complète", ...ACTIVE_PRICING.prices.elite,
     highlights: [
       'Tous les outils de Performance', '200 crédits IA par mois',
       'Mise en relation', 'Support prioritaire',
@@ -69,7 +66,6 @@ const COACH_FEATURES = [
   'Mise en relation pratiquants', '150 crédits IA par mois', 'Support client prioritaire',
 ];
 
-const priceLabel = (price: number) => price === 0 ? '0' : price.toFixed(2).replace('.', ',');
 const valueLabel = (value: string) => ({ '✓': 'Inclus', '—': 'Non inclus', '∞': 'Illimité', 'Lim.': 'Limité' }[value] ?? value);
 
 function LaunchLink({
@@ -124,6 +120,12 @@ function AcademyNote() {
 
 function PlanCard({ plan, interval, selected, gymCode }: { plan: Plan; interval: SubscriptionCheckoutInput['interval']; selected: boolean; gymCode: string }) {
   const isPerformance = plan.id === 'performance';
+  const amountCents = interval === 'monthly' ? plan.monthlyCents : plan.yearlyCents;
+  const billing = plan.monthlyCents === 0
+    ? 'Version gratuite avec accès limité.'
+    : interval === 'monthly'
+      ? `ou ${formatEuroCents(plan.yearlyCents)} / an, soit ${formatEuroCents(Math.round(plan.yearlyCents / 12))} / mois`
+      : `soit ${formatEuroCents(Math.round(plan.yearlyCents / 12))} / mois, facturé annuellement`;
 
   return (
     <article id={`plan-${plan.id}`} className={`flex min-w-0 scroll-mt-24 flex-col rounded-2xl border p-6 ${
@@ -136,10 +138,10 @@ function PlanCard({ plan, interval, selected, gymCode }: { plan: Plan; interval:
         {plan.subtitle}
       </p>
       <p className="mt-6 flex flex-wrap items-baseline gap-x-2 text-white">
-        <span className="text-4xl font-semibold tracking-tight">{priceLabel(plan.price)} €</span>
-        <span className="text-sm text-[var(--color-text-secondary)]">{plan.price === 0 ? 'gratuit' : '/ mois'}</span>
+        <span className="text-4xl font-semibold tracking-tight">{plan.monthlyCents === 0 ? '0 €' : formatEuroCents(amountCents)}</span>
+        <span className="text-sm text-[var(--color-text-secondary)]">{plan.monthlyCents === 0 ? 'gratuit' : interval === 'monthly' ? '/ mois' : '/ an'}</span>
       </p>
-      <p className="mt-3 min-h-12 text-sm leading-relaxed text-[var(--color-text-secondary)]">{plan.billing}</p>
+      <p className="mt-3 min-h-12 text-sm leading-relaxed text-[var(--color-text-secondary)]">{billing}</p>
       <ul className="my-6 flex-1 space-y-4 border-t border-white/15 pt-6">
         {plan.highlights.map((highlight) => (
           <li key={highlight} className="flex items-start gap-3 text-sm leading-relaxed text-[var(--color-text-primary)]">
@@ -180,7 +182,7 @@ export default function PricingSection({ compact = false }: { compact?: boolean 
             <p className="mb-3 text-sm font-semibold text-[var(--color-violet-300)]">Les offres prévues au lancement</p>
             <h2 className="font-display text-4xl leading-none text-white sm:text-5xl">Une version gratuite pour commencer.</h2>
             <p className="mb-5 mt-5 text-base leading-relaxed text-[var(--color-text-secondary)]">
-              Les plans payants démarreront à <span className="font-semibold text-white">5,99 € / mois</span>.
+              Les plans payants démarreront à <span className="font-semibold text-white">{formatEuroCents(ACTIVE_PRICING.prices.essentiel.monthlyCents)} / mois</span>.
               En attendant, l’inscription pour être prévenu du lancement est gratuite.
             </p>
             <AcademyNote />
@@ -262,7 +264,11 @@ export default function PricingSection({ compact = false }: { compact?: boolean 
                   {PLANS.map((plan) => (
                     <th key={plan.id} scope="col" className="p-5 text-center font-semibold text-white">
                       {plan.name}
-                      <span className="mt-1 block whitespace-nowrap font-normal text-[var(--color-text-secondary)]">{priceLabel(plan.price)} €{plan.price > 0 ? ' / mois' : ''}</span>
+                      <span className="mt-1 block whitespace-nowrap font-normal text-[var(--color-text-secondary)]">
+                        {plan.monthlyCents === 0
+                          ? '0 €'
+                          : `${formatEuroCents(interval === 'monthly' ? plan.monthlyCents : plan.yearlyCents)} / ${interval === 'monthly' ? 'mois' : 'an'}`}
+                      </span>
                     </th>
                   ))}
                 </tr>
@@ -291,8 +297,15 @@ export default function PricingSection({ compact = false }: { compact?: boolean 
               <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--color-tier-coach)]"><Users className="h-5 w-5" aria-hidden="true" /> Pour les coachs · Au lancement</p>
               <h2 id="coach-suite-title" className="font-display text-4xl text-white">Coach Suite</h2>
               <p className="mt-3 max-w-md text-base leading-relaxed text-[var(--color-text-secondary)]">Réunis le suivi de tes athlètes et tes échanges dans un espace dédié.</p>
-              <p className="mt-6 flex flex-wrap items-baseline gap-2 text-white"><span className="text-4xl font-semibold tracking-tight">19,99 €</span><span className="text-sm text-[var(--color-text-secondary)]">/ mois</span></p>
-              <p className="mb-6 mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">ou 199,90 € / an, soit 16,66 € / mois</p>
+              <p className="mt-6 flex flex-wrap items-baseline gap-2 text-white">
+                <span className="text-4xl font-semibold tracking-tight">{formatEuroCents(interval === 'monthly' ? ACTIVE_PRICING.prices.coach_suite.monthlyCents : ACTIVE_PRICING.prices.coach_suite.yearlyCents)}</span>
+                <span className="text-sm text-[var(--color-text-secondary)]">/ {interval === 'monthly' ? 'mois' : 'an'}</span>
+              </p>
+              <p className="mb-6 mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+                {interval === 'monthly'
+                  ? `ou ${formatEuroCents(ACTIVE_PRICING.prices.coach_suite.yearlyCents)} / an`
+                  : `soit ${formatEuroCents(Math.round(ACTIVE_PRICING.prices.coach_suite.yearlyCents / 12))} / mois, facturé annuellement`}
+              </p>
               <LaunchLink planKey="coach_suite" interval={interval} gymCode={gymCode} />
             </div>
             <ul className="grid content-center gap-4 sm:grid-cols-2">

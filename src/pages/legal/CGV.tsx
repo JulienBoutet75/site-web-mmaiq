@@ -71,10 +71,10 @@ export function CGV() {
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li>Free — 0 € (version limitée gratuite) ;</li>
-            <li>Essentiel — 5,99 € / mois ou 59,90 € / an ;</li>
-            <li>Performance — 9,99 € / mois ou 99,90 € / an ;</li>
-            <li>Elite — 19,99 € / mois ou 199,90 € / an ;</li>
-            <li>Coach Suite — 19,99 € / mois ou 199,90 € / an (offre destinée aux coachs).</li>
+            <li>Essentiel — 6,99 € / mois ou 69,99 € / an ;</li>
+            <li>Performance — 10,99 € / mois ou 109,99 € / an ;</li>
+            <li>Elite — 20,99 € / mois ou 209,99 € / an ;</li>
+            <li>Coach Suite — 20,99 € / mois ou 209,99 € / an (offre destinée aux coachs).</li>
           </ul>
           <p>
             L'abonnement peut être souscrit dès maintenant sur le web. L'application mobile (iOS et
@@ -187,9 +187,9 @@ export function CGV() {
             d'affaires distinct, signé avec la salle ; elle n'est pas couverte par les présentes CGV.
           </p>
           <p>
-            Pour les membres d'une salle partenaire, une remise (offre standard : −20 % pendant 3 mois,
-            susceptible de varier selon la salle) est appliquée automatiquement à l'étape de paiement
-            lors d'une souscription effectuée via la page de la salle ou avec son code. Les conditions
+            Pour les membres d'une salle partenaire, une remise (offre de référence : −10 % sur les
+            formules Performance et Elite, durée susceptible de varier selon la salle) est appliquée
+            automatiquement à l'étape de paiement lors d'une souscription effectuée via la page de la salle ou avec son code. Les conditions
             affichées sur la page de la salle au moment de la souscription font foi.
           </p>
         </Article>

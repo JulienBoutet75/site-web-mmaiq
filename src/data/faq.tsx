@@ -41,8 +41,8 @@ export const faqs: FaqItem[] = [
     a: (
       <p>
         L’inscription au lancement est gratuite. Pour l’application, les offres prévues sont
-        Free à 0 €, Essentiel à 5,99 €/mois, Performance à 9,99 €/mois et Elite à
-        19,99 €/mois, plus Coach Suite à 19,99 €/mois pour les coachs. La facturation
+        Free à 0 €, Essentiel à 6,99 €/mois, Performance à 10,99 €/mois et Elite à
+        20,99 €/mois, plus Coach Suite à 20,99 €/mois pour les coachs. La facturation
         annuelle permettra d’économiser jusqu’à 17 %. Les formations Academy seront
         vendues à l’unité, en complément. Retrouve les détails sur la page{" "}
         <FaqLink to="/tarifs">tarifs</FaqLink>.
@@ -116,8 +116,8 @@ export const faqs: FaqItem[] = [
     q: "Ma salle est partenaire : j'ai droit à quoi ?",
     a: (
       <p>
-        Le programme prévoit une remise de −20 % pendant 3 mois au lancement. Passe par
-        le lien ou le QR code de ta salle pour consulter son offre et rattacher ton
+        L'offre de référence prévoit −10 % sur Performance et Elite. Passe par
+        le lien ou le QR code de ta salle pour connaître sa durée et rattacher ton
         inscription à ton club. Les conditions sont détaillées sur la page{" "}
         <FaqLink to="/partenaires">partenaires</FaqLink>.
       </p>

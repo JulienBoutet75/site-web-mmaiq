@@ -20,18 +20,33 @@ export interface SubscriptionCheckoutInput {
 }
 
 export async function createSubscriptionCheckout(
-  planKey: "essentiel" | "performance" | "elite" | "coach_suite",
-  interval: "monthly" | "yearly",
-  gymCode?: string | null
+  input: SubscriptionCheckoutInput,
+  accessToken: string,
 ) {
   const response = await fetch("/api/create-subscription-checkout", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ planKey, interval, gymCode: gymCode || undefined }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify(input),
   });
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Impossible de créer la session d'abonnement");
+  }
+  const { url } = await response.json();
+  if (url) window.location.href = url;
+}
+
+export async function createSubscriptionPortal(accessToken: string) {
+  const response = await fetch("/api/create-subscription-portal", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error || "Impossible d'ouvrir la gestion de l'abonnement");
   }
   const { url } = await response.json();
   if (url) window.location.href = url;

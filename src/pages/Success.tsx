@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle2, ArrowRight, AlertCircle, Smartphone, Mail } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { motion } from "motion/react";
+import { useMmaIqAccount } from "../context/MmaIqAccountContext";
 
 const PLAN_NAMES: Record<string, string> = {
   essentiel: "Essentiel",
@@ -26,19 +27,27 @@ interface SessionInfo {
 // la session CÔTÉ SERVEUR et on affiche le vrai statut — fini la page
 // statique qui disait « paiement réussi » sans rien vérifier.
 export function Success() {
+  const { authenticated, loading: accountLoading, getAccessToken, login } = useMmaIqAccount();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [info, setInfo] = useState<SessionInfo | null>(null);
-  const [state, setState] = useState<"loading" | "ok" | "pending" | "error" | "legacy">(
+  const [state, setState] = useState<"loading" | "ok" | "pending" | "error" | "auth-required" | "legacy">(
     sessionId ? "loading" : "legacy"
   );
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId || accountLoading) return;
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`/api/checkout-session?session_id=${encodeURIComponent(sessionId)}`);
+        const token = authenticated ? await getAccessToken().catch(() => null) : null;
+        const res = await fetch(`/api/checkout-session?session_id=${encodeURIComponent(sessionId)}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (res.status === 401) {
+          if (!cancelled) setState("auth-required");
+          return;
+        }
         if (!res.ok) throw new Error("Session introuvable");
         const data: SessionInfo = await res.json();
         if (cancelled) return;
@@ -60,13 +69,13 @@ export function Success() {
           }
         }
         if (cancelled) return;
-        setState(data.status === "complete" && data.paymentStatus !== "unpaid" ? "ok" : "pending");
+        setState(data.status === "complete" && data.paymentStatus === "paid" ? "ok" : "pending");
       } catch {
         if (!cancelled) setState("error");
       }
     })();
     return () => { cancelled = true; };
-  }, [sessionId]);
+  }, [accountLoading, authenticated, getAccessToken, sessionId]);
 
   const isSubscription = info?.mode === "subscription";
   const isFormation = info?.kind === "formation";
@@ -98,6 +107,21 @@ export function Success() {
             <Link to="/contact">
               <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)]">Nous contacter</Button>
             </Link>
+          </>
+        )}
+
+        {state === "auth-required" && (
+          <>
+            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-[var(--color-accent-primary)]">
+              <Smartphone size={40} />
+            </div>
+            <h1 className="text-3xl font-display mb-4">Reconnecte-toi à MMA IQ</h1>
+            <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
+              Nous devons vérifier que cette session Stripe appartient bien à ton compte.
+            </p>
+            <Button onClick={() => login()} className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)]">
+              Se connecter et vérifier
+            </Button>
           </>
         )}
 
@@ -157,7 +181,7 @@ export function Success() {
 
             {isSubscription ? (
               <>
-                <h1 className="text-3xl font-display mb-2">Abonnement activé !</h1>
+                <h1 className="text-3xl font-display mb-2">Paiement confirmé !</h1>
                 {planName && (
                   <p className="text-[var(--color-accent-primary)] font-ui font-bold uppercase tracking-widest text-sm mb-6">
                     Plan {planName}
@@ -166,14 +190,13 @@ export function Success() {
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 text-left space-y-3">
                   <p className="flex items-start gap-3 text-sm text-[var(--color-text-secondary)]">
                     <Smartphone className="w-5 h-5 shrink-0 text-[var(--color-accent-primary)]" />
-                    <span>Télécharge l'app MMA IQ (iOS / Android) dès sa sortie.</span>
+                    <span>Reviens dans l'app MMA IQ : ton abonnement s'activera automatiquement dès que Stripe aura livré la confirmation.</span>
                   </p>
                   <p className="flex items-start gap-3 text-sm text-[var(--color-text-secondary)]">
                     <Mail className="w-5 h-5 shrink-0 text-[var(--color-accent-primary)]" />
                     <span>
-                      Crée ton compte avec <strong className="text-white">exactement cet email</strong>
-                      {info?.email && <> : <strong className="text-white">{info.email}</strong></>} — c'est lui
-                      qui débloque ton abonnement dans l'app.
+                      L'abonnement est rattaché au compte MMA IQ utilisé avant le paiement
+                      {info?.email && <> : <strong className="text-white">{info.email}</strong></>}.
                     </span>
                   </p>
                 </div>
@@ -206,12 +229,12 @@ export function Success() {
                   </Button>
                 </Link>
               ) : (
-                <Link to="/app">
+                <a href="https://app.mmaiq.fr/subscription/success">
                   <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
-                    Découvrir l'application
+                    Revenir dans MMA IQ
                     <ArrowRight size={18} />
                   </Button>
-                </Link>
+                </a>
               )}
               <Link to="/">
                 <Button variant="outline" className="w-full py-4 rounded-xl border-white/10 hover:bg-white/5">

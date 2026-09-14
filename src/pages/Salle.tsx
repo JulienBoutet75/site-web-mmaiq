@@ -4,8 +4,9 @@ import { motion } from "motion/react";
 import { Bell, CheckCircle2, Loader2, AlertCircle, MapPin, ChevronRight, Percent, QrCode, TrendingUp } from "lucide-react";
 import { supabase, submitLead } from "../lib/supabase";
 import { saveReferral } from "../lib/referral";
-import { createSubscriptionCheckout } from "../services/stripeService";
 import { AmbientBackground } from "../components/AmbientBackground";
+import { useMmaIqAccount } from "../context/MmaIqAccountContext";
+import { ACTIVE_PRICING, formatEuroCents, isClubDiscountEligible } from "../config/subscriptionCommercial";
 
 // Tant que l'app n'est pas lancée, la landing convertit en pré-inscriptions
 // (waitlist). Passer VITE_ENABLE_CHECKOUT=true au lancement pour vendre
@@ -22,9 +23,9 @@ interface CheckoutPlan {
 }
 
 const CHECKOUT_PLANS: CheckoutPlan[] = [
-  { key: "essentiel", name: "Essentiel", monthly: "5,99 €", yearly: "59,90 €", tagline: "L'essentiel pour progresser" },
-  { key: "performance", name: "Performance", monthly: "9,99 €", yearly: "99,90 €", tagline: "Pour les compétiteurs" },
-  { key: "elite", name: "Elite", monthly: "19,99 €", yearly: "199,90 €", tagline: "L'expérience complète" },
+  { key: "essentiel", name: "Essentiel", monthly: formatEuroCents(ACTIVE_PRICING.prices.essentiel.monthlyCents), yearly: formatEuroCents(ACTIVE_PRICING.prices.essentiel.yearlyCents), tagline: "L'essentiel pour progresser" },
+  { key: "performance", name: "Performance", monthly: formatEuroCents(ACTIVE_PRICING.prices.performance.monthlyCents), yearly: formatEuroCents(ACTIVE_PRICING.prices.performance.yearlyCents), tagline: "Pour les compétiteurs" },
+  { key: "elite", name: "Elite", monthly: formatEuroCents(ACTIVE_PRICING.prices.elite.monthlyCents), yearly: formatEuroCents(ACTIVE_PRICING.prices.elite.yearlyCents), tagline: "L'expérience complète" },
 ];
 
 interface PartnerPublic {
@@ -41,6 +42,7 @@ interface PartnerPublic {
 // et des liens partagés par les coachs. Dépose le code d'attribution puis
 // convertit en pré-inscription waitlist taguée (l'app n'est pas encore lancée).
 export function Salle() {
+  const { beginSubscriptionCheckout, checkoutError } = useMmaIqAccount();
   const { slug } = useParams();
   const [partner, setPartner] = useState<PartnerPublic | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,7 +90,7 @@ export function Salle() {
     setSubError(false);
     setSubscribing(planKey);
     try {
-      await createSubscriptionCheckout(planKey, interval, partner.code);
+      await beginSubscriptionCheckout({ planKey, interval, gymCode: partner.code });
       // Redirection vers Stripe : on ne reset pas subscribing.
     } catch (err) {
       console.error("Salle checkout error:", err);
@@ -121,7 +123,10 @@ export function Salle() {
     );
   }
 
-  const hasDiscount = partner.discount_percent > 0;
+  const hasDiscount = partner.discount_percent > 0 && partner.discount_months > 0;
+  const billingIntervals: Array<"monthly" | "yearly"> = hasDiscount
+    ? ["monthly"]
+    : ["monthly", "yearly"];
 
   return (
     <div className="bg-[var(--color-bg-base)] text-white min-h-screen relative overflow-hidden selection:bg-[var(--color-accent-primary)] selection:text-white font-body">
@@ -174,7 +179,7 @@ export function Salle() {
             Entraînement, nutrition, cutting, gameplan et analyse vidéo IA :
             l'app tout-en-un du combattant{CHECKOUT_ENABLED ? "." : " arrive sur iOS et Android."}{" "}
             {CHECKOUT_ENABLED
-              ? "Abonne-toi via ton club : il touche sa part, tu progresses."
+              ? "Abonne-toi via ton club et profite de son offre partenaire."
               : "Pré-inscris-toi avec le code de ton club."}
           </p>
 
@@ -183,7 +188,7 @@ export function Salle() {
               <Percent className="w-6 h-6 text-[var(--color-accent-primary)] shrink-0" />
               <p className="text-sm sm:text-base font-body text-white text-left">
                 <span className="font-bold">−{partner.discount_percent} % pendant {partner.discount_months} mois</span>{" "}
-                au lancement, réservé aux membres {partner.name}.
+                sur Performance et Elite, réservé aux membres {partner.name}.
               </p>
             </div>
           )}
@@ -192,7 +197,7 @@ export function Salle() {
             <>
               {/* Choix mensuel / annuel */}
               <div className="inline-flex items-center gap-1 bg-white/5 border border-white/10 rounded-full p-1 mb-8" role="group" aria-label="Facturation">
-                {(["monthly", "yearly"] as const).map((i) => (
+                {billingIntervals.map((i) => (
                   <button
                     key={i}
                     type="button"
@@ -218,6 +223,9 @@ export function Salle() {
                       {interval === "monthly" ? plan.monthly : plan.yearly}
                       <span className="text-sm text-white/50 font-body"> {interval === "monthly" ? "/ mois" : "/ an"}</span>
                     </p>
+                    {hasDiscount && !isClubDiscountEligible(plan.key) && (
+                      <p className="mb-4 text-xs text-[var(--color-text-secondary)]">Essentiel n'est pas remisé par le code club.</p>
+                    )}
                     <button
                       type="button"
                       onClick={() => handleSubscribe(plan.key)}
@@ -233,14 +241,14 @@ export function Salle() {
 
               {hasDiscount && (
                 <p className="text-xs text-[var(--color-text-secondary)] font-ui mt-5">
-                  La remise −{partner.discount_percent} % ({partner.discount_months} mois) est appliquée automatiquement à l'étape de paiement.
+                  La remise −{partner.discount_percent} % ({partner.discount_months} mois) est appliquée automatiquement aux formules Performance et Elite mensuelles.
                 </p>
               )}
 
-              {subError && (
+              {(subError || checkoutError) && (
                 <div className="flex items-center justify-center gap-2 text-sm font-body text-white bg-[var(--color-accent-red)]/20 border border-[var(--color-accent-red)]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mt-4">
                   <AlertCircle className="w-4 h-4 shrink-0" />
-                  Impossible d'ouvrir le paiement. Réessaie dans un instant.
+                  {checkoutError || "Impossible d'ouvrir le paiement. Réessaie dans un instant."}
                 </div>
               )}
             </>
@@ -286,7 +294,8 @@ export function Salle() {
           )}
 
           <p className="text-xs text-white/40 uppercase tracking-widest font-ui font-bold mt-6">
-            Code club : <span className="text-white/70">{partner.code}</span> · Gratuit · Sans engagement
+            Code club : <span className="text-white/70">{partner.code}</span>
+            {CHECKOUT_ENABLED ? " · Paiement sécurisé par Stripe" : " · Pré-inscription gratuite · Sans engagement"}
           </p>
         </motion.div>
       </section>
@@ -297,7 +306,7 @@ export function Salle() {
           {[
             { icon: <TrendingUp className="w-5 h-5" />, title: "Progresse entre les cours", desc: "Plans d'entraînement et nutrition périodisés, adaptés à ta discipline." },
             { icon: <QrCode className="w-5 h-5" />, title: "Rattaché à ton club", desc: "Ta pré-inscription soutient directement ta salle et ton coach." },
-            { icon: <Percent className="w-5 h-5" />, title: "Avantage membre", desc: hasDiscount ? `−${partner.discount_percent} % pendant ${partner.discount_months} mois au lancement.` : "Des avantages exclusifs réservés aux membres du club." },
+            { icon: <Percent className="w-5 h-5" />, title: "Avantage membre", desc: hasDiscount ? `−${partner.discount_percent} % pendant ${partner.discount_months} mois sur Performance et Elite.` : "Des avantages exclusifs réservés aux membres du club." },
           ].map((item) => (
             <div key={item.title} className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-6 text-left">
               <div className="w-10 h-10 rounded-xl bg-[var(--color-accent-primary)]/15 text-[var(--color-accent-primary)] flex items-center justify-center mb-4">

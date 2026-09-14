@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import Stripe from "stripe";
 import dotenv from "dotenv";
+import { isClubDiscountEligible } from "./src/config/subscriptionCommercial";
 
 dotenv.config();
 
@@ -57,6 +58,33 @@ async function startServer() {
   // Message renvoyé au client quand Stripe échoue : jamais le message
   // brut de l'API (fuite d'infos) — le détail reste dans les logs serveur.
   const CHECKOUT_UNAVAILABLE = "Paiement momentanément indisponible, réessaie dans un instant.";
+  const LAB_SERVICE_URL = (process.env.LAB_SERVICE_URL || "https://api.mmaiq.fr/lab-service").replace(/\/$/, "");
+
+  type MmaIqCheckoutContext = {
+    userId: string;
+    email: string;
+    userType: string;
+    allowedPlanKeys: string[];
+    alreadySubscribed: boolean;
+    stripeCustomerId: string | null;
+  };
+
+  const getMmaIqCheckoutContext = async (req: express.Request): Promise<MmaIqCheckoutContext | null> => {
+    const authorization = req.get("authorization") || "";
+    if (!authorization.startsWith("Bearer ")) return null;
+    try {
+      const response = await fetch(`${LAB_SERVICE_URL}/api/v1/subscriptions/checkout-context`, {
+        headers: { Authorization: authorization, Accept: "application/json" },
+      });
+      if (!response.ok) return null;
+      const payload: any = await response.json();
+      const context = payload?.data as MmaIqCheckoutContext | undefined;
+      return context?.userId && context?.email ? context : null;
+    } catch (error) {
+      console.error("Validation du compte MMA IQ impossible:", error);
+      return null;
+    }
+  };
 
   // ── Supabase REST (fetch natif, pas de SDK côté serveur) ────────
   const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "";
@@ -590,8 +618,8 @@ async function startServer() {
   // Les prix sont résolus CÔTÉ SERVEUR par lookup_key Stripe (créés par
   // scripts/stripe-bootstrap.mjs) : le client ne choisit qu'une clé de
   // plan, jamais un montant. Le code salle voyage dans la metadata de
-  // l'abonnement et se propage à toutes les factures futures — c'est lui
-  // qui portera la commission récurrente (webhook lab-service).
+  // l'abonnement et se propage aux factures futures. Le backend garde son taux
+  // à zéro tant que les conditions contractuelles ne sont pas confirmées.
   const PLAN_KEYS = ["essentiel", "performance", "elite", "coach_suite"] as const;
   const INTERVALS = ["monthly", "yearly"] as const;
   const GYM_CODE_PATTERN = /^[A-Z0-9]{3,14}$/;
@@ -683,10 +711,23 @@ async function startServer() {
       return res.status(400).json({ error: "Plan ou intervalle invalide" });
     }
 
-    const rawCode =
-      typeof gymCode === "string" && GYM_CODE_PATTERN.test(gymCode.toUpperCase())
-        ? gymCode.toUpperCase()
-        : null;
+    const account = await getMmaIqCheckoutContext(req);
+    if (!account) {
+      return res.status(401).json({ error: "Connecte-toi avec ton compte MMA IQ avant de continuer." });
+    }
+    if (!account.allowedPlanKeys.includes(planKey)) {
+      return res.status(403).json({ error: "Cette formule n'est pas disponible pour ton profil MMA IQ." });
+    }
+    if (account.alreadySubscribed) {
+      return res.status(409).json({ error: "Un abonnement est déjà actif sur ce compte. Gère-le depuis ton espace abonnement." });
+    }
+
+    const submittedCode = typeof gymCode === "string" && gymCode.trim().length > 0;
+    const normalizedCode = submittedCode ? gymCode.trim().toUpperCase() : null;
+    if (normalizedCode && !GYM_CODE_PATTERN.test(normalizedCode)) {
+      return res.status(400).json({ error: "Le format du code club est invalide." });
+    }
+    const rawCode = normalizedCode;
 
     try {
       const priceId = await resolvePrice(stripeClient, `${planKey}_${interval}`);
@@ -694,64 +735,119 @@ async function startServer() {
         return res.status(500).json({ error: "Prix introuvable — lancer scripts/stripe-bootstrap.mjs" });
       }
 
-      // Un code inconnu du registre des salles ne doit ni polluer
-      // l'attribution (metadata gym_code) ni donner de remise. Registre
-      // injoignable → attribution au bénéfice du doute, promo au mieux.
+      // Un code inconnu ou impossible à vérifier ne doit ni polluer
+      // l'attribution ni lancer un paiement sans la remise promise.
       let gymPartner: GymPartner | null = null;
-      let registryAvailable = true;
       if (rawCode) {
         const lookup = await lookupGymPartner(rawCode);
-        if (lookup === "unavailable") registryAvailable = false;
-        else gymPartner = lookup;
+        if (lookup === "unavailable") {
+          return res.status(503).json({
+            error: "Le code club ne peut pas être vérifié pour le moment. Aucun paiement n'a été lancé.",
+          });
+        }
+        if (!lookup) {
+          return res.status(400).json({ error: "Ce code club est inconnu ou n'est plus actif." });
+        }
+        gymPartner = lookup;
       }
-      const code = rawCode && (gymPartner || !registryAvailable) ? rawCode : null;
+      const code = rawCode && gymPartner ? rawCode : null;
+      if (
+        gymPartner &&
+        interval === "yearly" &&
+        isClubDiscountEligible(planKey) &&
+        gymPartner.discount_percent > 0 &&
+        gymPartner.discount_months > 0
+      ) {
+        return res.status(400).json({
+          error: "La remise club en nombre de mois s'applique à la formule mensuelle.",
+        });
+      }
 
-      const origin = req.get("origin") || process.env.APP_URL || "http://localhost:3000";
+      const origin = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
       const base: Stripe.Checkout.SessionCreateParams = {
         mode: "subscription",
         line_items: [{ price: priceId, quantity: 1 }],
+        ...(account.stripeCustomerId
+          ? { customer: account.stripeCustomerId }
+          : { customer_email: account.email }),
         success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/cancel`,
-        ...(code ? { client_reference_id: code } : {}),
+        client_reference_id: account.userId,
         subscription_data: {
-          metadata: { gym_code: code ?? "", channel: code ? "gym" : "direct", plan_key: planKey },
+          metadata: {
+            user_id: account.userId,
+            gym_code: code ?? "",
+            channel: code ? "gym" : "direct",
+            plan_key: planKey,
+          },
         },
-        metadata: { gym_code: code ?? "", plan_key: planKey },
+        metadata: { user_id: account.userId, gym_code: code ?? "", plan_key: planKey },
       };
 
       // Remise adhérent : promo créée/synchronisée depuis la config de la
-      // salle. Un échec de promo ne bloque jamais le paiement, mais se voit
-      // dans les logs (l'adhérent paierait plein tarif).
+      // salle. Si Stripe ne peut pas appliquer la remise promise, aucun
+      // Checkout n'est créé au plein tarif.
       let promotionCodeId: string | null = null;
       try {
-        if (gymPartner) {
+        if (gymPartner && isClubDiscountEligible(planKey)) {
           promotionCodeId = await ensureGymPromotion(stripeClient, gymPartner);
-        } else if (code && !registryAvailable) {
-          promotionCodeId =
-            (await stripeClient.promotionCodes.list({ code, active: true, limit: 1 })).data[0]?.id ?? null;
         }
       } catch (err) {
-        console.error(`⚠️ Promo salle ${code} indisponible — checkout plein tarif:`, err);
+        console.error(`Promo salle ${code} indisponible:`, err);
+        return res.status(503).json({
+          error: "La réduction du club n'a pas pu être appliquée. Aucun paiement n'a été lancé ; réessaie dans un instant.",
+        });
       }
 
       let session: Stripe.Checkout.Session;
       try {
+        const idempotencyKey = [
+          "subscription-checkout",
+          account.userId,
+          planKey,
+          interval,
+          code || "direct",
+          Math.floor(Date.now() / 300000),
+        ].join(":");
         session = await stripeClient.checkout.sessions.create(
           promotionCodeId
             ? { ...base, discounts: [{ promotion_code: promotionCodeId }] }
-            : { ...base, allow_promotion_codes: true }
+            : base,
+          { idempotencyKey },
         );
       } catch (err) {
-        // Ex. restriction "premier achat" refusée pour un client connu :
-        // on retombe sur un checkout sans remise auto plutôt que d'échouer.
-        if (!promotionCodeId) throw err;
-        session = await stripeClient.checkout.sessions.create({ ...base, allow_promotion_codes: true });
+        throw err;
       }
 
       res.json({ id: session.id, url: session.url });
     } catch (error: any) {
       console.error("Stripe subscription checkout error:", error);
       res.status(500).json({ error: CHECKOUT_UNAVAILABLE });
+    }
+  });
+
+  app.post("/api/create-subscription-portal", async (req, res) => {
+    const stripeClient = getStripe();
+    if (!stripeClient) {
+      return res.status(500).json({ error: "Stripe is not configured" });
+    }
+    const account = await getMmaIqCheckoutContext(req);
+    if (!account) {
+      return res.status(401).json({ error: "Connecte-toi avec ton compte MMA IQ avant de continuer." });
+    }
+    if (!account.stripeCustomerId) {
+      return res.status(404).json({ error: "Aucun abonnement Stripe actif n'est associé à ce compte." });
+    }
+    try {
+      const origin = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+      const session = await stripeClient.billingPortal.sessions.create({
+        customer: account.stripeCustomerId,
+        return_url: `${origin}/tarifs`,
+      });
+      return res.json({ url: session.url });
+    } catch (error) {
+      console.error("Stripe billing portal error:", error);
+      return res.status(500).json({ error: CHECKOUT_UNAVAILABLE });
     }
   });
 
@@ -767,6 +863,15 @@ async function startServer() {
     }
     try {
       const session = await stripeClient.checkout.sessions.retrieve(sessionId);
+      if (session.mode === "subscription") {
+        const account = await getMmaIqCheckoutContext(req);
+        if (!account) {
+          return res.status(401).json({ error: "Connexion MMA IQ requise" });
+        }
+        if (session.metadata?.user_id !== account.userId) {
+          return res.status(403).json({ error: "Cette session appartient à un autre compte." });
+        }
+      }
       res.json({
         status: session.status,
         paymentStatus: session.payment_status,
