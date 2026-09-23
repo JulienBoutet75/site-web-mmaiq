@@ -10,8 +10,10 @@ import {
   useState,
 } from 'react';
 import {
+  BillingError,
   createSubscriptionCheckout,
   createSubscriptionPortal,
+  PortalOptions,
   SubscriptionCheckoutInput,
 } from '../services/stripeService';
 
@@ -20,12 +22,15 @@ interface MmaIqAccountContextValue {
   loading: boolean;
   profile: KeycloakProfile | null;
   checkoutError: string | null;
+  /** Code métier de la dernière erreur (already_subscribed, payment_pending, consent_required…). */
+  checkoutErrorCode: string | null;
   checkoutPending: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
   getAccessToken: () => Promise<string>;
   beginSubscriptionCheckout: (input: SubscriptionCheckoutInput) => Promise<void>;
-  beginSubscriptionManagement: () => Promise<void>;
+  beginSubscriptionManagement: (options?: PortalOptions) => Promise<void>;
+  clearCheckoutError: () => void;
 }
 
 const MmaIqAccountContext = createContext<MmaIqAccountContextValue | undefined>(undefined);
@@ -50,6 +55,10 @@ function initializeKeycloak() {
     pkceMethod: 'S256',
     checkLoginIframe: false,
     silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html`,
+    // Sans cookies tiers (Safari…), keycloak-js redirigerait toute la page vers
+    // auth.mmaiq.fr pour tester la session : on s'en passe, le visiteur est
+    // considéré non connecté et se connecte au moment de payer.
+    silentCheckSsoFallback: false,
   });
   return keycloakInitialization;
 }
@@ -65,11 +74,19 @@ export function MmaIqAccountProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<KeycloakProfile | null>(null);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  const [checkoutErrorCode, setCheckoutErrorCode] = useState<string | null>(null);
   const [checkoutPending, setCheckoutPending] = useState(false);
   const resumedPending = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
+    // La vérification SSO silencieuse passe par une iframe vers auth.mmaiq.fr.
+    // Si le serveur l'interdit (CSP frame-ancestors), keycloak-js attend sans
+    // fin : au-delà de ce délai on considère le visiteur non connecté, sans
+    // interrompre l'initialisation (un retour de connexion reste traité).
+    const initTimeout = window.setTimeout(() => {
+      if (!cancelled) setLoading(false);
+    }, 5000);
     initializeKeycloak()
       .then(async (isAuthenticated) => {
         if (cancelled) return;
@@ -83,6 +100,7 @@ export function MmaIqAccountProvider({ children }: { children: ReactNode }) {
         console.error('Initialisation du compte MMA IQ impossible', error);
       })
       .finally(() => {
+        window.clearTimeout(initTimeout);
         if (!cancelled) setLoading(false);
       });
 
@@ -90,11 +108,18 @@ export function MmaIqAccountProvider({ children }: { children: ReactNode }) {
       setAuthenticated(false);
       setProfile(null);
     };
+    // Jeton impossible à renouveler : on repasse en visiteur sans rediriger
+    // vers la connexion (elle sera demandée au moment utile).
     keycloak.onTokenExpired = () => {
-      keycloak.updateToken(30).catch(() => keycloak.login());
+      keycloak.updateToken(30).catch(() => {
+        keycloak.clearToken();
+        setAuthenticated(false);
+        setProfile(null);
+      });
     };
     return () => {
       cancelled = true;
+      window.clearTimeout(initTimeout);
     };
   }, []);
 
@@ -106,20 +131,29 @@ export function MmaIqAccountProvider({ children }: { children: ReactNode }) {
     await keycloak.logout({ redirectUri: `${window.location.origin}/tarifs` });
   }, []);
 
-  const runCheckout = useCallback(async (input: SubscriptionCheckoutInput) => {
+  const reportError = useCallback((error: unknown, fallback: string) => {
+    setCheckoutError(error instanceof Error ? error.message : fallback);
+    setCheckoutErrorCode(error instanceof BillingError ? error.code : null);
+  }, []);
+
+  const clearCheckoutError = useCallback(() => {
     setCheckoutError(null);
+    setCheckoutErrorCode(null);
+  }, []);
+
+  const runCheckout = useCallback(async (input: SubscriptionCheckoutInput) => {
+    clearCheckoutError();
     setCheckoutPending(true);
     try {
       const token = await validAccessToken();
       await createSubscriptionCheckout(input, token);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Impossible de démarrer le paiement.';
-      setCheckoutError(message);
+      reportError(error, 'Impossible de démarrer le paiement.');
       throw error;
     } finally {
       setCheckoutPending(false);
     }
-  }, []);
+  }, [clearCheckoutError, reportError]);
 
   const beginSubscriptionCheckout = useCallback(async (input: SubscriptionCheckoutInput) => {
     if (!keycloak.authenticated) {
@@ -130,31 +164,38 @@ export function MmaIqAccountProvider({ children }: { children: ReactNode }) {
     await runCheckout(input);
   }, [login, runCheckout]);
 
-  const beginSubscriptionManagement = useCallback(async () => {
-    setCheckoutError(null);
+  const beginSubscriptionManagement = useCallback(async (options: PortalOptions = {}) => {
+    clearCheckoutError();
     if (!keycloak.authenticated) {
-      sessionStorage.setItem(PENDING_MANAGEMENT_KEY, '1');
+      sessionStorage.setItem(PENDING_MANAGEMENT_KEY, JSON.stringify(options));
       await login();
       return;
     }
     setCheckoutPending(true);
     try {
-      await createSubscriptionPortal(await validAccessToken());
+      await createSubscriptionPortal(await validAccessToken(), options);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Impossible d'ouvrir la gestion de l'abonnement.";
-      setCheckoutError(message);
+      reportError(error, "Impossible d'ouvrir la gestion de l'abonnement.");
       throw error;
     } finally {
       setCheckoutPending(false);
     }
-  }, [login]);
+  }, [clearCheckoutError, login, reportError]);
 
   useEffect(() => {
     if (loading || !authenticated || resumedPending.current) return;
-    if (sessionStorage.getItem(PENDING_MANAGEMENT_KEY)) {
+    const pendingManagement = sessionStorage.getItem(PENDING_MANAGEMENT_KEY);
+    if (pendingManagement) {
       resumedPending.current = true;
       sessionStorage.removeItem(PENDING_MANAGEMENT_KEY);
-      beginSubscriptionManagement().catch(() => {});
+      let options: PortalOptions = {};
+      try {
+        const parsed = JSON.parse(pendingManagement);
+        if (parsed && typeof parsed === 'object') options = parsed;
+      } catch {
+        // ancien marqueur « 1 » : accueil du portail
+      }
+      beginSubscriptionManagement(options).catch(() => {});
       return;
     }
     const raw = sessionStorage.getItem(PENDING_CHECKOUT_KEY);
@@ -174,13 +215,15 @@ export function MmaIqAccountProvider({ children }: { children: ReactNode }) {
     loading,
     profile,
     checkoutError,
+    checkoutErrorCode,
     checkoutPending,
     login,
     logout,
     getAccessToken: validAccessToken,
     beginSubscriptionCheckout,
     beginSubscriptionManagement,
-  }), [authenticated, loading, profile, checkoutError, checkoutPending, login, logout, beginSubscriptionCheckout, beginSubscriptionManagement]);
+    clearCheckoutError,
+  }), [authenticated, loading, profile, checkoutError, checkoutErrorCode, checkoutPending, login, logout, beginSubscriptionCheckout, beginSubscriptionManagement, clearCheckoutError]);
 
   return <MmaIqAccountContext.Provider value={value}>{children}</MmaIqAccountContext.Provider>;
 }

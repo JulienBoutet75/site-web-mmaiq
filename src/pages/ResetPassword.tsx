@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { Seo } from '../components/Seo';
+import { ACCOUNT_LINK, FormAlert, PasswordField, RECOVERY_COLUMN, RECOVERY_SECTION, RECOVERY_TITLE } from '../components/AccountForm';
+import { Button, ButtonLink } from '../v3/ui';
+
+// Nouveau mot de passe (retour du lien reçu par e-mail). Pas de maquette dédiée :
+// même mise en page que « Mot de passe oublié » (Figma 2114:20731 / 2174:22864),
+// état final sur fond accent comme « E-mail envoyé » (2114:20819).
 
 // Supabase peut garder une session existante lorsque le lien reçu est invalide.
 // Dans ce cas, ne pas proposer de modifier le compte déjà connecté.
@@ -17,12 +24,11 @@ export function ResetPassword() {
   const [invalidLink, setInvalidLink] = useState(hasRecoveryUrlError);
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const feedbackRef = useRef<HTMLDivElement>(null);
+  const successTitleRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,8 +45,11 @@ export function ResetPassword() {
   }, []);
 
   useEffect(() => {
-    if (error || success) feedbackRef.current?.focus();
-  }, [error, success]);
+    if (error) feedbackRef.current?.focus();
+  }, [error]);
+  useEffect(() => {
+    if (success) successTitleRef.current?.focus();
+  }, [success]);
 
   const canReset = !invalidLink && Boolean(session?.access_token && user);
 
@@ -84,62 +93,98 @@ export function ResetPassword() {
     }
   };
 
-  const inputClass = 'w-full min-h-12 bg-[var(--color-bg-base)] border border-white/15 rounded-xl py-3 pl-4 pr-14 text-white focus:outline-none focus:border-[var(--color-accent-primary)]';
-  const buttonClass = 'inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-accent-primary)] px-5 py-3 font-semibold text-white hover:bg-[var(--color-violet-600)] transition-colors disabled:opacity-50 disabled:cursor-wait';
+  const seo = (
+    <Seo
+      title="Nouveau mot de passe — MMA IQ"
+      description="Choisis un nouveau mot de passe pour ton compte MMA IQ."
+      canonicalPath="/connexion/nouveau-mot-de-passe"
+    />
+  );
+
+  // Mot de passe enregistré
+  if (success) {
+    return (
+      <>
+        {seo}
+        <section className={`${RECOVERY_SECTION} bg-v3-accent text-white`}>
+          <div className={RECOVERY_COLUMN}>
+            <p className="v3-label">MMA IQ · COMPTE</p>
+            <h1 ref={successTitleRef} tabIndex={-1} className={`${RECOVERY_TITLE} focus:outline-none!`}>Mot de passe enregistré.</h1>
+            <p role="status" className="text-[16px] leading-6 lg:text-[18px] lg:leading-7">
+              Ton mot de passe a été modifié. Tu peux continuer vers ton espace.
+            </p>
+            <ButtonLink to="/mes-formations">Continuer vers mes formations</ButtonLink>
+          </div>
+        </section>
+      </>
+    );
+  }
 
   return (
-    <div className="min-h-svh bg-[var(--color-bg-base)] flex items-center justify-center px-4 py-8 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[var(--color-bg-surface)] p-6 sm:p-8">
-        <Link to="/" className="inline-flex min-h-11 items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-white mb-5">
-          <ArrowLeft size={16} aria-hidden="true" /> Retour à l'accueil
-        </Link>
-        <p className="font-days-one text-lg mb-3">MMA IQ <span className="text-[var(--color-accent-primary)]">ACADEMY</span></p>
-        <h1 className="font-display text-3xl mb-3">{success ? 'Mot de passe enregistré' : 'Ton nouveau mot de passe'}</h1>
+    <>
+      {seo}
+      <section className={`${RECOVERY_SECTION} bg-v3-clair text-v3-navy`}>
+        <div className={RECOVERY_COLUMN}>
+          <Link to="/connexion" className={`v3-label inline-flex items-center gap-1 text-v3-ink-muted ${ACCOUNT_LINK}`}>
+            <ArrowLeft aria-hidden="true" strokeWidth={1.7} className="size-3.5" />
+            Retour à la connexion
+          </Link>
+          <h1 className={RECOVERY_TITLE}>Ton nouveau mot de passe</h1>
 
-        {authLoading || initializing ? (
-          <p role="status" className="flex items-center gap-3 py-8 text-[var(--color-text-secondary)]"><Loader2 size={20} className="animate-spin" aria-hidden="true" /> Vérification de ton lien…</p>
-        ) : success ? (
-          <>
-            <div ref={feedbackRef} tabIndex={-1} role="status" className="my-6 rounded-xl border border-green-400/25 bg-green-400/10 p-4 text-green-300 focus:outline-none">
-              <CheckCircle2 size={24} className="mb-3" aria-hidden="true" />
-              Ton mot de passe a été modifié. Tu peux continuer vers ton espace.
-            </div>
-            <Link to="/mes-formations" className={buttonClass}>Continuer vers mes formations</Link>
-          </>
-        ) : !canReset ? (
-          <>
-            <div role="alert" className="my-6 rounded-xl border border-white/15 p-4 text-[var(--color-text-secondary)]">
-              Ce lien est invalide ou a expiré. Demande un nouveau lien de réinitialisation pour choisir ton mot de passe.
-            </div>
-            <Link to="/connexion?mode=reset" className={buttonClass}>Demander un nouveau lien</Link>
-          </>
-        ) : (
-          <>
-            <p className="text-sm text-[var(--color-text-secondary)] mb-6 break-words">Choisis un nouveau mot de passe pour {user.email || 'ton compte'}.</p>
-            {error && <div ref={feedbackRef} tabIndex={-1} role="alert" id="password-error" className="mb-5 rounded-xl border border-red-400/25 bg-red-400/10 p-4 text-sm text-red-300 focus:outline-none">{error}</div>}
-            <form onSubmit={handleSubmit} noValidate>
-              <fieldset disabled={submitting} className="space-y-5 disabled:opacity-70">
-                <div>
-                  <label htmlFor="new-password" className="block text-sm font-medium mb-2">Nouveau mot de passe</label>
-                  <div className="relative">
-                    <input id="new-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" required minLength={8} value={password} onChange={event => setPassword(event.target.value)} aria-describedby={error ? 'password-help password-error' : 'password-help'} className={inputClass} />
-                    <button type="button" onClick={() => setShowPassword(value => !value)} aria-label={showPassword ? 'Masquer le nouveau mot de passe' : 'Afficher le nouveau mot de passe'} aria-pressed={showPassword} className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center text-[var(--color-text-secondary)] hover:text-white">{showPassword ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}</button>
+          {authLoading || initializing ? (
+            <p role="status" className="flex items-center gap-3 text-[16px] leading-6 text-v3-ink-muted lg:text-[18px] lg:leading-7">
+              <Loader2 aria-hidden="true" className="size-5 animate-spin" /> Vérification de ton lien…
+            </p>
+          ) : !canReset ? (
+            <>
+              <p role="alert" className="text-[16px] leading-6 text-v3-ink-muted lg:text-[18px] lg:leading-7">
+                Ce lien est invalide ou a expiré. Demande un nouveau lien de réinitialisation pour choisir ton mot de passe.
+              </p>
+              <ButtonLink to="/connexion/mot-de-passe-oublie">Demander un nouveau lien</ButtonLink>
+            </>
+          ) : (
+            <>
+              <p className="break-words text-[16px] leading-6 text-v3-ink-muted lg:text-[18px] lg:leading-7">
+                Choisis un nouveau mot de passe pour {user?.email || 'ton compte'}.
+              </p>
+              <form onSubmit={handleSubmit} noValidate className="w-full">
+                <fieldset disabled={submitting} className="flex w-full flex-col items-start gap-6 disabled:opacity-70 lg:gap-10">
+                  {error && <FormAlert ref={feedbackRef} id="password-error">{error}</FormAlert>}
+                  <div className="flex w-full flex-col gap-4">
+                    <PasswordField
+                      id="new-password"
+                      label="Nouveau mot de passe"
+                      name="password"
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      hint="Au moins 8 caractères."
+                      aria-describedby={error ? 'password-error' : undefined}
+                      value={password}
+                      onChange={event => setPassword(event.target.value)}
+                    />
+                    <PasswordField
+                      id="confirm-password"
+                      label="Confirmer le nouveau mot de passe"
+                      name="password_confirmation"
+                      autoComplete="new-password"
+                      required
+                      minLength={8}
+                      aria-describedby={error ? 'password-error' : undefined}
+                      value={confirmation}
+                      onChange={event => setConfirmation(event.target.value)}
+                    />
                   </div>
-                  <p id="password-help" className="mt-2 text-sm text-[var(--color-text-secondary)]">Au moins 8 caractères.</p>
-                </div>
-                <div>
-                  <label htmlFor="confirm-password" className="block text-sm font-medium mb-2">Confirmer le nouveau mot de passe</label>
-                  <div className="relative">
-                    <input id="confirm-password" name="password_confirmation" type={showConfirmation ? 'text' : 'password'} autoComplete="new-password" required minLength={8} value={confirmation} onChange={event => setConfirmation(event.target.value)} aria-describedby={error ? 'password-error' : undefined} className={inputClass} />
-                    <button type="button" onClick={() => setShowConfirmation(value => !value)} aria-label={showConfirmation ? 'Masquer la confirmation' : 'Afficher la confirmation'} aria-pressed={showConfirmation} className="absolute right-1 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center text-[var(--color-text-secondary)] hover:text-white">{showConfirmation ? <EyeOff size={20} aria-hidden="true" /> : <Eye size={20} aria-hidden="true" />}</button>
-                  </div>
-                </div>
-                <button type="submit" disabled={submitting} className={buttonClass}>{submitting && <Loader2 size={18} className="animate-spin" aria-hidden="true" />}{submitting ? 'Enregistrement…' : 'Enregistrer mon mot de passe'}</button>
-              </fieldset>
-            </form>
-          </>
-        )}
-      </div>
-    </div>
+                  <Button type="submit" aria-busy={submitting}>
+                    {submitting && <Loader2 aria-hidden="true" className="size-[18px] animate-spin" />}
+                    {submitting ? 'Enregistrement…' : 'Enregistrer mon mot de passe'}
+                  </Button>
+                </fieldset>
+              </form>
+            </>
+          )}
+        </div>
+      </section>
+    </>
   );
 }

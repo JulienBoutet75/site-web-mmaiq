@@ -1,39 +1,31 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { XCircle, ArrowLeft } from "lucide-react";
-import { Button } from "../components/ui/Button";
-import { motion } from "motion/react";
+import { Seo } from "../components/Seo";
+import { ArrowLink, ButtonLink } from "../v3/ui";
+import { Confirmation } from "./Success";
 
+// Retour Stripe après abandon du paiement. Pas de maquette dédiée : même
+// gabarit que les confirmations de paiement (Figma « 12 · Confirmations »).
 export function Cancel() {
   return (
-    <div className="min-h-screen bg-[var(--color-bg-base)] text-white flex items-center justify-center p-6">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full bg-[var(--color-bg-surface)] border border-red-500/30 rounded-[2rem] p-10 text-center shadow-[0_0_50px_rgba(255,0,0,0.1)]"
+    <>
+      <Seo title="Paiement annulé — MMA IQ" description="Le paiement a été interrompu : aucune somme n’a été débitée." canonicalPath="/cancel" />
+      <Confirmation
+        status="PAIEMENT ANNULÉ"
+        title="Paiement annulé."
+        actions={
+          <>
+            <ButtonLink to="/tarifs">Revoir les formules</ButtonLink>
+            <ButtonLink to="/" variant="outline">Retour à l’accueil</ButtonLink>
+          </>
+        }
       >
-        <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
-          <XCircle size={40} />
-        </div>
-        <h1 className="text-3xl font-display mb-4">Paiement annulé</h1>
-        <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-          Le processus de paiement a été interrompu. Aucune somme n'a été débitée. 
-          Si vous avez rencontré un problème, n'hésitez pas à nous contacter.
+        <p>
+          Le paiement a été interrompu : aucune somme n’a été débitée. Tu peux reprendre quand tu veux
+          ou choisir une autre formule.
         </p>
-        <div className="space-y-4">
-          <Link to="/shop">
-            <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
-              Retour à la boutique
-              <ArrowLeft size={18} />
-            </Button>
-          </Link>
-          <Link to="/">
-            <Button variant="outline" className="w-full py-4 rounded-xl border-white/10 hover:bg-white/5">
-              Retour à l'accueil
-            </Button>
-          </Link>
+        <div>
+          <ArrowLink to="/contact">Un souci pendant le paiement ? Écris-nous</ArrowLink>
         </div>
-      </motion.div>
-    </div>
+      </Confirmation>
+    </>
   );
 }

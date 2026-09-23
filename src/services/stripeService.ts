@@ -17,6 +17,21 @@ export interface SubscriptionCheckoutInput {
   planKey: "essentiel" | "performance" | "elite" | "coach_suite";
   interval: "monthly" | "yearly";
   gymCode?: string | null;
+  /** Demande expresse de démarrage avant la fin du délai de rétractation (CGV art. 6). */
+  immediateStartConsent?: boolean;
+}
+
+/** Erreur du serveur de paiement, avec son code métier (already_subscribed, payment_pending…). */
+export class BillingError extends Error {
+  constructor(message: string, readonly code: string | null = null, readonly details: Record<string, unknown> = {}) {
+    super(message);
+    this.name = "BillingError";
+  }
+}
+
+async function billingError(response: Response, fallback: string) {
+  const error = await response.json().catch(() => ({}));
+  return new BillingError(error.error || fallback, error.code ?? null, error);
 }
 
 export async function createSubscriptionCheckout(
@@ -32,24 +47,71 @@ export async function createSubscriptionCheckout(
     body: JSON.stringify(input),
   });
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "Impossible de créer la session d'abonnement");
+    throw await billingError(response, "Impossible de créer la session d'abonnement");
   }
   const { url } = await response.json();
   if (url) window.location.href = url;
 }
 
-export async function createSubscriptionPortal(accessToken: string) {
+/**
+ * Portail client Stripe. Sans option : accueil (carte, factures, réactivation).
+ * flow=update : confirmation d'un changement de formule ; flow=cancel : résiliation.
+ */
+export interface PortalOptions {
+  flow?: "update" | "cancel";
+  planKey?: SubscriptionCheckoutInput["planKey"];
+  interval?: SubscriptionCheckoutInput["interval"];
+}
+
+export async function createSubscriptionPortal(accessToken: string, options: PortalOptions = {}) {
   const response = await fetch("/api/create-subscription-portal", {
     method: "POST",
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify(options),
   });
   if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || "Impossible d'ouvrir la gestion de l'abonnement");
+    throw await billingError(response, "Impossible d'ouvrir la gestion de l'abonnement");
   }
   const { url } = await response.json();
   if (url) window.location.href = url;
+}
+
+/** Abonnement web relu chez Stripe, tel que renvoyé par /api/subscription/overview. */
+export interface WebSubscriptionOverview {
+  id: string;
+  status: string;
+  planKey: SubscriptionCheckoutInput["planKey"] | null;
+  planName: string | null;
+  creditsPerMonth: number | null;
+  interval: "monthly" | "yearly";
+  amountCents: number | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+  cancelAt: string | null;
+  discount: { percent: number; endsAt: string | null } | null;
+}
+
+export interface SubscriptionOverview {
+  email: string;
+  /** false : compte créé sur le site, profil pas encore créé dans l'app. */
+  profileExists: boolean;
+  allowedPlanKeys: string[];
+  pendingPayment: boolean;
+  currentTier: string | null;
+  currentPlatform: string | null;
+  currentExpiresAt: string | null;
+  hasStripeCustomer: boolean;
+  web: WebSubscriptionOverview | null;
+}
+
+export async function fetchSubscriptionOverview(accessToken: string): Promise<SubscriptionOverview> {
+  const response = await fetch("/api/subscription/overview", {
+    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+  });
+  if (!response.ok) {
+    throw await billingError(response, "Ton abonnement ne peut pas être lu pour le moment.");
+  }
+  return response.json();
 }
 
 // Boutique : le client n'envoie plus que des identifiants produit et des

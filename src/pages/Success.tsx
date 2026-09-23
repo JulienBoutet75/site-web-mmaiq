@@ -1,16 +1,22 @@
-import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, ArrowRight, AlertCircle, Smartphone, Mail } from "lucide-react";
-import { Button } from "../components/ui/Button";
-import { motion } from "motion/react";
+import { useEffect, useState, type ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Seo } from "../components/Seo";
 import { useMmaIqAccount } from "../context/MmaIqAccountContext";
+import { Button, ButtonLink, DownloadButton, Section, buttonClass } from "../v3/ui";
 
-const PLAN_NAMES: Record<string, string> = {
-  essentiel: "Essentiel",
-  performance: "Performance",
-  elite: "Elite",
-  coach_suite: "Coach Suite",
+// Figma « 12 · Confirmations de paiement » : Essentiel (2114:21461 / 2174:23208),
+// Performance (2114:21537 / 2174:23243), Elite (2114:21613 / 2174:23278).
+// Les autres états (vérification, attente, erreur…) reprennent la même mise en page.
+
+const PLANS: Record<string, { name: string; credits?: number }> = {
+  essentiel: { name: "Essentiel", credits: 30 },
+  performance: { name: "Performance", credits: 80 },
+  elite: { name: "Elite", credits: 200 },
+  coach_suite: { name: "Coach Suite", credits: 150 },
 };
+
+// Retour dans l’application après un abonnement (lien universel de l’app).
+const APP_RETURN_URL = "https://app.mmaiq.fr/subscription/success";
 
 interface SessionInfo {
   status: string | null;
@@ -21,6 +27,8 @@ interface SessionInfo {
   gymCode: string | null;
   kind: string | null;
   formationId: string | null;
+  /** false : payé avec un compte qui n'a pas encore de profil dans l'app. */
+  profileExists?: boolean | null;
 }
 
 // Page de retour Stripe. Avec un session_id (checkout récent), on vérifie
@@ -35,8 +43,18 @@ export function Success() {
     sessionId ? "loading" : "legacy"
   );
 
+  // Filet de sécurité : si l’initialisation du compte MMA IQ ne répond pas
+  // (vérification SSO silencieuse bloquée), on vérifie quand même la session
+  // après 8 s ; un abonnement demandera alors la reconnexion (401).
+  const [accountWaitExpired, setAccountWaitExpired] = useState(false);
   useEffect(() => {
-    if (!sessionId || accountLoading) return;
+    if (!accountLoading) return;
+    const timer = window.setTimeout(() => setAccountWaitExpired(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, [accountLoading]);
+
+  useEffect(() => {
+    if (!sessionId || (accountLoading && !accountWaitExpired)) return;
     let cancelled = false;
     (async () => {
       try {
@@ -75,176 +93,169 @@ export function Success() {
       }
     })();
     return () => { cancelled = true; };
-  }, [accountLoading, authenticated, getAccessToken, sessionId]);
+  }, [accountLoading, accountWaitExpired, authenticated, getAccessToken, sessionId]);
 
   const isSubscription = info?.mode === "subscription";
   const isFormation = info?.kind === "formation";
-  const planName = info?.planKey ? PLAN_NAMES[info.planKey] ?? info.planKey : null;
+  const plan = info?.planKey ? PLANS[info.planKey] ?? { name: info.planKey } : null;
+  const accountEmail = info?.email ? <> (<span className="text-white">{info.email}</span>)</> : null;
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg-base)] text-white flex items-center justify-center p-6">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full bg-[var(--color-bg-surface)] border border-[var(--color-accent-primary)]/30 rounded-[2rem] p-10 text-center shadow-[0_0_50px_rgba(123,47,255,0.2)]"
-      >
-        {state === "loading" && (
-          <>
-            <div className="w-12 h-12 mx-auto mb-6 rounded-full border-2 border-white/10 border-t-[var(--color-accent-primary)] animate-spin"></div>
-            <p className="text-[var(--color-text-secondary)]">Vérification du paiement…</p>
-          </>
-        )}
+    <>
+      <Seo title="Confirmation de paiement — MMA IQ" description="Vérification et confirmation de ton paiement MMA IQ." canonicalPath="/success" />
 
-        {state === "error" && (
-          <>
-            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-red-400">
-              <AlertCircle size={40} />
-            </div>
-            <h1 className="text-3xl font-display mb-4">Session introuvable</h1>
-            <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-              Impossible de vérifier ce paiement. Si tu as été débité, contacte-nous : on régularise vite.
+      {state === "loading" && (
+        <Confirmation status="VÉRIFICATION EN COURS" title="Vérification du paiement…" busy>
+          <p>Nous vérifions ton paiement auprès de Stripe. Cela ne prend que quelques secondes.</p>
+        </Confirmation>
+      )}
+
+      {state === "error" && (
+        <Confirmation
+          status="PAIEMENT NON VÉRIFIÉ"
+          title="Session introuvable."
+          actions={<ButtonLink to="/contact">Nous contacter</ButtonLink>}
+        >
+          <p>Impossible de vérifier ce paiement. Si tu as été débité, contacte-nous : on régularise vite.</p>
+        </Confirmation>
+      )}
+
+      {state === "auth-required" && (
+        <Confirmation
+          status="CONNEXION REQUISE"
+          title="Reconnecte-toi à MMA IQ."
+          actions={<Button onClick={() => login()}>Se connecter et vérifier</Button>}
+        >
+          <p>Nous devons vérifier que cette session Stripe appartient bien à ton compte.</p>
+        </Confirmation>
+      )}
+
+      {state === "pending" && (
+        <Confirmation
+          status="PAIEMENT EN ATTENTE"
+          title="Paiement en attente."
+          actions={<ButtonLink to="/" variant="outline">Retour à l’accueil</ButtonLink>}
+        >
+          <p>
+            Ton paiement n’est pas encore confirmé. Reviens dans quelques minutes ou contacte-nous si
+            ça persiste — si tu as annulé, tu peux réessayer quand tu veux.
+          </p>
+        </Confirmation>
+      )}
+
+      {/* Arrivée sans session_id (vieux lien, navigation directe) : on ne peut
+          RIEN vérifier — on n'affiche donc jamais « paiement réussi » ici. */}
+      {state === "legacy" && (
+        <Confirmation
+          status="RETOUR DE PAIEMENT"
+          title="Retour de paiement."
+          actions={
+            <>
+              <ButtonLink to="/mes-formations">Mes formations</ButtonLink>
+              <ButtonLink to="/contact" variant="outline">Un doute ? Contacte-nous</ButtonLink>
+            </>
+          }
+        >
+          <p>
+            Ce lien ne permet pas de confirmer un paiement. Si tu viens de payer, le reçu Stripe est
+            dans ta boîte mail et ton achat est bien enregistré — retrouve tes formations dans{" "}
+            <span className="text-white">Mes formations</span>, connecté avec l’email utilisé au paiement.
+          </p>
+        </Confirmation>
+      )}
+
+      {state === "ok" && isSubscription && info?.profileExists === false && (
+        <Confirmation
+          status="PAIEMENT CONFIRMÉ"
+          title="Plus qu’une étape."
+          actions={
+            <>
+              <DownloadButton label="Télécharger MMA IQ" />
+              <ButtonLink to="/mon-abonnement" variant="outline">Mon abonnement</ButtonLink>
+            </>
+          }
+        >
+          <p>
+            {plan ? `Ton abonnement ${plan.name} est confirmé.` : "Ton abonnement est confirmé."}{" "}
+            Pour en profiter, crée ton profil dans l’application :
+          </p>
+          <ol className="list-decimal space-y-1 pl-6">
+            <li>Télécharge MMA IQ sur l’App Store ou sur Google Play.</li>
+            <li>Choisis «&nbsp;Se connecter&nbsp;» avec ton compte MMA IQ{accountEmail}, pas «&nbsp;Créer un compte&nbsp;».</li>
+            <li>Choisis le profil «&nbsp;Pratiquant&nbsp;» et termine ton inscription : ton abonnement{plan?.credits ? ` et tes ${plan.credits} crédits IA mensuels` : ""} s’y rattachent automatiquement.</li>
+          </ol>
+          <p>Un e-mail de confirmation t’a été envoyé avec ces étapes.</p>
+        </Confirmation>
+      )}
+
+      {state === "ok" && isSubscription && info?.profileExists !== false && (
+        <Confirmation
+          status="PAIEMENT CONFIRMÉ"
+          title="Paiement confirmé."
+          actions={
+            <>
+              <a href={APP_RETURN_URL} className={buttonClass("primary")}>Ouvrir MMA IQ</a>
+              <ButtonLink to="/mon-abonnement" variant="outline">Mon abonnement</ButtonLink>
+            </>
+          }
+        >
+          <p>
+            {plan ? `Ton abonnement ${plan.name} est confirmé.` : "Ton abonnement est confirmé."}{" "}
+            Retrouve tes outils{plan?.credits ? ` et tes ${plan.credits} crédits IA mensuels` : ""} dans
+            l’application avec le même compte MMA IQ{accountEmail} : une notification t’y attend.
+          </p>
+          <p>Un e-mail de confirmation t’a été envoyé.</p>
+        </Confirmation>
+      )}
+
+      {state === "ok" && !isSubscription && (
+        <Confirmation
+          status="PAIEMENT CONFIRMÉ"
+          title="Paiement confirmé."
+          actions={
+            // « Mes formations » n'a de sens que pour une formation :
+            // un achat boutique n'y apparaît jamais.
+            <ButtonLink to={isFormation ? "/mes-formations" : "/academy"}>
+              {isFormation ? "Accéder à mes formations" : "Découvrir les formations"}
+            </ButtonLink>
+          }
+        >
+          {isFormation ? (
+            <p>
+              Ton achat est confirmé. Retrouve ta formation à tout moment dans{" "}
+              <span className="text-white">Mes formations</span>, connecté avec l’email utilisé au
+              paiement{accountEmail}.
             </p>
-            <Link to="/contact">
-              <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)]">Nous contacter</Button>
-            </Link>
-          </>
-        )}
+          ) : (
+            <p>Ton achat est confirmé. Merci pour ta confiance !</p>
+          )}
+        </Confirmation>
+      )}
+    </>
+  );
+}
 
-        {state === "auth-required" && (
-          <>
-            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-[var(--color-accent-primary)]">
-              <Smartphone size={40} />
-            </div>
-            <h1 className="text-3xl font-display mb-4">Reconnecte-toi à MMA IQ</h1>
-            <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-              Nous devons vérifier que cette session Stripe appartient bien à ton compte.
-            </p>
-            <Button onClick={() => login()} className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)]">
-              Se connecter et vérifier
-            </Button>
-          </>
-        )}
-
-        {state === "pending" && (
-          <>
-            <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-yellow-400">
-              <AlertCircle size={40} />
-            </div>
-            <h1 className="text-3xl font-display mb-4">Paiement en attente</h1>
-            <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-              Ton paiement n'est pas encore confirmé. Reviens dans quelques minutes ou
-              contacte-nous si ça persiste — si tu as annulé, tu peux réessayer quand tu veux.
-            </p>
-            <Link to="/">
-              <Button variant="outline" className="w-full py-4 rounded-xl border-white/10 hover:bg-white/5">
-                Retour à l'accueil
-              </Button>
-            </Link>
-          </>
-        )}
-
-        {/* Arrivée sans session_id (vieux lien, navigation directe) : on ne peut
-            RIEN vérifier — on n'affiche donc jamais « paiement réussi » ici. */}
-        {state === "legacy" && (
-          <>
-            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 text-[var(--color-accent-primary)]">
-              <Mail size={40} />
-            </div>
-            <h1 className="text-3xl font-display mb-4">Retour de paiement</h1>
-            <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-              Ce lien ne permet pas de confirmer un paiement. Si tu viens de payer, le reçu
-              Stripe est dans ta boîte mail et ton achat est bien enregistré — retrouve tes
-              formations dans <strong className="text-white">Mes formations</strong>, connecté
-              avec l'email utilisé au paiement.
-            </p>
-            <div className="space-y-4">
-              <Link to="/mes-formations">
-                <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
-                  Mes formations
-                  <ArrowRight size={18} />
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button variant="outline" className="w-full py-4 rounded-xl border-white/10 hover:bg-white/5">
-                  Un doute ? Contacte-nous
-                </Button>
-              </Link>
-            </div>
-          </>
-        )}
-
-        {state === "ok" && (
-          <>
-            <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
-              <CheckCircle2 size={40} />
-            </div>
-
-            {isSubscription ? (
-              <>
-                <h1 className="text-3xl font-display mb-2">Paiement confirmé !</h1>
-                {planName && (
-                  <p className="text-[var(--color-accent-primary)] font-ui font-bold uppercase tracking-widest text-sm mb-6">
-                    Plan {planName}
-                  </p>
-                )}
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-6 text-left space-y-3">
-                  <p className="flex items-start gap-3 text-sm text-[var(--color-text-secondary)]">
-                    <Smartphone className="w-5 h-5 shrink-0 text-[var(--color-accent-primary)]" />
-                    <span>Reviens dans l'app MMA IQ : ton abonnement s'activera automatiquement dès que Stripe aura livré la confirmation.</span>
-                  </p>
-                  <p className="flex items-start gap-3 text-sm text-[var(--color-text-secondary)]">
-                    <Mail className="w-5 h-5 shrink-0 text-[var(--color-accent-primary)]" />
-                    <span>
-                      L'abonnement est rattaché au compte MMA IQ utilisé avant le paiement
-                      {info?.email && <> : <strong className="text-white">{info.email}</strong></>}.
-                    </span>
-                  </p>
-                </div>
-              </>
-            ) : (
-              <>
-                <h1 className="text-3xl font-display mb-4">Paiement réussi !</h1>
-                {/* « Mes formations » n'a de sens que pour une formation :
-                    un achat boutique n'y apparaît jamais. */}
-                {isFormation ? (
-                  <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-                    Ton achat est confirmé. Retrouve ta formation à tout moment dans{" "}
-                    <strong className="text-white">Mes formations</strong>, connecté avec l'email
-                    utilisé au paiement{info?.email && <> (<strong className="text-white">{info.email}</strong>)</>}.
-                  </p>
-                ) : (
-                  <p className="text-[var(--color-text-secondary)] mb-8 leading-relaxed">
-                    Ton achat est confirmé. Merci pour ta confiance !
-                  </p>
-                )}
-              </>
-            )}
-
-            <div className="space-y-4">
-              {!isSubscription ? (
-                <Link to={isFormation ? "/mes-formations" : "/instructional"}>
-                  <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
-                    {isFormation ? "Accéder à mes formations" : "Découvrir les formations"}
-                    <ArrowRight size={18} />
-                  </Button>
-                </Link>
-              ) : (
-                <a href="https://app.mmaiq.fr/subscription/success">
-                  <Button className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-400)] flex items-center justify-center gap-2">
-                    Revenir dans MMA IQ
-                    <ArrowRight size={18} />
-                  </Button>
-                </a>
-              )}
-              <Link to="/">
-                <Button variant="outline" className="w-full py-4 rounded-xl border-white/10 hover:bg-white/5">
-                  Retour à l'accueil
-                </Button>
-              </Link>
-            </div>
-          </>
-        )}
-      </motion.div>
-    </div>
+/** Bloc de confirmation Figma : statut, titre, texte (760 px max) et actions. */
+export function Confirmation({
+  status,
+  title,
+  children,
+  actions,
+  busy = false,
+}: {
+  status: string;
+  title: string;
+  children: ReactNode;
+  actions?: ReactNode;
+  busy?: boolean;
+}) {
+  return (
+    // La bande remplit l’écran entre navigation et pied de page (pas de raccord de dégradé visible).
+    <Section tone="fond" className="min-h-[calc(100svh-308px)] py-12 lg:min-h-[calc(100svh-268px)] lg:py-[72px]" innerClassName="flex flex-col items-start gap-6 lg:gap-10" aria-live="polite" aria-busy={busy || undefined}>
+      <p className="v3-label text-v3-lavender">{status}</p>
+      <h1 className="text-[32px] font-semibold leading-[38px] text-white lg:text-[40px] lg:leading-[46px]">{title}</h1>
+      <div className="v3-body flex max-w-[760px] flex-col gap-4 text-v3-muted">{children}</div>
+      {actions && <div className="flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap">{actions}</div>}
+    </Section>
   );
 }

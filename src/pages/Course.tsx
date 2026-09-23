@@ -1,20 +1,28 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { 
-  Play, ChevronDown, CheckCircle2, Clock, User, 
-  ShoppingCart, ArrowLeft, Lock, Unlock,
-  Info, AlertCircle, Check, PlayCircle, ArrowRight,
-  Edit2, Save, X, Plus, Trash2, Loader2, UploadCloud
-} from "lucide-react";
-import { Button } from "../components/ui/Button";
-import { Badge } from "../components/ui/Badge";
-import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { ArrowUpRight, Loader2, Pencil, Plus, Save, Trash2, X } from "lucide-react";
+import { Seo } from "../components/Seo";
+import { VideoPlayer } from "../components/VideoPlayer";
+import { MediaUploader } from "../components/admin/MediaUploader";
+import { Breadcrumb, Button, ButtonLink, cx } from "../v3/ui";
+import { Dialog, useDialogTitleId } from "../v3/Dialog";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
-import { VideoPlayer } from "../components/VideoPlayer";
 import { createFormationCheckout, redeemAccessCode, getVideoUrl } from "../services/stripeService";
-import { MediaUploader } from "../components/admin/MediaUploader";
 import { showToast } from "../utils/ui";
+import { ACADEMY_CATEGORIES, DISCIPLINE_LABELS, LEVEL_LABELS, categoryOf, disciplineLabel, formatPrice, levelLabel } from "../data/academy";
+
+// Figma « Fiche formation · Desktop · Vue complète » (2190:22056) et « Mobile » (2190:22137).
+// États : « Lecteur · Aperçu visuel » (2107:6581 / 2107:6629) pour l’extrait,
+// « Academy · Code de démonstration » (2107:6552 / 2107:6600) pour le code d’accès.
+// La lecture des chapitres se fait sur /mes-formations/:slug (LectureFormation).
+
+/** Titre de section : 36/40 Medium −1,08 px sur mobile, 48/54 SemiBold −1 px sur desktop. */
+const SECTION_TITLE = "text-[36px] font-medium leading-10 tracking-[-1.08px] lg:text-[48px] lg:font-semibold lg:leading-[54px] lg:tracking-[-1px]";
+/** Panneau des fenêtres V3 : papier sur mobile, fond clair dégradé sur desktop. */
+const DIALOG_PANEL = "max-w-[640px] rounded-[16px] bg-v3-paper p-6 text-v3-navy lg:bg-v3-clair lg:p-10";
+const DIALOG_TITLE = "text-[26px] font-semibold leading-8";
+const FALLBACK_IMAGE = "/v3/photo-sparring-lab.webp";
 
 // Un extrait déjà public peut être lu sans compte. Les URLs signées et les
 // fichiers de chapitres restent réservés au parcours d'accès existant.
@@ -43,6 +51,16 @@ function getPublicTrailerUrl(value: unknown, chapters: any[]): string | null {
   }
 }
 
+/** long_description est stockée en JSON { content, bullets, access_code } (ou en texte brut). */
+function parseLongDescription(value: unknown): { content: string; bullets: string[]; access_code?: string } {
+  if (typeof value === 'string' && value.startsWith('{')) {
+    try { return JSON.parse(value); }
+    catch { return { content: value, bullets: [] }; }
+  }
+  if (typeof value === 'object' && value !== null) return value as any;
+  return { content: typeof value === 'string' ? value : '', bullets: [] };
+}
+
 export function Course() {
   const { slug } = useParams();
   const { user, session, profile, isAdmin } = useAuth();
@@ -54,7 +72,6 @@ export function Course() {
   const [loadError, setLoadError] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [hasPurchased, setHasPurchased] = useState(false);
-  const [activeChapter, setActiveChapter] = useState<any>(null);
   // Modale post-échec d'achat : 'unconfigured' si le serveur répond que
   // Stripe n'est pas configuré, 'error' pour tout autre échec réel.
   const [purchaseModal, setPurchaseModal] = useState<'unconfigured' | 'error' | null>(null);
@@ -62,12 +79,12 @@ export function Course() {
   const [codeError, setCodeError] = useState(false);
   const [redeeming, setRedeeming] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [codeOpen, setCodeOpen] = useState(false);
 
-  // URLs de lecture résolues côté serveur (signées quand le bucket est privé)
+  // URL de l'extrait résolue côté serveur (signée quand le bucket est privé)
   const [trailerUrl, setTrailerUrl] = useState<string | null>(null);
   const [trailerLoading, setTrailerLoading] = useState(false);
-  const [chapterUrl, setChapterUrl] = useState<string | null>(null);
-  const [chapterLoading, setChapterLoading] = useState(false);
 
   // Admin Editing State
   const [isEditing, setIsEditing] = useState(false);
@@ -77,12 +94,12 @@ export function Course() {
 
   // isAdmin (useAuth) couvre les rôles admin/super_admin ET l'admin reconnu
   // par email (fallback VITE_ADMIN_EMAIL sans ligne profiles).
-  const canEdit = isAdmin || (profile?.role === 'coach' && formation?.coach_id === profile?.id);
+  const canEdit = isAdmin || (!!user && formation?.coaches?.profile_id === user.id);
   const publicTrailerUrl = useMemo(() => !loading && !loadError ? getPublicTrailerUrl(formation?.trailer_url, chapters) : null, [formation?.trailer_url, chapters, loading, loadError]);
 
-  // Chemins de redirection auth (convention /connexion?mode=...&redirect=...)
-  const coursePath = `/course/${slug}`;
-  const signupUrl = `/connexion?mode=signup&redirect=${encodeURIComponent(coursePath)}`;
+  // Chemins de redirection auth : /connexion?redirect=… et /inscription?redirect=…
+  const coursePath = `/academy/${slug}`;
+  const signupUrl = `/inscription?redirect=${encodeURIComponent(coursePath)}`;
   const signinUrl = `/connexion?redirect=${encodeURIComponent(coursePath)}`;
 
   const startEditing = () => {
@@ -90,26 +107,13 @@ export function Course() {
       console.error("No formation data found to edit!");
       return;
     }
-    
-    let longDesc = { content: "", bullets: [] };
-    if (typeof formation.long_description === 'string' && formation.long_description.startsWith('{')) {
-      try {
-        longDesc = JSON.parse(formation.long_description);
-      } catch (e) {
-        longDesc = { content: formation.long_description, bullets: [] };
-      }
-    } else if (typeof formation.long_description === 'object' && formation.long_description !== null) {
-      longDesc = formation.long_description as any;
-    } else {
-      longDesc = { content: formation.long_description || "", bullets: [] };
-    }
-
+    const longDesc = parseLongDescription(formation.long_description);
     setEditData({
       title: formation.title,
       description: formation.description,
       long_description: longDesc.content || "",
       bullets: longDesc.bullets || [],
-      access_code: (longDesc as any).access_code || "",
+      access_code: longDesc.access_code || "",
       trailer_url: formation.trailer_url || "",
       thumbnail_url: formation.thumbnail_url || "",
       price_cents: formation.price_cents,
@@ -151,12 +155,11 @@ export function Course() {
         duration: editData.duration
       };
 
-
       const { error: fError } = await supabase
         .from('formations')
         .update(formationPayload)
         .eq('id', formation.id);
-      
+
       if (fError) {
         console.error("Formation update error:", fError);
         throw fError;
@@ -180,7 +183,7 @@ export function Course() {
       // 2. Update Chapters
       // Delete existing
       await supabase.from('formation_chapters').delete().eq('formation_id', formation.id);
-      
+
       // Insert new
       if (editChapters.length > 0) {
         const chaptersPayload = editChapters.map((ch, idx) => ({
@@ -200,7 +203,7 @@ export function Course() {
       }
 
       showToast("Modifications enregistrées !");
-      
+
       // Update local state
       setFormation({
         ...formation,
@@ -224,9 +227,9 @@ export function Course() {
   };
 
   const addChapter = () => {
-    setEditChapters(prev => [...prev, { 
-      title: "Nouveau chapitre", 
-      timestamp: "00:00 - 04:00", 
+    setEditChapters(prev => [...prev, {
+      title: "Nouveau chapitre",
+      timestamp: "00:00 - 04:00",
       description: ""
     }]);
   };
@@ -263,14 +266,12 @@ export function Course() {
       setLoadError(false);
       setFormation(null);
       setChapters([]);
-      setActiveChapter(null);
-      setChapterUrl(null);
       setHasPurchased(false);
       try {
         // 1. Load formation + coach
         const { data: fData, error: fError } = await supabase
           .from("formations")
-          .select("*, coaches(id, name, slug, photo_url, tagline, bio)")
+          .select("*, coaches(id, name, slug, photo_url, tagline, bio, profile_id)")
           .eq("slug", slug)
           .single();
 
@@ -279,7 +280,7 @@ export function Course() {
         // Brouillon (published=false) : invisible en accès direct pour le
         // public — seuls admins et coachs propriétaires peuvent le prévisualiser
         // (le serveur refuse de toute façon l'achat d'un brouillon).
-        if (fData && fData.published === false && !isAdmin && !(profile?.role === 'coach' && fData.coach_id === profile?.id)) {
+        if (fData && fData.published === false && !isAdmin && !(!!user && fData.coaches?.profile_id === user.id)) {
           setFormation(null);
           return;
         }
@@ -354,36 +355,43 @@ export function Course() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--color-bg-base)] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent-primary)]"></div>
-      </div>
+      <section className="v3-first-screen v3-gutter flex w-full items-center justify-center bg-v3-clair" role="status" aria-label="Chargement de la formation">
+        <div className="size-10 animate-spin rounded-full border-2 border-v3-navy/10 border-t-v3-brand" />
+      </section>
     );
   }
 
   if (!formation) {
     return (
-      <div className="min-h-screen bg-[var(--color-bg-base)] flex flex-col items-center justify-center p-6 text-center">
-        <h1 className="text-3xl font-display mb-4 text-white">{loadError ? "La formation n'a pas pu être chargée" : "Formation introuvable"}</h1>
-        {loadError && <Button onClick={() => setLoadAttempt(attempt => attempt + 1)} className="mb-4">Réessayer</Button>}
-        <Link to="/instructional">
-          <Button variant="outline" className="text-white border-white/20">Retour à l'Academy</Button>
-        </Link>
-      </div>
+      <>
+        <Seo title="Formation introuvable — Academy | MMA IQ" canonicalPath={coursePath} />
+        <section className="v3-first-screen v3-gutter flex w-full flex-col justify-center bg-v3-clair py-12 text-v3-navy">
+          <div className="v3-container flex flex-col items-start gap-6">
+            <Breadcrumb tone="light" items={[{ label: "ACADEMY", to: "/academy" }, { label: "FORMATION" }]} />
+            <h1 className="v3-heading">{loadError ? "La formation n’a pas pu être chargée." : "Formation introuvable."}</h1>
+            <p className="v3-body text-v3-ink-muted lg:max-w-[640px]">
+              {loadError ? "Vérifie ta connexion puis réessaie dans un instant." : "Cette formation n’existe pas ou n’est pas encore ouverte au public."}
+            </p>
+            <div className="flex flex-wrap gap-4">
+              {loadError && <Button onClick={() => setLoadAttempt(attempt => attempt + 1)}>Réessayer</Button>}
+              <ButtonLink to="/academy" variant={loadError ? "outline-dark" : "primary"}>Retour à l’Academy</ButtonLink>
+            </div>
+          </div>
+        </section>
+      </>
     );
   }
 
   const coach = formation.coaches;
-  const levelLabels: Record<string, string> = { debutant: 'Débutant', amateur: 'Amateur', pro: 'Pro' };
-  const displayedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(formation.price_cents / 100);
-  const longDescData = typeof formation.long_description === 'string' && formation.long_description.startsWith('{')
-    ? JSON.parse(formation.long_description)
-    : (typeof formation.long_description === 'object' && formation.long_description !== null) 
-      ? formation.long_description 
-      : { content: formation.long_description, bullets: [], access_code: '' };
+  const category = ACADEMY_CATEGORIES.find(item => item.id === categoryOf(formation.discipline)) ?? ACADEMY_CATEGORIES[0];
+  const displayedPrice = formatPrice(formation.price_cents);
+  const readerPath = `/mes-formations/${formation.slug || slug}`;
+  const canRead = hasPurchased || canEdit;
+  const eyebrow = [disciplineLabel(formation.discipline), levelLabel(formation.level)].filter(Boolean).join(" · ").toUpperCase();
 
   // Le code d'accès est validé exclusivement côté serveur : plus aucune
   // comparaison locale ni déblocage localStorage (zéro sécurité côté client).
-  const handleCodeSubmit = async (e: React.FormEvent) => {
+  const handleCodeSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setCodeError(false);
     if (!enteredCode.trim()) return;
@@ -399,6 +407,7 @@ export function Course() {
       if (res.ok) {
         showToast("Code valide ! Formation débloquée.");
         setEnteredCode('');
+        setCodeOpen(false);
         // Recharge l'état d'achat (le serveur vient d'enregistrer l'accès)
         setHasPurchased(await checkPurchase(formation.id));
       } else {
@@ -432,661 +441,455 @@ export function Course() {
     }
   };
 
-  // Sélection d'un chapitre : l'URL signée est récupérée à la demande
-  // (les URLs signées expirent, on ne les précharge pas toutes).
-  const openChapter = async (ch: any) => {
-    if (!user || !session?.access_token) {
-      navigate(signinUrl);
-      return;
-    }
-    if (!hasPurchased && !canEdit) {
-      showToast("Achète la formation ou utilise un code d'accès pour accéder à ce chapitre.");
-      return;
-    }
-    setActiveChapter(ch);
-    setChapterUrl(null);
-    setChapterLoading(true);
-    document.getElementById('course-player')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    try {
-      const { url } = await getVideoUrl(formation.id, ch.id, session.access_token);
-      setChapterUrl(url);
-    } catch (err) {
-      console.error("Erreur de chargement du chapitre:", err);
-      showToast("Impossible de charger la vidéo de ce chapitre.");
-    } finally {
-      setChapterLoading(false);
-    }
-  };
+  // CTA principal : lecture si la formation est dans le compte, achat sinon
+  const primaryCta = canRead ? (
+    <ButtonLink to={readerPath}>Accéder à la formation</ButtonLink>
+  ) : (
+    <Button onClick={handlePurchase} disabled={purchasing} aria-busy={purchasing}>
+      {purchasing && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+      {purchasing ? "Chargement…" : "Acheter la formation"}
+    </Button>
+  );
 
   return (
-    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 min-h-screen selection:bg-[var(--color-accent-primary)] selection:text-white">
-      {/* Admin Toolbar */}
-      {canEdit && (
-        <div className="fixed top-24 left-0 right-0 z-[60] px-6">
-          <div className="max-w-7xl mx-auto flex justify-end gap-4">
-            {isEditing ? (
-              <>
-                <Button 
-                  onClick={() => setIsEditing(false)}
-                  variant="outline"
-                  className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-                >
-                  <X size={20} className="mr-2" /> Annuler
-                </Button>
-                <Button 
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold"
-                >
-                  {saving ? <Loader2 size={20} className="animate-spin mr-2" /> : <Save size={20} className="mr-2" />}
-                  Enregistrer
-                </Button>
-              </>
-            ) : (
-              <Button 
-                onClick={startEditing}
-                className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] text-white font-bold"
-              >
-                <Edit2 size={20} className="mr-2" /> Modifier la page
-              </Button>
-            )}
-          </div>
-        </div>
-      )}
+    <>
+      <Seo
+        title={`${formation.title} — Academy | MMA IQ`}
+        description={formation.description || "Formation vidéo MMA IQ Academy : programme détaillé, achat à l’unité, accès dans ton compte."}
+        canonicalPath={coursePath}
+      />
 
-      {/* Hero Section - Coach Focused */}
-      <section className="relative pt-4 pb-12 md:pb-16 overflow-hidden">
-        {/* Background effects */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl opacity-20 pointer-events-none">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-[var(--color-accent-primary)] blur-[150px] rounded-full"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-red-500 blur-[150px] rounded-full"></div>
-        </div>
-
-        <div className="px-6 max-w-7xl mx-auto relative z-10">
-          <Link to="/instructional" className="inline-flex items-center gap-2 text-sm text-[var(--color-text-secondary)] hover:text-white mb-6"><ArrowLeft size={16} /> Toutes les formations</Link>
-          <div className="flex flex-col lg:flex-row lg:items-center gap-8 mb-10 pb-10 border-b border-white/10">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-[var(--color-accent-primary)] mb-3">MMA IQ Academy · Formation vidéo</p>
-              <h1 className="text-3xl md:text-5xl font-display leading-tight mb-5">{isEditing && editData ? editData.title : formation.title}</h1>
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-[var(--color-text-secondary)]">
-                {formation.level && <span>{levelLabels[formation.level] || formation.level}</span>}
-                {formation.duration && <span className="flex items-center gap-2"><Clock size={16} /> {formation.duration}</span>}
-                {chapters.length > 0 && <span>{chapters.length} chapitre{chapters.length > 1 ? 's' : ''}</span>}
-              </div>
-            </div>
-            {!canEdit && <div className="w-full lg:w-80 shrink-0 rounded-2xl border border-white/15 bg-[var(--color-bg-surface)] p-6">
-              {hasPurchased ? <>
-                <p className="flex items-center gap-2 text-green-400 mb-4"><CheckCircle2 size={18} /> Dans ta bibliothèque</p>
-                <Button onClick={() => document.getElementById('course-programme')?.scrollIntoView({ behavior: 'smooth' })} className="w-full py-3">Voir les chapitres</Button>
-              </> : <>
-                <p className="font-display text-3xl mb-1">{displayedPrice}</p>
-                <p className="text-sm text-[var(--color-text-secondary)] mb-5">Achat unique · Accès dans ton compte</p>
-                <Button onClick={handlePurchase} disabled={purchasing} className="w-full py-3 flex items-center justify-center gap-2 bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)]">
-                  {purchasing ? <Loader2 size={18} className="animate-spin" /> : <ShoppingCart size={18} />}
-                  {purchasing ? 'Chargement…' : 'Acheter la formation'}
-                </Button>
-                <p className="mt-3 text-sm text-[var(--color-text-secondary)]">Séparée de l'abonnement à l'app MMA IQ.</p>
-              </>}
-            </div>}
-          </div>
-          {/* Coach Info (Top) */}
-          {(coach || isEditing) && <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex flex-row gap-4 md:gap-8 items-start text-left mb-8 pb-8 border-b border-white/10"
-          >
-            {/* Coach Photo */}
-            <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden shrink-0 border border-white/10">
-              {coach?.photo_url ? <img loading="lazy" src={coach.photo_url} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : <User className="w-full h-full p-6 text-white/40" />}
-            </div>
-            
-            {/* Coach Details */}
-            <div className="space-y-2 md:space-y-4 flex-1">
-              <div className="flex flex-wrap gap-2 mb-2">
-                <Badge color="red" className="bg-red-500/20 border-red-500/30 text-red-500 uppercase tracking-widest px-3 py-1.5 backdrop-blur-md text-xs shadow-lg">
-                  {isEditing && editData ? (
-                    <select 
-                      value={editData.discipline}
-                      onChange={(e) => setEditData({...editData, discipline: e.target.value})}
-                      className="bg-transparent border-none outline-none text-red-500"
-                    >
-                      <option value="striking">Striking</option>
-                      <option value="grappling">Grappling</option>
-                      <option value="mma-gameplan">MMA Gameplan</option>
-                    </select>
-                  ) : formation.discipline}
-                </Badge>
-                <Badge color="purple" className="bg-purple-500/20 border-purple-500/30 text-purple-400 uppercase tracking-widest px-3 py-1.5 backdrop-blur-md text-xs shadow-lg">
-                  {isEditing && editData ? (
-                    <select 
-                      value={editData.level}
-                      onChange={(e) => setEditData({...editData, level: e.target.value})}
-                      className="bg-transparent border-none outline-none text-purple-400"
-                    >
-                      <option value="debutant">Débutant</option>
-                      <option value="amateur">Amateur</option>
-                      <option value="pro">Pro</option>
-                    </select>
-                  ) : formation.level}
-                </Badge>
-              </div>
-              <div className="text-xs md:text-sm text-[var(--color-accent-primary)] font-bold uppercase tracking-[0.2em]">Profil du Coach</div>
-              <h2 className="text-2xl md:text-4xl font-display leading-tight">
-                {coach?.name}
-              </h2>
-              {isEditing && editData ? (
-                <input 
-                  value={editData.coach_tagline}
-                  onChange={(e) => setEditData({...editData, coach_tagline: e.target.value})}
-                  placeholder="Tagline du coach"
-                  className="text-sm md:text-lg text-[var(--color-accent-primary)] font-display italic bg-white/5 border border-white/10 rounded-xl px-3 py-1 w-full outline-none focus:border-[var(--color-accent-primary)]"
-                />
-              ) : (
-                <p className="text-sm md:text-lg text-[var(--color-accent-primary)] font-display italic">
-                  {coach?.tagline}
-                </p>
-              )}
-              
-              <div className="prose prose-invert max-w-none">
-                {isEditing && editData ? (
-                  <textarea 
-                    value={editData.coach_bio}
-                    onChange={(e) => setEditData({...editData, coach_bio: e.target.value})}
-                    placeholder="Bio du coach"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs md:text-sm text-white/70 outline-none focus:border-[var(--color-accent-primary)] h-20"
-                  />
-                ) : (
-                  <p className="text-xs md:text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
-                    {coach?.bio}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex flex-wrap justify-start gap-2 md:gap-4 pt-1">
-                {coach?.slug && <Link to={`/coaches/${coach.slug}`}>
-                  <Button className="bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-full px-4 py-1.5 font-bold transition-all flex items-center gap-2 text-xs md:text-sm">
-                    <User size={14} />
-                    Voir son profil
+      {isEditing && editData ? (
+        <CourseEditor
+          editData={editData}
+          setEditData={setEditData}
+          editChapters={editChapters}
+          hasCoach={Boolean(formation.coaches)}
+          saving={saving}
+          onSave={handleSave}
+          onCancel={() => setIsEditing(false)}
+          onAddChapter={addChapter}
+          onRemoveChapter={removeChapter}
+          onUpdateChapter={updateChapter}
+        />
+      ) : (
+        <>
+          {/* 01 · Fiche et extrait */}
+          <section className="v3-first-screen v3-gutter flex w-full flex-col justify-center bg-v3-clair py-6 text-v3-navy lg:py-[72px]">
+            <div className="v3-container flex flex-col gap-4 lg:gap-10">
+              {canEdit && (
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="v3-label text-v3-ink-muted">{formation.published === false ? "BROUILLON · " : ""}ÉDITION</span>
+                  <Button compact variant="outline-dark" onClick={startEditing}>
+                    <Pencil aria-hidden="true" className="size-4" /> Modifier la page
                   </Button>
-                </Link>}
-              </div>
-            </div>
-          </motion.div>}
-
-          <div className="flex flex-col md:flex-row gap-8 md:gap-16 items-center md:items-start">
-            {/* Left Column: Photo, Title, About */}
-            <div className="w-full md:max-w-[280px] shrink-0 flex flex-col items-center md:items-start space-y-8">
-              {/* Photo & Badges */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8 }}
-                className="w-full max-w-[200px] md:max-w-full relative aspect-video rounded-3xl overflow-hidden border border-white/10 group"
-              >
-                {isEditing && editData ? (
-                  <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-                    <div className="w-full space-y-2">
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 text-center">Miniature</label>
-                      <MediaUploader 
-                        accept="image"
-                        bucket="admin-media"
-                        onUpload={(url) => setEditData(prev => prev ? {...prev, thumbnail_url: url} : prev)}
-                        currentMedia={editData.thumbnail_url}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <img loading="lazy" 
-                    src={formation.thumbnail_url || "https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/default-formation.jpg"} 
-                    alt={formation.title} 
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-              </motion.div>
-
-              {/* Formation Actuelle */}
-              <div className="w-full text-center md:text-left space-y-6 pt-4 border-t border-white/10">
-                <div>
-                  <div className="text-sm text-[var(--color-text-secondary)] uppercase tracking-widest font-bold mb-4">Formation Actuelle</div>
-                  {isEditing && editData ? (
-                    <input 
-                      value={editData.title}
-                      onChange={(e) => setEditData({...editData, title: e.target.value})}
-                      className="text-3xl md:text-4xl font-display bg-white/5 border border-white/10 rounded-2xl px-4 py-2 w-full outline-none focus:border-[var(--color-accent-primary)] transition-colors text-center md:text-left"
-                    />
-                  ) : (
-                    <h2 className="text-3xl md:text-4xl font-display leading-tight">{formation.title}</h2>
-                  )}
                 </div>
-
-                <div className="flex flex-wrap justify-center md:justify-start items-center gap-6">
-                  <div className="flex items-center gap-2 text-white/60">
-                    <Clock size={20} className="text-[var(--color-accent-primary)]" />
-                    {isEditing && editData ? (
-                      <input 
-                        value={editData.duration || ""}
-                        onChange={(e) => setEditData({...editData, duration: e.target.value})}
-                        className="text-base font-bold bg-white/5 border border-white/10 rounded-lg px-2 py-1 w-24 outline-none focus:border-[var(--color-accent-primary)]"
-                      />
-                    ) : (
-                      <span className="text-base font-bold">{formation.duration || "—"}</span>
+              )}
+              <Breadcrumb
+                tone="light"
+                className="whitespace-pre"
+                items={[{ label: "ACADEMY", to: "/academy" }, { label: category.title.toUpperCase(), to: `/academy?categorie=${category.id}` }]}
+              />
+              <div className="flex flex-col gap-6 lg:flex-row-reverse lg:items-start lg:gap-16">
+                <div className="flex flex-col items-start gap-4 lg:min-w-[440px] lg:flex-[0_1_556px] lg:gap-6">
+                  <p className="v3-label text-v3-ink-muted">
+                    {eyebrow}
+                    {coach?.slug && (
+                      <>
+                        {" · "}
+                        <Link to={`/coaches/${coach.slug}`} className="underline-offset-4 hover:text-v3-navy hover:underline">
+                          AVEC {coach.name.toUpperCase()}
+                        </Link>
+                      </>
                     )}
-                  </div>
-                  {/* Pas de note/avis tant qu'aucun vrai système d'avis n'existe :
-                      un rating saisi à la main détruirait la crédibilité du site. */}
+                  </p>
+                  <h1 className="v3-heading">{formation.title}</h1>
+                  {formation.description && (
+                    <p className="text-[16px] leading-6 text-v3-ink-muted lg:max-w-[540px] lg:text-[18px] lg:leading-7">{formation.description}</p>
+                  )}
+                  <p className="v3-heading">{hasPurchased && !canEdit ? "Formation acquise" : displayedPrice}</p>
+                  <p className="v3-label text-v3-ink-muted">{hasPurchased && !canEdit ? "Accès illimité dans ton compte" : "Achat unique · Accès dans ton compte"}</p>
+                  {primaryCta}
+                  <p className="v3-small text-v3-ink-muted lg:max-w-[540px]">
+                    {canRead ? (
+                      <>Retrouve aussi toutes tes formations dans <Link to="/mes-formations" className="underline underline-offset-4 hover:text-v3-navy">Mes formations</Link>.</>
+                    ) : (
+                      <>
+                        Formation vendue à l’unité, séparément de l’abonnement à l’app.{" "}
+                        <button type="button" onClick={() => { setCodeError(false); setCodeOpen(true); }} aria-haspopup="dialog" className="font-medium text-v3-navy underline underline-offset-4 hover:text-v3-brand">
+                          J’ai un code d’accès
+                        </button>
+                      </>
+                    )}
+                  </p>
                 </div>
 
-                {/* À propos de cette formation */}
-                <div className="pt-6 space-y-4">
-                  <h3 className="text-xl font-display text-white/90">À propos de cette formation</h3>
-                  {isEditing && editData ? (
-                    <textarea 
-                      value={editData.description}
-                      onChange={(e) => setEditData({...editData, description: e.target.value})}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm text-white outline-none focus:border-[var(--color-accent-primary)] h-32 text-center md:text-left"
+                <div className="flex w-full flex-col items-start gap-4 lg:w-auto lg:min-w-0 lg:flex-[0_1_660px]">
+                  <div className="relative h-[176px] w-full overflow-hidden rounded-[16px] bg-v3-navy/5 md:h-[360px] lg:aspect-[660/490] lg:h-auto">
+                    <img
+                      src={formation.thumbnail_url || FALLBACK_IMAGE}
+                      alt={`Aperçu de la formation « ${formation.title} »`}
+                      fetchPriority="high"
+                      referrerPolicy="no-referrer"
+                      className="absolute inset-0 size-full object-cover"
                     />
-                  ) : (
-                    <p className="text-sm text-white/70 leading-relaxed">
-                      {formation.description}
-                    </p>
+                  </div>
+                  {formation.trailer_url && (
+                    <Button onClick={() => setPreviewOpen(true)} aria-haspopup="dialog">Voir l’aperçu</Button>
                   )}
                 </div>
               </div>
             </div>
+          </section>
 
-            {/* Right Column: What you'll learn */}
-            <div className="flex-1 w-full space-y-12">
-
-              {/* Teaser Video */}
-              {isEditing ? (
-                <div className="w-full aspect-video bg-white/5 border border-white/10 rounded-3xl overflow-hidden relative flex flex-col items-center justify-center">
-                  <div className="absolute inset-0 z-20 flex items-center justify-center p-8 bg-black/60 backdrop-blur-md">
-                    <div className="w-full space-y-2">
-                      <label className="block text-xs font-bold uppercase tracking-widest text-[var(--color-accent-primary)] text-center mb-4">
-                        Teaser de la formation (Public)
-                      </label>
-                      {editData && (
-                        <MediaUploader 
-                          accept="video"
-                          bucket="formations-videos"
-                          onUpload={(url) => setEditData(prev => prev ? {...prev, trailer_url: url} : prev)}
-                          currentMedia={editData.trailer_url}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ) : formation?.trailer_url ? (
-                <div className="w-full aspect-video rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 relative bg-black">
-                  {trailerLoading ? (
-                    <div role="status" aria-label="Chargement de l'extrait" className="w-full h-full flex items-center justify-center">
-                      <Loader2 size={32} className="animate-spin text-[var(--color-accent-primary)]" />
-                    </div>
-                  ) : publicTrailerUrl || (user && trailerUrl) ? (
-                    <>
-                      <VideoPlayer url={publicTrailerUrl || trailerUrl || ''} poster={formation.thumbnail_url} className="w-full h-full" />
-                      <div className="absolute top-3 right-3 bg-black/80 text-white text-xs font-semibold px-3 py-1.5 rounded-full pointer-events-none">Extrait gratuit</div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center gap-3">
-                      <PlayCircle size={32} className="text-[var(--color-accent-primary)]" />
-                      <p className="text-sm text-[var(--color-text-secondary)]">L'extrait n'est pas disponible en accès public pour le moment. Tu peux consulter le programme ci-dessous.</p>
-                    </div>
-                  )}
-                </div>
-              ) : null}
-
-              {/* Ce que vous allez apprendre */}
-              <div className="pt-12 border-t border-white/10">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-2xl font-display">Ce que vous allez apprendre</h2>
-                </div>
-                
-                <div className="grid grid-cols-1 gap-4">
-                  {(isEditing && editData ? editData.bullets : longDescData.bullets)?.map((bullet: string, i: number) => (
-                    <div key={i} className="flex gap-4 group">
-                      <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center text-green-500 shrink-0 mt-0.5">
-                        <Check size={14} />
-                      </div>
-                      {isEditing && editData ? (
-                        <div className="flex-1 flex gap-2">
-                          <input 
-                            value={bullet}
-                            onChange={(e) => {
-                              const newBullets = [...editData.bullets];
-                              newBullets[i] = e.target.value;
-                              setEditData({...editData, bullets: newBullets});
-                            }}
-                            className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-sm text-white outline-none focus:border-[var(--color-accent-primary)]"
-                          />
-                          <button 
-                            onClick={() => setEditData({...editData, bullets: editData.bullets.filter((_: any, idx: number) => idx !== i)})}
-                            className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-white/80 leading-snug font-medium">{bullet}</p>
-                      )}
-                    </div>
-                  ))}
-                  {isEditing && editData && (
-                    <button 
-                      onClick={() => setEditData({...editData, bullets: [...editData.bullets, ""]})}
-                      className="flex items-center gap-2 p-3 rounded-xl border-2 border-dashed border-white/10 text-white/40 hover:text-white hover:border-[var(--color-accent-primary)] transition-all text-sm"
-                    >
-                      <Plus size={16} /> Ajouter un point
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <div className="px-6 max-w-4xl mx-auto py-8 md:py-12 space-y-8">
-        <div id="course-player" className="w-full scroll-mt-28">
-          {/* Les chapitres restent soumis à l'achat et à la vérification serveur. */}
-          {(activeChapter || isEditing) && <section className="space-y-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <h2 className="text-3xl font-display flex items-center gap-4">
-                <PlayCircle size={32} className="text-[var(--color-accent-primary)]" />
-                {activeChapter ? `Chapitre : ${activeChapter.title}` : (isEditing && editData ? editData.title : formation.title)}
-              </h2>
-              {activeChapter && (
-                <button
-                  onClick={() => { setActiveChapter(null); setChapterUrl(null); }}
-                  className="text-sm font-bold text-[var(--color-text-secondary)] hover:text-white transition-colors uppercase tracking-widest"
-                >
-                  Retour à la vue globale
-                </button>
-              )}
-            </div>
-            
-            <div className="relative aspect-video rounded-2xl md:rounded-3xl overflow-hidden border border-white/5 bg-black group">
-              {isEditing && editData ? (
-                <div className="absolute inset-0 z-20 bg-black/80 backdrop-blur-md flex items-center justify-center p-12">
-                  <div className="w-full max-w-md space-y-4">
-                    <label className="block text-sm font-bold uppercase tracking-widest text-white/50 text-center">Changer la vidéo de la formation (principale)</label>
-                    <MediaUploader 
-                      accept="video"
-                      bucket="formations-videos"
-                      onUpload={(url) => setEditData(prev => prev ? {...prev, trailer_url: url} : prev)}
-                      currentMedia={editData.trailer_url}
-                    />
-                  </div>
-                </div>
+          {/* 02 · Programme de la formation */}
+          <section id="programme" className="v3-gutter w-full scroll-mt-[72px] bg-v3-fond py-12 text-white lg:scroll-mt-[104px] lg:py-[72px]">
+            <div className="v3-container flex flex-col items-start gap-6 lg:gap-10">
+              <p className="v3-label text-v3-lavender">LE PROGRAMME</p>
+              <h2 className={SECTION_TITLE}>Ce que tu vas travailler.</h2>
+              {chapters.length > 0 ? (
+                <ol className="flex w-full flex-col gap-6 lg:gap-10">
+                  {chapters.map((ch: any, idx: number) => {
+                    const row = (
+                      <>
+                        <span className="v3-label shrink-0 text-v3-lavender">{String(idx + 1).padStart(2, "0")}</span>
+                        <span className={cx("text-[26px] font-semibold leading-8 text-white lg:min-w-0 lg:flex-[0_1_480px]", canRead && "transition-colors group-hover:text-v3-lavender")}>{ch.title}</span>
+                        <span className="v3-body text-v3-muted lg:min-w-0 lg:flex-[0_1_640px]">
+                          {[ch.timestamp, ch.description].filter(Boolean).join(" · ")}
+                        </span>
+                      </>
+                    );
+                    return (
+                      <li key={ch.id ?? idx} className="border-t border-v3-border pt-6 lg:pt-10">
+                        {canRead ? (
+                          <Link to={`${readerPath}?chapitre=${idx + 1}`} className="group flex flex-col items-start gap-8 lg:flex-row">
+                            {row}
+                            <ArrowUpRight aria-hidden="true" strokeWidth={2.2} className="hidden size-5 shrink-0 text-v3-lavender lg:ml-auto lg:block" />
+                          </Link>
+                        ) : (
+                          <div className="flex flex-col items-start gap-8 lg:flex-row">{row}</div>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ol>
               ) : (
-                <>
-                  {(chapterLoading || (!activeChapter && trailerLoading)) ? (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Loader2 size={40} className="animate-spin text-[var(--color-accent-primary)]" />
-                    </div>
-                  ) : (
-                    <VideoPlayer
-                      url={activeChapter ? (chapterUrl || '') : (trailerUrl || '')}
-                      poster={formation.thumbnail_url}
-                      className="w-full h-full"
-                    />
-                  )}
-                  {!user && (
-                    <div className="absolute inset-0 z-30 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
-                      <Lock className="text-[var(--color-accent-primary)] mb-4" size={48} />
-                      <h3 className="text-2xl font-display mb-2">Contenu verrouillé</h3>
-                      <p className="text-white/70 mb-6 max-w-sm">Connecte-toi pour retrouver tes formations et accéder aux chapitres achetés.</p>
-                      <Link to={signinUrl}>
-                        <Button className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] text-white font-bold rounded-xl px-6 py-3">
-                          Se connecter
-                        </Button>
-                      </Link>
-                    </div>
-                  )}
-                  {user && !hasPurchased && !canEdit && (
-                    <div className="absolute inset-0 z-30 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
-                      <Lock className="text-[var(--color-accent-primary)] mb-4" size={48} />
-                      <h3 className="text-2xl font-display mb-2">Contenu verrouillé</h3>
-                      <p className="text-white/70 mb-6 max-w-sm">Achète la formation ou entre ton code d'accès pour débloquer les chapitres.</p>
-                      <form onSubmit={handleCodeSubmit} className="flex gap-2 w-full max-w-xs">
-                        <input
-                          type="text"
-                          aria-label="Code d'accès à la formation"
-                          placeholder="Entrez votre code"
-                          value={enteredCode}
-                          onChange={(e) => setEnteredCode(e.target.value)}
-                          className="flex-1 min-w-0 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
-                        />
-                        <Button type="submit" disabled={redeeming} className="bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] disabled:opacity-50">
-                          {redeeming ? <Loader2 size={18} className="animate-spin" /> : "Débloquer"}
-                        </Button>
-                      </form>
-                      {codeError && <p className="text-red-500 mt-2 text-sm">Code incorrect</p>}
-                    </div>
-                  )}
-                </>
+                <p className="v3-body w-full border-t border-v3-border pt-6 text-v3-muted lg:pt-10">Le programme détaillé de cette formation sera publié prochainement.</p>
               )}
+              <ButtonLink to="/academy" variant="light">Retour à l’Academy</ButtonLink>
             </div>
+          </section>
 
-            {activeChapter && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mt-6">
-                <h3 className="text-xl font-display mb-2">{activeChapter.title}</h3>
-                <p className="text-white/70 leading-relaxed whitespace-pre-wrap">{activeChapter.description}</p>
-              </div>
-            )}
-          </section>}
-        </div>
-
-        {/* Chapters Section */}
-        <div id="course-programme" className="w-full scroll-mt-28">
-          <div className="bg-[var(--color-bg-surface)] border border-white/5 rounded-3xl p-5 md:p-10">
-            <div className="flex items-center justify-between mb-10">
-              <h3 className="text-2xl font-display">Programme</h3>
-              <div className="flex items-center gap-3">
-                <Badge color="gray" className="bg-white/5 border-white/10 text-white/50">{(isEditing && editData ? editChapters : chapters).length} chapitres</Badge>
-                {isEditing && editData && (
-                  <button 
-                    onClick={addChapter}
-                    className="p-2 bg-[var(--color-accent-primary)]/20 text-[var(--color-accent-primary)] rounded-xl hover:bg-[var(--color-accent-primary)]/30 transition-colors"
-                  >
-                    <Plus size={20} />
-                  </button>
-                )}
-              </div>
+          {/* 03 · Poursuivre */}
+          <section className="v3-gutter w-full bg-v3-accent py-12 text-white lg:py-[72px]">
+            <div className="v3-container flex flex-col items-start gap-6 lg:gap-10">
+              <h2 className={SECTION_TITLE}>Le geste s’apprend.<br />Le progrès se construit.</h2>
+              <p className="v3-body lg:max-w-[900px]">Retrouve ta formation dans ton compte, sur mobile, tablette et ordinateur.</p>
+              {primaryCta}
             </div>
-
-            <div className="space-y-4">
-              {(isEditing && editData ? editChapters : chapters).map((ch: any, idx: number) => {
-                const isActive = activeChapter?.id === ch.id;
-
-                if (isEditing && editData) {
-                  return (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4 relative group">
-                      <button 
-                        onClick={() => removeChapter(idx)}
-                        className="absolute top-4 right-4 text-white/20 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                      
-                      <div className="space-y-4">
-                        <input 
-                          value={ch.title}
-                          onChange={(e) => updateChapter(idx, 'title', e.target.value)}
-                          placeholder="Titre du chapitre"
-                          className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
-                        />
-                        <div className="flex flex-wrap gap-2 items-center text-sm">
-                          <input 
-                            value={ch.timestamp || "00:00-00:00"}
-                            onChange={(e) => updateChapter(idx, 'timestamp', e.target.value)}
-                            placeholder="00:00-00:00"
-                            className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-white outline-none focus:border-[var(--color-accent-primary)]"
-                          />
-                        </div>
-                        <textarea 
-                          value={ch.description || ""}
-                          onChange={(e) => updateChapter(idx, 'description', e.target.value)}
-                          placeholder="Description..."
-                          className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-[var(--color-accent-primary)] h-24"
-                        />
-                        <div className="space-y-2">
-                          <label className="text-xs text-white/50 uppercase tracking-widest font-bold">Vidéo du chapitre</label>
-                          <MediaUploader 
-                            accept="video"
-                            bucket="formations-videos"
-                            onUpload={(url) => updateChapter(idx, 'video_url', url)}
-                            currentMedia={ch.video_url}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                return (
-                  <button
-                    key={ch.id}
-                    onClick={() => openChapter(ch)}
-                    className={`w-full flex items-center gap-5 p-5 rounded-[1.5rem] transition-all text-left border group ${
-                      isActive 
-                        ? "bg-[var(--color-accent-primary)]/10 border-[var(--color-accent-primary)]/30 text-white" 
-                        : "bg-white/[0.02] border-transparent hover:bg-white/5 hover:border-white/10"
-                    }`}
-                  >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
-                      isActive ? "bg-[var(--color-accent-primary)] text-white" : "bg-black/40 text-[var(--color-text-secondary)] group-hover:text-white"
-                    }`}>
-                      {idx + 1}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-base font-bold truncate ${isActive ? "text-white" : "text-[var(--color-text-secondary)] group-hover:text-white"}`}>
-                        {ch.title}
-                      </div>
-                      {ch.timestamp && (
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs text-[var(--color-text-secondary)]">
-                            {ch.timestamp}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Price Section at the bottom */}
-      {!hasPurchased && (
-        <section className="px-6 max-w-7xl mx-auto py-12 md:py-16 border-t border-white/5">
-          <div className="bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-base)] border border-[var(--color-accent-primary)]/30 rounded-[2rem] p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_0_50px_rgba(123,47,255,0.1)]">
-            <div className="text-center md:text-left">
-              <h2 className="text-2xl md:text-3xl font-display mb-2">Prêt à passer au niveau supérieur ?</h2>
-              <p className="text-base text-[var(--color-text-secondary)] max-w-lg">
-                Retrouve tous les chapitres de cette formation dans ton compte Academy. L'achat est séparé de l'abonnement à l'app.
-              </p>
-            </div>
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-6 text-center min-w-[250px] w-full md:w-auto">
-              <div className="text-xs text-[var(--color-text-secondary)] uppercase tracking-widest font-bold mb-2">Prix de la formation</div>
-              <div className="text-4xl font-display mb-6 text-white">
-                {isEditing && editData ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <input 
-                      type="number"
-                      value={editData.price_cents / 100}
-                      onChange={(e) => setEditData({...editData, price_cents: Math.round(parseFloat(e.target.value) * 100)})}
-                      className="w-24 bg-white/5 border border-white/10 rounded-xl px-2 py-1 text-3xl outline-none text-center"
-                    />
-                    <span>€</span>
-                  </div>
-                ) : displayedPrice}
-              </div>
-              {!canEdit && (
-                <div className="space-y-4">
-                  <Button 
-                    onClick={handlePurchase}
-                    disabled={purchasing}
-                    className="w-full py-4 rounded-xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] text-white font-bold text-base shadow-[0_10px_20px_-10px_rgba(123,47,255,0.5)] transition-all flex items-center justify-center gap-2"
-                  >
-                    <ShoppingCart size={18} />
-                    {purchasing ? 'Chargement…' : 'Acheter la formation'}
-                  </Button>
-                  
-                  <div className="pt-4 border-t border-white/10">
-                    <p className="text-xs text-[var(--color-text-secondary)] mb-3">Vous avez un code d'accès ?</p>
-                    <form onSubmit={handleCodeSubmit} className="flex gap-2">
-                      <input 
-                        type="text" 
-                        aria-label="Code d'accès à la formation"
-                        placeholder="Entrez votre code"
-                        value={enteredCode}
-                        onChange={(e) => setEnteredCode(e.target.value)}
-                        className={`flex-1 min-w-0 bg-[var(--color-bg-base)] border rounded-lg px-3 py-2 text-sm outline-none transition-colors ${codeError ? 'border-red-500 focus:border-red-500' : 'border-white/10 focus:border-[var(--color-accent-primary)]'}`}
-                      />
-                      <button type="submit" disabled={redeeming} className="border border-white/20 hover:bg-white/10 text-xs px-3 rounded-lg text-white font-semibold transition-colors disabled:opacity-50">
-                        {redeeming ? "..." : "Valider"}
-                      </button>
-                    </form>
-                    {codeError && <p className="text-red-500 text-xs mt-2 text-left">Code invalide. Veuillez réessayer.</p>}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
+          </section>
+        </>
       )}
 
-      {/* Modale d'échec d'achat (placeholder ou erreur réelle) */}
-      <AnimatePresence>
-        {purchaseModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setPurchaseModal(null)}
-              className="absolute inset-0 bg-black/90 backdrop-blur-md"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-[var(--color-bg-surface)] border border-[var(--color-accent-primary)]/30 rounded-[3rem] p-12 max-w-lg w-full text-center shadow-[0_0_100px_rgba(123,47,255,0.3)]"
-            >
-              <div className="w-24 h-24 bg-[var(--color-accent-primary)]/10 rounded-full flex items-center justify-center mx-auto mb-8 text-[var(--color-accent-primary)]">
-                <AlertCircle size={48} />
+      <PreviewDialog
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        title={formation.title}
+        poster={formation.thumbnail_url || FALLBACK_IMAGE}
+        url={publicTrailerUrl || (user ? trailerUrl : null)}
+        loading={trailerLoading}
+        signedIn={Boolean(user)}
+        signinUrl={signinUrl}
+      />
+
+      <AccessCodeDialog
+        open={codeOpen}
+        onClose={() => setCodeOpen(false)}
+        title={formation.title}
+        signedIn={Boolean(user && session?.access_token)}
+        signinUrl={signinUrl}
+        signupUrl={signupUrl}
+        code={enteredCode}
+        onCodeChange={(value) => { setEnteredCode(value); setCodeError(false); }}
+        error={codeError}
+        redeeming={redeeming}
+        onSubmit={handleCodeSubmit}
+      />
+
+      <PurchaseErrorDialog kind={purchaseModal} onClose={() => setPurchaseModal(null)} />
+    </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Fenêtres                                                             */
+/* ------------------------------------------------------------------ */
+
+function CloseButton({ onClose }: { onClose: () => void }) {
+  return (
+    <Button onClick={onClose}>
+      <span>Fermer <span aria-hidden="true">×</span></span>
+    </Button>
+  );
+}
+
+/** « Lecteur · Aperçu visuel » : l’extrait gratuit de la formation. */
+function PreviewDialog({ open, onClose, title, poster, url, loading, signedIn, signinUrl }: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  poster: string;
+  url: string | null;
+  loading: boolean;
+  signedIn: boolean;
+  signinUrl: string;
+}) {
+  const titleId = useDialogTitleId("apercu-formation");
+  return (
+    <Dialog open={open} onClose={onClose} labelledBy={titleId} panelClassName={DIALOG_PANEL}>
+      <div className="flex flex-col items-start gap-6">
+        <CloseButton onClose={onClose} />
+        <p className="v3-label text-v3-ink-muted">EXTRAIT GRATUIT</p>
+        <h2 id={titleId} className={DIALOG_TITLE}>{title}</h2>
+        <div className="relative aspect-video w-full overflow-hidden rounded-[16px] bg-v3-navy">
+          {loading ? (
+            <div role="status" aria-label="Chargement de l’extrait" className="flex size-full items-center justify-center">
+              <Loader2 aria-hidden="true" className="size-8 animate-spin text-v3-lavender" />
+            </div>
+          ) : url ? (
+            <VideoPlayer url={url} poster={poster} className="size-full" />
+          ) : (
+            <>
+              <img src={poster} alt="" referrerPolicy="no-referrer" className="absolute inset-0 size-full object-cover opacity-40" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center text-white">
+                <p className="v3-label">
+                  {signedIn ? "L’extrait n’a pas pu être chargé. Réessaie dans un instant." : "Connecte-toi pour regarder l’extrait de cette formation."}
+                </p>
+                {!signedIn && <ButtonLink to={signinUrl} variant="light" compact>Se connecter</ButtonLink>}
               </div>
-              {purchaseModal === 'unconfigured' ? (
-                <>
-                  <h3 className="text-3xl font-display mb-6">Paiement bientôt disponible</h3>
-                  <p className="text-lg text-[var(--color-text-secondary)] mb-10 leading-relaxed">
-                    Nous finalisons actuellement notre système de paiement sécurisé.
-                    Revenez très bientôt pour débloquer vos formations <span className="font-days-one tracking-normal">MMA IQ</span>!
-                  </p>
-                </>
-              ) : (
-                <>
-                  <h3 className="text-3xl font-display mb-6">Paiement momentanément indisponible</h3>
-                  <p className="text-lg text-[var(--color-text-secondary)] mb-10 leading-relaxed">
-                    Réessaie dans un instant.
-                  </p>
-                </>
-              )}
-              <Button
-                onClick={() => setPurchaseModal(null)}
-                className="w-full py-5 rounded-2xl bg-[var(--color-accent-primary)] hover:bg-[var(--color-violet-600)] font-bold text-lg"
-              >
-                Compris !
-              </Button>
-            </motion.div>
-          </div>
+            </>
+          )}
+        </div>
+        <p className="v3-body text-v3-ink-muted">Un aperçu de la formation. Les chapitres complets sont accessibles dans ton compte après l’achat.</p>
+        <Button onClick={onClose}>Retour à la formation</Button>
+      </div>
+    </Dialog>
+  );
+}
+
+/** « Academy · Code de démonstration » : ajout d’une formation avec un code d’accès. */
+function AccessCodeDialog({ open, onClose, title, signedIn, signinUrl, signupUrl, code, onCodeChange, error, redeeming, onSubmit }: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  signedIn: boolean;
+  signinUrl: string;
+  signupUrl: string;
+  code: string;
+  onCodeChange: (value: string) => void;
+  error: boolean;
+  redeeming: boolean;
+  onSubmit: (event: FormEvent) => void;
+}) {
+  const titleId = useDialogTitleId("code-acces");
+  return (
+    <Dialog open={open} onClose={onClose} labelledBy={titleId} panelClassName={DIALOG_PANEL}>
+      <div className="flex flex-col items-start gap-6">
+        <CloseButton onClose={onClose} />
+        <p className="v3-label text-v3-ink-muted">ACCÈS À UNE FORMATION</p>
+        <h2 id={titleId} className="text-[26px] font-semibold leading-8 lg:text-[48px] lg:leading-[54px] lg:tracking-[-1px]">Ajouter une formation</h2>
+        {signedIn ? (
+          <form onSubmit={onSubmit} className="flex w-full flex-col items-start gap-6" noValidate>
+            <p className="v3-body text-v3-ink-muted">Saisis le code d’accès que tu as reçu pour ajouter « {title} » à ton compte.</p>
+            <div className="w-full">
+              <label htmlFor="code-acces-formation" className="v3-field-label">Code d’accès</label>
+              <input
+                id="code-acces-formation"
+                data-autofocus
+                className="v3-input"
+                value={code}
+                onChange={(e) => onCodeChange(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+                required
+                aria-invalid={error}
+                aria-describedby={error ? "code-acces-erreur" : undefined}
+              />
+              {error && <p id="code-acces-erreur" role="alert" className="v3-small mt-2 text-[#c0392b]">Code invalide. Vérifie-le et réessaie.</p>}
+            </div>
+            <Button type="submit" disabled={redeeming || !code.trim()} aria-busy={redeeming}>
+              {redeeming && <Loader2 aria-hidden="true" className="size-4 animate-spin" />}
+              {redeeming ? "Vérification…" : "Appliquer le code"}
+            </Button>
+          </form>
+        ) : (
+          <>
+            <p className="v3-body text-v3-ink-muted">Connecte-toi ou crée ton compte pour ajouter « {title} » avec ton code d’accès.</p>
+            <div className="flex flex-wrap gap-4">
+              <ButtonLink to={signinUrl}>Se connecter</ButtonLink>
+              <ButtonLink to={signupUrl} variant="outline-dark">Créer un compte</ButtonLink>
+            </div>
+          </>
         )}
-      </AnimatePresence>
+      </div>
+    </Dialog>
+  );
+}
+
+function PurchaseErrorDialog({ kind, onClose }: { kind: 'unconfigured' | 'error' | null; onClose: () => void }) {
+  const titleId = useDialogTitleId("paiement-formation");
+  return (
+    <Dialog open={kind !== null} onClose={onClose} labelledBy={titleId} panelClassName={DIALOG_PANEL}>
+      <div className="flex flex-col items-start gap-6">
+        <p className="v3-label text-v3-ink-muted">PAIEMENT</p>
+        <h2 id={titleId} className={DIALOG_TITLE}>
+          {kind === 'unconfigured' ? "Paiement bientôt disponible" : "Paiement momentanément indisponible"}
+        </h2>
+        <p className="v3-body text-v3-ink-muted">
+          {kind === 'unconfigured'
+            ? "Nous finalisons notre système de paiement sécurisé. Reviens très bientôt pour débloquer tes formations MMA IQ."
+            : "Réessaie dans un instant."}
+        </p>
+        <Button onClick={onClose}>Compris</Button>
+      </div>
+    </Dialog>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Édition admin / coach propriétaire                                   */
+/* ------------------------------------------------------------------ */
+
+function CourseEditor({ editData, setEditData, editChapters, hasCoach, saving, onSave, onCancel, onAddChapter, onRemoveChapter, onUpdateChapter }: {
+  editData: any;
+  setEditData: (updater: any) => void;
+  editChapters: any[];
+  hasCoach: boolean;
+  saving: boolean;
+  onSave: () => void;
+  onCancel: () => void;
+  onAddChapter: () => void;
+  onRemoveChapter: (idx: number) => void;
+  onUpdateChapter: (idx: number, field: string, value: any) => void;
+}) {
+  const set = (field: string, value: any) => setEditData((prev: any) => ({ ...prev, [field]: value }));
+  const actions = (
+    <div className="flex flex-wrap gap-3">
+      <Button variant="outline" compact onClick={onCancel}><X aria-hidden="true" className="size-4" /> Annuler</Button>
+      <Button compact onClick={onSave} disabled={saving} aria-busy={saving}>
+        {saving ? <Loader2 aria-hidden="true" className="size-4 animate-spin" /> : <Save aria-hidden="true" className="size-4" />}
+        Enregistrer
+      </Button>
     </div>
+  );
+  const field = (id: string, label: string, input: ReactNode) => (
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="v3-label text-v3-muted">{label}</label>
+      {input}
+    </div>
+  );
+
+  return (
+    <section className="v3-gutter w-full bg-v3-surface py-12 text-white lg:py-[72px]">
+      <div className="v3-container flex flex-col gap-10">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-2">
+            <p className="v3-label text-v3-lavender">ÉDITION DE LA FORMATION</p>
+            <h1 className="v3-heading">{editData.title || "Formation"}</h1>
+          </div>
+          {actions}
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          {field("edit-title", "Titre", <input id="edit-title" className="v3-input-dark" value={editData.title ?? ""} onChange={(e) => set("title", e.target.value)} />)}
+          {field("edit-duration", "Durée (ex. 45m)", <input id="edit-duration" className="v3-input-dark" value={editData.duration ?? ""} onChange={(e) => set("duration", e.target.value)} />)}
+          {field("edit-discipline", "Discipline", (
+            <select id="edit-discipline" className="v3-input-dark" value={editData.discipline ?? ""} onChange={(e) => set("discipline", e.target.value)}>
+              {Object.entries(DISCIPLINE_LABELS).map(([value, label]) => <option key={value} value={value} className="text-v3-navy">{label}</option>)}
+            </select>
+          ))}
+          {field("edit-level", "Niveau", (
+            <select id="edit-level" className="v3-input-dark" value={editData.level ?? ""} onChange={(e) => set("level", e.target.value)}>
+              {Object.entries(LEVEL_LABELS).map(([value, label]) => <option key={value} value={value} className="text-v3-navy">{label}</option>)}
+            </select>
+          ))}
+          {field("edit-price", "Prix (€)", (
+            <input id="edit-price" type="number" min={0} step="0.01" className="v3-input-dark" value={editData.price_cents / 100} onChange={(e) => set("price_cents", Math.round(parseFloat(e.target.value) * 100))} />
+          ))}
+          {field("edit-code", "Code d’accès (validé côté serveur)", <input id="edit-code" className="v3-input-dark" value={editData.access_code ?? ""} onChange={(e) => set("access_code", e.target.value)} />)}
+          <div className="lg:col-span-2">
+            {field("edit-description", "Description courte", <textarea id="edit-description" rows={3} className="v3-input-dark" value={editData.description ?? ""} onChange={(e) => set("description", e.target.value)} />)}
+          </div>
+          <div className="lg:col-span-2">
+            {field("edit-long", "Présentation du programme", <textarea id="edit-long" rows={4} className="v3-input-dark" value={editData.long_description ?? ""} onChange={(e) => set("long_description", e.target.value)} />)}
+          </div>
+          {hasCoach && field("edit-coach-tagline", "Tagline du coach", <input id="edit-coach-tagline" className="v3-input-dark" value={editData.coach_tagline ?? ""} onChange={(e) => set("coach_tagline", e.target.value)} />)}
+          {hasCoach && field("edit-coach-bio", "Bio du coach", <textarea id="edit-coach-bio" rows={3} className="v3-input-dark" value={editData.coach_bio ?? ""} onChange={(e) => set("coach_bio", e.target.value)} />)}
+        </div>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="v3-label mb-2 text-v3-muted">Ce que tu vas apprendre (points clés)</legend>
+          {editData.bullets?.map((bullet: string, i: number) => (
+            <div key={i} className="flex gap-2">
+              <input
+                aria-label={`Point clé ${i + 1}`}
+                className="v3-input-dark"
+                value={bullet}
+                onChange={(e) => {
+                  const newBullets = [...editData.bullets];
+                  newBullets[i] = e.target.value;
+                  set("bullets", newBullets);
+                }}
+              />
+              <button type="button" aria-label={`Supprimer le point clé ${i + 1}`} onClick={() => set("bullets", editData.bullets.filter((_: any, idx: number) => idx !== i))} className="flex min-h-14 shrink-0 items-center rounded-[12px] border border-white/15 px-4 text-white hover:border-v3-lavender">
+                <Trash2 aria-hidden="true" className="size-4" />
+              </button>
+            </div>
+          ))}
+          <Button variant="outline" compact className="self-start" onClick={() => set("bullets", [...(editData.bullets || []), ""])}>
+            <Plus aria-hidden="true" className="size-4" /> Ajouter un point
+          </Button>
+        </fieldset>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <div className="flex flex-col gap-2">
+            <p className="v3-label text-v3-muted">Miniature</p>
+            <MediaUploader accept="image" bucket="admin-media" onUpload={(url) => set("thumbnail_url", url)} currentMedia={editData.thumbnail_url} />
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="v3-label text-v3-muted">Extrait de la formation (public)</p>
+            <MediaUploader accept="video" bucket="formations-videos" onUpload={(url) => set("trailer_url", url)} currentMedia={editData.trailer_url} />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-[26px] font-semibold leading-8">Programme · {editChapters.length} chapitre{editChapters.length > 1 ? "s" : ""}</h2>
+            <Button variant="outline" compact onClick={onAddChapter}><Plus aria-hidden="true" className="size-4" /> Ajouter un chapitre</Button>
+          </div>
+          {editChapters.map((ch: any, idx: number) => (
+            <div key={idx} className="flex flex-col gap-4 rounded-[16px] border border-white/10 bg-white/5 p-5 lg:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <p className="v3-label text-v3-lavender">CHAPITRE {String(idx + 1).padStart(2, "0")}</p>
+                <button type="button" aria-label={`Supprimer le chapitre ${idx + 1}`} onClick={() => onRemoveChapter(idx)} className="flex size-10 items-center justify-center rounded-full border border-white/15 text-white hover:border-v3-lavender">
+                  <Trash2 aria-hidden="true" className="size-4" />
+                </button>
+              </div>
+              <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
+                {field(`chapter-title-${idx}`, "Titre du chapitre", <input id={`chapter-title-${idx}`} className="v3-input-dark" value={ch.title ?? ""} onChange={(e) => onUpdateChapter(idx, 'title', e.target.value)} />)}
+                {field(`chapter-time-${idx}`, "Repère temporel", <input id={`chapter-time-${idx}`} className="v3-input-dark" placeholder="00:00-00:00" value={ch.timestamp || "00:00-00:00"} onChange={(e) => onUpdateChapter(idx, 'timestamp', e.target.value)} />)}
+              </div>
+              {field(`chapter-desc-${idx}`, "Description", <textarea id={`chapter-desc-${idx}`} rows={3} className="v3-input-dark" value={ch.description || ""} onChange={(e) => onUpdateChapter(idx, 'description', e.target.value)} />)}
+              <div className="flex flex-col gap-2">
+                <p className="v3-label text-v3-muted">Vidéo du chapitre</p>
+                <MediaUploader accept="video" bucket="formations-videos" onUpload={(url) => onUpdateChapter(idx, 'video_url', url)} currentMedia={ch.video_url} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {actions}
+      </div>
+    </section>
   );
 }

@@ -68,3 +68,30 @@ export function formatEuroCents(cents: number): string {
 export function isClubDiscountEligible(planKey: string): boolean {
   return CLUB_OFFER_REFERENCE.discountEligiblePlanKeys.some((key) => key === planKey);
 }
+
+/**
+ * Nom affiché et crédits IA mensuels de chaque formule. Les crédits sont les
+ * quotas appliqués par l'app (lab-service, app.credits) : les deux listes
+ * doivent rester identiques.
+ */
+export const PLAN_DETAILS: Record<SubscriptionPlanKey | "free", { name: string; creditsPerMonth: number }> = {
+  free: { name: "Free", creditsPerMonth: 5 },
+  essentiel: { name: "Essentiel", creditsPerMonth: 30 },
+  performance: { name: "Performance", creditsPerMonth: 80 },
+  elite: { name: "Elite", creditsPerMonth: 200 },
+  coach_suite: { name: "Coach Suite", creditsPerMonth: 150 },
+};
+
+const PLAN_KEYS: readonly SubscriptionPlanKey[] = ["essentiel", "performance", "elite", "coach_suite"];
+
+/**
+ * Clé de formule depuis une valeur reçue d'ailleurs : clé du site, valeur de
+ * l'app (`essential`, `ESSENTIAL`, `COACH_SUITE`…) ou lookup key Stripe
+ * (`performance_monthly`). Null si inconnue.
+ */
+export function normalizePlanKey(value: string | null | undefined): SubscriptionPlanKey | null {
+  if (!value) return null;
+  const key = value.trim().toLowerCase().replace(/_(monthly|yearly)$/, "");
+  if (key === "essential") return "essentiel";
+  return (PLAN_KEYS as readonly string[]).includes(key) ? (key as SubscriptionPlanKey) : null;
+}

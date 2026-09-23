@@ -1,22 +1,19 @@
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { Seo } from "../components/Seo";
+import { ButtonLink, Eyebrow } from "../v3/ui";
 
 export function NotFound() {
   return (
-    <div className="min-h-screen bg-[var(--color-bg-base)] text-white flex flex-col items-center justify-center text-center px-6 pt-24">
-      <div className="font-display text-7xl md:text-9xl text-white/10 mb-4">404</div>
-      <h1 className="font-display text-3xl md:text-5xl uppercase tracking-tight mb-4">
-        Cette page n'existe pas.
-      </h1>
-      <p className="font-body text-[var(--color-text-secondary)] text-base md:text-lg mb-10 max-w-md">
-        Le lien est peut-être cassé, ou la page a été déplacée.
-      </p>
-      <Link
-        to="/"
-        className="inline-flex items-center gap-2 px-8 py-4 bg-[var(--color-accent-primary)] hover:opacity-90 text-white rounded-full font-ui font-bold transition-opacity"
-      >
-        <ArrowLeft className="w-4 h-4" /> Retour à l'accueil
-      </Link>
-    </div>
+    <section className="v3-gutter v3-first-screen flex items-center bg-v3-fond py-20 text-white">
+      <Seo title="Page introuvable — MMA IQ" description="Cette page n’existe pas ou a été déplacée." />
+      <div className="v3-container flex flex-col items-start gap-6">
+        <Eyebrow>ERREUR 404</Eyebrow>
+        <h1 className="v3-display text-v3-paper">Cette page<br />n’existe pas.</h1>
+        <p className="v3-body max-w-[544px] text-v3-muted">Le lien est peut-être cassé, ou la page a été déplacée.</p>
+        <div className="flex flex-wrap gap-4">
+          <ButtonLink to="/">Retour à l’accueil</ButtonLink>
+          <ButtonLink to="/aide" variant="outline">Centre d’aide</ButtonLink>
+        </div>
+      </div>
+    </section>
   );
 }

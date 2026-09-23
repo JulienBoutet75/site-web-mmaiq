@@ -1,12 +1,13 @@
 import { useState, useEffect, FormEvent } from "react";
-import { useParams, Link } from "react-router-dom";
-import { motion } from "motion/react";
-import { Bell, CheckCircle2, Loader2, AlertCircle, MapPin, ChevronRight, Percent, QrCode, TrendingUp } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { AlertCircle, Bell, CheckCircle2, Loader2, MapPin } from "lucide-react";
 import { supabase, submitLead } from "../lib/supabase";
 import { saveReferral } from "../lib/referral";
-import { AmbientBackground } from "../components/AmbientBackground";
 import { useMmaIqAccount } from "../context/MmaIqAccountContext";
 import { ACTIVE_PRICING, formatEuroCents, isClubDiscountEligible } from "../config/subscriptionCommercial";
+import { Seo } from "../components/Seo";
+import { KEY_FIGURE, PROFILE_HEADING, ProfileFeatures } from "../components/ProfileSections";
+import { ArrowLink, Button, ButtonLink, Section, buttonClass, cx } from "../v3/ui";
 
 // Tant que l'app n'est pas lancée, la landing convertit en pré-inscriptions
 // (waitlist). Passer VITE_ENABLE_CHECKOUT=true au lancement pour vendre
@@ -41,6 +42,7 @@ interface PartnerPublic {
 // Landing co-brandée d'une salle partenaire : cible du QR affiché en salle
 // et des liens partagés par les coachs. Dépose le code d'attribution puis
 // convertit en pré-inscription waitlist taguée (l'app n'est pas encore lancée).
+// Pas de maquette dédiée : langage V3 de la page Partenaire (fonds, titres, cartes, champs).
 export function Salle() {
   const { beginSubscriptionCheckout, checkoutError } = useMmaIqAccount();
   const { slug } = useParams();
@@ -64,7 +66,7 @@ export function Salle() {
         .maybeSingle();
       if (cancelled) return;
       setPartner(data ?? null);
-      // Toute navigation ultérieure (ex. /app) reste attribuée à la salle.
+      // Toute navigation ultérieure (ex. /application) reste attribuée à la salle.
       if (data?.code) saveReferral(data.code);
       setLoading(false);
     })();
@@ -101,25 +103,24 @@ export function Salle() {
 
   if (loading) {
     return (
-      <div className="bg-[var(--color-bg-base)] min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-accent-primary)]"></div>
-      </div>
+      <section className="v3-first-screen v3-gutter flex items-center justify-center bg-v3-fond" aria-busy="true">
+        <Seo title="Salle partenaire — MMA IQ" canonicalPath={`/s/${slug ?? ""}`} />
+        <Loader2 aria-label="Chargement de la page du club" strokeWidth={1.7} className="size-10 animate-spin text-v3-lavender" />
+      </section>
     );
   }
 
   if (!partner) {
     return (
-      <div className="bg-[var(--color-bg-base)] text-white min-h-screen flex items-center justify-center px-6">
-        <div className="text-center">
-          <h1 className="text-3xl font-display mb-4 uppercase">Salle introuvable</h1>
-          <p className="text-[var(--color-text-secondary)] font-body mb-6">
-            Ce lien ne correspond à aucune salle partenaire active.
-          </p>
-          <Link to="/app" className="text-[var(--color-accent-primary)] hover:underline font-ui font-semibold">
-            Découvrir l'application MMA IQ
-          </Link>
-        </div>
-      </div>
+      <Section tone="fond" className="v3-first-screen flex flex-col justify-center py-12 lg:py-[72px]" innerClassName="flex flex-col items-start gap-4 lg:gap-6">
+        <Seo title="Salle introuvable — MMA IQ" canonicalPath={`/s/${slug ?? ""}`} />
+        <p className="v3-label text-v3-lavender">SALLE PARTENAIRE</p>
+        <h1 className="v3-display text-[48px] leading-[52px] text-v3-paper lg:text-[96px] lg:leading-[94px]">Salle introuvable</h1>
+        <p className="text-[16px] leading-6 text-v3-muted lg:max-w-[550px] lg:text-[18px] lg:leading-7">
+          Ce lien ne correspond à aucune salle partenaire active.
+        </p>
+        <ButtonLink to="/application">Découvrir l’application MMA IQ</ButtonLink>
+      </Section>
     );
   }
 
@@ -128,205 +129,203 @@ export function Salle() {
     ? ["monthly"]
     : ["monthly", "yearly"];
 
-  return (
-    <div className="bg-[var(--color-bg-base)] text-white min-h-screen relative overflow-hidden selection:bg-[var(--color-accent-primary)] selection:text-white font-body">
-      <AmbientBackground />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(123,47,255,0.18)_0%,transparent_55%)] pointer-events-none z-0"></div>
+  const benefits = [
+    { title: "Progresse entre les cours", text: "Plans d'entraînement et nutrition périodisés, adaptés à ta discipline." },
+    {
+      title: "Rattaché à ton club",
+      text: CHECKOUT_ENABLED
+        ? "Ton abonnement soutient directement ta salle et ton coach."
+        : "Ta pré-inscription soutient directement ta salle et ton coach.",
+    },
+    {
+      title: "Avantage membre",
+      text: hasDiscount
+        ? `−${partner.discount_percent} % pendant ${partner.discount_months} mois sur Performance et Elite.`
+        : "Des avantages exclusifs réservés aux membres du club.",
+    },
+  ];
 
-      {/* Hero co-brandé */}
-      <section className="relative z-10 pt-32 pb-16 px-6 max-w-3xl mx-auto text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-        >
-          <div className="flex items-center justify-center gap-4 mb-8">
-            <img src="/brand/logo.webp" alt="MMA IQ" className="w-14 h-14 object-contain" />
-            <span className="font-display text-2xl text-white/40">×</span>
+  return (
+    <>
+      <Seo
+        title={`${partner.name} × MMA IQ`}
+        description={`${partner.name} est salle partenaire MMA IQ : entraînement, nutrition, gameplan et analyse vidéo, avec l’avantage réservé aux membres du club.`}
+        canonicalPath={`/s/${partner.slug}`}
+      />
+
+      {/* Premier écran co-brandé */}
+      <Section
+        tone="fond"
+        className="v3-first-screen flex flex-col justify-center py-12 lg:py-[72px]"
+        innerClassName="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-16"
+      >
+        <div className="flex min-w-0 flex-col items-start gap-4 lg:flex-[0_1_608px] lg:gap-6">
+          <div className="flex items-center gap-4">
+            <img src="/v3/logo.webp" alt="MMA IQ" width={183} height={144} className="h-11 w-auto" />
+            <span aria-hidden="true" className="text-[24px] leading-none text-v3-muted">×</span>
             {partner.logo_url ? (
               <img
                 src={partner.logo_url}
                 alt={partner.name}
-                className="w-14 h-14 object-contain rounded-xl bg-white/5 border border-white/10"
+                className="size-14 rounded-[12px] border border-white/10 bg-white/5 object-contain"
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <span className="font-display text-2xl uppercase tracking-wide text-white">{partner.name}</span>
+              <span className="v3-subheading text-v3-paper">{partner.name}</span>
             )}
           </div>
 
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6">
-            <span className="w-2 h-2 rounded-full bg-[var(--color-accent-primary)] animate-pulse"></span>
-            <span className="text-xs font-ui font-bold tracking-widest uppercase text-white">
-              Salle partenaire MMA IQ
-            </span>
-          </div>
-
-          <h1 className="font-display text-4xl sm:text-6xl uppercase leading-[0.95] tracking-wide mb-5">
-            Ton club t'ouvre les portes de{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)]">
-              MMA IQ
-            </span>
+          <p className="v3-label text-v3-lavender">SALLE PARTENAIRE MMA IQ</p>
+          <h1 className="v3-display text-[48px] leading-[52px] text-v3-paper lg:text-[64px] lg:leading-[68px] xl:text-[88px] xl:leading-[92px]">
+            Ton club t’ouvre les portes de MMA IQ
           </h1>
 
           {partner.city && (
-            <p className="inline-flex items-center gap-2 text-[var(--color-text-secondary)] font-ui text-sm font-semibold mb-6">
-              <MapPin className="w-4 h-4" /> {partner.name} · {partner.city}
+            <p className="v3-label flex items-center gap-2 text-v3-muted">
+              <MapPin aria-hidden="true" strokeWidth={1.7} className="size-4 shrink-0" /> {partner.name} · {partner.city}
             </p>
           )}
 
-          <p className="text-lg sm:text-xl text-[var(--color-text-secondary)] max-w-xl mx-auto mb-8 leading-relaxed">
+          <p className="text-[16px] leading-6 text-v3-muted lg:max-w-[550px] lg:text-[18px] lg:leading-7">
             Entraînement, nutrition, cutting, gameplan et analyse vidéo IA :
-            l'app tout-en-un du combattant{CHECKOUT_ENABLED ? "." : " arrive sur iOS et Android."}{" "}
+            l'app tout-en-un du combattant, disponible sur iOS et Android.{" "}
             {CHECKOUT_ENABLED
               ? "Abonne-toi via ton club et profite de son offre partenaire."
               : "Pré-inscris-toi avec le code de ton club."}
           </p>
 
-          {hasDiscount && (
-            <div className="inline-flex items-center gap-3 bg-[var(--color-accent-primary)]/10 border border-[var(--color-accent-primary)]/30 rounded-2xl px-6 py-4 mb-10">
-              <Percent className="w-6 h-6 text-[var(--color-accent-primary)] shrink-0" />
-              <p className="text-sm sm:text-base font-body text-white text-left">
-                <span className="font-bold">−{partner.discount_percent} % pendant {partner.discount_months} mois</span>{" "}
-                sur Performance et Elite, réservé aux membres {partner.name}.
-              </p>
-            </div>
-          )}
-
           {CHECKOUT_ENABLED ? (
-            <>
-              {/* Choix mensuel / annuel */}
-              <div className="inline-flex items-center gap-1 bg-white/5 border border-white/10 rounded-full p-1 mb-8" role="group" aria-label="Facturation">
-                {billingIntervals.map((i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setInterval(i)}
-                    className={`px-5 py-2 rounded-full font-ui text-sm font-bold transition-all ${
-                      interval === i ? "bg-[var(--color-accent-primary)] text-white" : "text-[var(--color-text-secondary)] hover:text-white"
-                    }`}
-                  >
-                    {i === "monthly" ? "Mensuel" : "Annuel (−17 %)"}
-                  </button>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
-                {CHECKOUT_PLANS.map((plan) => (
-                  <div
-                    key={plan.key}
-                    className="relative bg-white/[0.04] border border-white/[0.08] rounded-2xl p-6 flex flex-col"
-                  >
-                    <h3 className="font-display text-xl uppercase tracking-wide mb-1">{plan.name}</h3>
-                    <p className="text-xs text-[var(--color-text-secondary)] mb-4">{plan.tagline}</p>
-                    <p className="font-display text-3xl mb-5">
-                      {interval === "monthly" ? plan.monthly : plan.yearly}
-                      <span className="text-sm text-white/50 font-body"> {interval === "monthly" ? "/ mois" : "/ an"}</span>
-                    </p>
-                    {hasDiscount && !isClubDiscountEligible(plan.key) && (
-                      <p className="mb-4 text-xs text-[var(--color-text-secondary)]">Essentiel n'est pas remisé par le code club.</p>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => handleSubscribe(plan.key)}
-                      disabled={subscribing !== null}
-                      className="mt-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] text-white font-ui text-sm font-bold hover:scale-[1.02] transition-all disabled:opacity-60 disabled:hover:scale-100"
-                    >
-                      {subscribing === plan.key ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                      Choisir {plan.name}
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {hasDiscount && (
-                <p className="text-xs text-[var(--color-text-secondary)] font-ui mt-5">
-                  La remise −{partner.discount_percent} % ({partner.discount_months} mois) est appliquée automatiquement aux formules Performance et Elite mensuelles.
-                </p>
-              )}
-
-              {(subError || checkoutError) && (
-                <div className="flex items-center justify-center gap-2 text-sm font-body text-white bg-[var(--color-accent-red)]/20 border border-[var(--color-accent-red)]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mt-4">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  {checkoutError || "Impossible d'ouvrir le paiement. Réessaie dans un instant."}
-                </div>
-              )}
-            </>
+            <a href="#formules" className={buttonClass("primary")}>Voir les formules</a>
           ) : (
             <>
               {status === "success" ? (
-                <div className="flex items-center justify-center gap-3 max-w-lg mx-auto px-6 py-5 bg-white/10 border border-white/20 rounded-2xl">
-                  <CheckCircle2 className="w-6 h-6 text-white shrink-0" />
-                  <p className="text-white font-body font-bold text-left">
-                    C'est noté ! Tu es rattaché à {partner.name}. On te prévient au lancement.
-                  </p>
-                </div>
+                <p role="status" className="flex w-full items-start gap-3 rounded-[16px] border border-white/15 bg-white/5 p-4 text-[16px] leading-6 text-white lg:max-w-[550px]">
+                  <CheckCircle2 aria-hidden="true" strokeWidth={1.7} className="mt-0.5 size-5 shrink-0 text-v3-lavender" />
+                  C'est noté ! Tu es rattaché à {partner.name}. On te prévient au lancement.
+                </p>
               ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center items-stretch max-w-lg mx-auto">
+                <form onSubmit={handleSubmit} className="flex w-full flex-col gap-3 sm:flex-row lg:max-w-[550px]">
                   <label htmlFor="salle-email" className="sr-only">Email</label>
                   <input
                     id="salle-email"
                     type="email"
                     required
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="ton@email.com"
-                    className="flex-1 px-6 py-4 rounded-2xl bg-white/10 border border-white/20 text-white placeholder:text-white/50 font-body focus:outline-none focus:border-white/60 transition-colors"
+                    className="v3-input-dark sm:flex-1"
                   />
-                  <button
-                    type="submit"
-                    disabled={status === "loading"}
-                    className="group flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)] text-white rounded-2xl font-ui font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(123,47,255,0.35)] disabled:opacity-60 disabled:hover:scale-100"
-                  >
-                    {status === "loading" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Bell className="w-5 h-5" />}
-                    <span>Me pré-inscrire</span>
-                  </button>
+                  <Button type="submit" disabled={status === "loading"}>
+                    {status === "loading"
+                      ? <Loader2 aria-hidden="true" className="size-5 animate-spin" />
+                      : <Bell aria-hidden="true" strokeWidth={1.7} className="size-5" />}
+                    Me pré-inscrire
+                  </Button>
                 </form>
               )}
 
               {status === "error" && (
-                <div className="flex items-center justify-center gap-2 text-sm font-body text-white bg-[var(--color-accent-red)]/20 border border-[var(--color-accent-red)]/40 rounded-xl px-4 py-3 max-w-lg mx-auto mt-4">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
+                <p role="alert" className="flex items-center gap-2 text-[14px] leading-5 text-white">
+                  <AlertCircle aria-hidden="true" strokeWidth={1.7} className="size-4 shrink-0 text-[#ff8a80]" />
                   L'inscription a échoué. Réessaie dans un instant.
-                </div>
+                </p>
               )}
             </>
           )}
 
-          <p className="text-xs text-white/40 uppercase tracking-widest font-ui font-bold mt-6">
-            Code club : <span className="text-white/70">{partner.code}</span>
+          <p className="v3-small text-v3-muted">
+            Code club : <span className="font-medium text-v3-paper">{partner.code}</span>
             {CHECKOUT_ENABLED ? " · Paiement sécurisé par Stripe" : " · Pré-inscription gratuite · Sans engagement"}
           </p>
-        </motion.div>
-      </section>
+        </div>
+
+        {hasDiscount && (
+          <aside aria-label="Avantage membre" className="flex flex-col gap-6 rounded-[16px] bg-v3-accent p-8 text-white lg:flex-[0_1_520px]">
+            <p className={KEY_FIGURE}>−{partner.discount_percent}{" "}%</p>
+            <p className="v3-subheading">pendant {partner.discount_months} mois</p>
+            <p className="v3-body">Sur Performance et Elite, réservé aux membres {partner.name}.</p>
+          </aside>
+        )}
+      </Section>
+
+      {/* Formules (vente web activée) */}
+      {CHECKOUT_ENABLED && (
+        <Section
+          tone="clair"
+          id="formules"
+          className="scroll-mt-[72px] py-12 lg:scroll-mt-[104px] lg:py-[72px]"
+          innerClassName="flex flex-col gap-6 lg:gap-10"
+        >
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <h2 className={cx(PROFILE_HEADING, "text-v3-navy")}>Choisis ta formule.</h2>
+            {/* Choix mensuel / annuel */}
+            <div className="inline-flex self-start rounded-[12px] border border-v3-border bg-white p-1 lg:self-auto" role="group" aria-label="Facturation">
+              {billingIntervals.map((i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setInterval(i)}
+                  aria-pressed={interval === i}
+                  className={cx(
+                    "min-h-11 rounded-[8px] px-5 text-[14px] font-semibold leading-5 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-v3-brand",
+                    interval === i ? "bg-v3-brand text-white" : "text-v3-ink-muted hover:text-v3-navy",
+                  )}
+                >
+                  {i === "monthly" ? "Mensuel" : "Annuel (−17 %)"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <ul className="grid gap-6 lg:grid-cols-3">
+            {CHECKOUT_PLANS.map((plan) => (
+              <li key={plan.key} className="flex flex-col gap-4 rounded-[16px] border border-v3-border bg-white p-8 text-v3-navy">
+                <div className="flex flex-col gap-1">
+                  <h3 className="v3-subheading">{plan.name}</h3>
+                  <p className="v3-small text-v3-ink-muted">{plan.tagline}</p>
+                </div>
+                <p className="text-[36px] font-semibold leading-10 tracking-[-1px]">
+                  {interval === "monthly" ? plan.monthly : plan.yearly}
+                  <span className="v3-small font-normal tracking-normal text-v3-ink-muted"> {interval === "monthly" ? "/ mois" : "/ an"}</span>
+                </p>
+                {hasDiscount && !isClubDiscountEligible(plan.key) && (
+                  <p className="v3-small text-v3-ink-muted">Essentiel n'est pas remisé par le code club.</p>
+                )}
+                <Button
+                  block
+                  className="mt-auto"
+                  onClick={() => handleSubscribe(plan.key)}
+                  disabled={subscribing !== null}
+                >
+                  {subscribing === plan.key ? <Loader2 aria-hidden="true" className="size-5 animate-spin" /> : null}
+                  Choisir {plan.name}
+                </Button>
+              </li>
+            ))}
+          </ul>
+
+          {hasDiscount && (
+            <p className="v3-small text-v3-ink-muted">
+              La remise −{partner.discount_percent} % ({partner.discount_months} mois) est appliquée automatiquement aux formules Performance et Elite mensuelles.
+            </p>
+          )}
+
+          {(subError || checkoutError) && (
+            <p role="alert" className="flex items-center gap-2 rounded-[12px] border border-[#c0392b]/40 bg-[#c0392b]/10 px-4 py-3 text-[14px] leading-5 text-v3-navy">
+              <AlertCircle aria-hidden="true" strokeWidth={1.7} className="size-4 shrink-0 text-[#c0392b]" />
+              {checkoutError || "Impossible d'ouvrir le paiement. Réessaie dans un instant."}
+            </p>
+          )}
+        </Section>
+      )}
 
       {/* Ce que ça t'apporte */}
-      <section className="relative z-10 px-6 pb-24 max-w-4xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { icon: <TrendingUp className="w-5 h-5" />, title: "Progresse entre les cours", desc: "Plans d'entraînement et nutrition périodisés, adaptés à ta discipline." },
-            { icon: <QrCode className="w-5 h-5" />, title: "Rattaché à ton club", desc: "Ta pré-inscription soutient directement ta salle et ton coach." },
-            { icon: <Percent className="w-5 h-5" />, title: "Avantage membre", desc: hasDiscount ? `−${partner.discount_percent} % pendant ${partner.discount_months} mois sur Performance et Elite.` : "Des avantages exclusifs réservés aux membres du club." },
-          ].map((item) => (
-            <div key={item.title} className="bg-white/[0.04] border border-white/[0.06] rounded-2xl p-6 text-left">
-              <div className="w-10 h-10 rounded-xl bg-[var(--color-accent-primary)]/15 text-[var(--color-accent-primary)] flex items-center justify-center mb-4">
-                {item.icon}
-              </div>
-              <h3 className="font-display text-lg uppercase tracking-wide mb-2">{item.title}</h3>
-              <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link
-            to="/app"
-            className="inline-flex items-center gap-2 text-white font-ui text-sm font-semibold bg-white/5 border border-white/10 px-8 py-4 rounded-full hover:bg-[var(--color-accent-primary)] hover:border-[var(--color-accent-primary)] transition-all duration-300 hover:-translate-y-0.5"
-          >
-            Découvrir l'application en détail <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </section>
-    </div>
+      <Section tone="surface" className="py-12 lg:py-[72px]" innerClassName="flex flex-col items-start gap-10">
+        <h2 className="sr-only">Les avantages pour les membres du club</h2>
+        <ProfileFeatures items={benefits} tone="dark" />
+        <ArrowLink to="/application">Découvrir l’application en détail</ArrowLink>
+      </Section>
+    </>
   );
 }
