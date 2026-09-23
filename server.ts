@@ -6,6 +6,10 @@ import { fileURLToPath } from "url";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import { isClubDiscountEligible } from "./src/config/subscriptionCommercial";
+import { handleSubscriptionEmailEvent, renderSubscriptionEmail } from "./server/billing/subscriptionEmails";
+import { currentSubscription, describeSubscription, planOf } from "./server/billing/stripeSubscriptions";
+import { findRecentEmail, mailMode, recentEmails } from "./server/emails/mailer";
+import { sampleEmailData, subscriptionEmails, type SubscriptionEmailKind } from "./server/emails/subscriptionTemplates";
 
 dotenv.config();
 
@@ -58,16 +62,38 @@ async function startServer() {
   // Message renvoyé au client quand Stripe échoue : jamais le message
   // brut de l'API (fuite d'infos) — le détail reste dans les logs serveur.
   const CHECKOUT_UNAVAILABLE = "Paiement momentanément indisponible, réessaie dans un instant.";
+  // Abonnements vendus sur le site seulement au lancement : même drapeau que
+  // les pages (VITE_ENABLE_CHECKOUT), vérifié ici pour qu'un appel direct à
+  // l'API ne contourne pas le mode liste d'attente.
+  const SUBSCRIPTION_CHECKOUT_ENABLED = process.env.VITE_ENABLE_CHECKOUT === "true";
+  // Marque affichée sur la page de paiement Stripe, quels que soient les
+  // réglages du compte (un environnement de test s'appelle « New business sandbox »).
+  const CHECKOUT_BRANDING: Stripe.Checkout.SessionCreateParams.BrandingSettings = {
+    display_name: "MMA IQ",
+    button_color: "#7B2FFF",
+    border_style: "rounded",
+  };
   const LAB_SERVICE_URL = (process.env.LAB_SERVICE_URL || "https://api.mmaiq.fr/lab-service").replace(/\/$/, "");
 
+  // Contexte renvoyé par lab-service pour le jeton Keycloak. Sans profil
+  // encore créé dans l'app, userId est null : le paiement est alors porté par
+  // l'identité Keycloak (kcSub) et rejoint le compte à la création du profil.
   type MmaIqCheckoutContext = {
-    userId: string;
+    userId: string | null;
+    kcSub?: string | null;
+    profileExists?: boolean;
     email: string;
-    userType: string;
+    userType: string | null;
     allowedPlanKeys: string[];
     alreadySubscribed: boolean;
     stripeCustomerId: string | null;
+    pendingPayment?: boolean;
+    currentTier?: string | null;
+    currentPlatform?: string | null;
+    currentExpiresAt?: string | null;
   };
+  // Identifiant du payeur pour Stripe : le compte s'il existe, sinon l'identité Keycloak.
+  const payerId = (account: MmaIqCheckoutContext) => account.userId ?? account.kcSub ?? "";
 
   const getMmaIqCheckoutContext = async (req: express.Request): Promise<MmaIqCheckoutContext | null> => {
     const authorization = req.get("authorization") || "";
@@ -79,7 +105,7 @@ async function startServer() {
       if (!response.ok) return null;
       const payload: any = await response.json();
       const context = payload?.data as MmaIqCheckoutContext | undefined;
-      return context?.userId && context?.email ? context : null;
+      return (context?.userId || context?.kcSub) && context?.email ? context : null;
     } catch (error) {
       console.error("Validation du compte MMA IQ impossible:", error);
       return null;
@@ -342,6 +368,7 @@ async function startServer() {
         payment_method_types: ["card"],
         line_items: lineItems,
         mode: "payment",
+        branding_settings: CHECKOUT_BRANDING,
         success_url: safeReturnUrl(successUrl, origin, "/success"),
         cancel_url: safeReturnUrl(cancelUrl, origin, "/cancel"),
         metadata: safeMetadata,
@@ -391,6 +418,7 @@ async function startServer() {
       const session = await stripeClient.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
+        branding_settings: CHECKOUT_BRANDING,
         line_items: [
           {
             price_data: {
@@ -405,7 +433,7 @@ async function startServer() {
           },
         ],
         success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/course/${formation.slug || formation.id}`,
+        cancel_url: `${origin}/academy/${formation.slug || formation.id}`,
         metadata: { kind: "formation", formation_id: formation.id, user_id: auth.user.id },
       });
 
@@ -481,6 +509,10 @@ async function startServer() {
         }
       }
     }
+
+    // Abonnements : les droits sont gérés par lab-service ; le site informe le
+    // client par e-mail (activation, changement, résiliation, impayé…).
+    await handleSubscriptionEmailEvent(stripeClient, event);
 
     res.json({ received: true });
   });
@@ -702,7 +734,13 @@ async function startServer() {
   };
 
   app.post("/api/create-subscription-checkout", async (req, res) => {
-    const { planKey, interval, gymCode } = req.body ?? {};
+    const { planKey, interval, gymCode, immediateStartConsent } = req.body ?? {};
+    if (!SUBSCRIPTION_CHECKOUT_ENABLED) {
+      return res.status(403).json({
+        error: "Les abonnements sur le site ouvrent bientôt. En attendant, abonne-toi depuis l'application.",
+        code: "checkout_disabled",
+      });
+    }
     const stripeClient = getStripe();
     if (!stripeClient) {
       return res.status(500).json({ error: "Stripe is not configured" });
@@ -719,7 +757,22 @@ async function startServer() {
       return res.status(403).json({ error: "Cette formule n'est pas disponible pour ton profil MMA IQ." });
     }
     if (account.alreadySubscribed) {
-      return res.status(409).json({ error: "Un abonnement est déjà actif sur ce compte. Gère-le depuis ton espace abonnement." });
+      return res.status(409).json({
+        error: account.pendingPayment
+          ? "Ton paiement précédent est en cours de confirmation. Patiente quelques instants avant de réessayer."
+          : "Un abonnement est déjà actif sur ce compte : change de formule depuis ton espace abonnement.",
+        code: account.pendingPayment ? "payment_pending" : "already_subscribed",
+        currentTier: account.currentTier ?? null,
+        currentPlatform: account.currentPlatform ?? null,
+        currentExpiresAt: account.currentExpiresAt ?? null,
+      });
+    }
+    // CGV art. 6 : démarrage avant la fin du délai de rétractation sur demande expresse.
+    if (immediateStartConsent !== true) {
+      return res.status(400).json({
+        error: "Coche la case de démarrage immédiat pour continuer.",
+        code: "consent_required",
+      });
     }
 
     const submittedCode = typeof gymCode === "string" && gymCode.trim().length > 0;
@@ -764,6 +817,18 @@ async function startServer() {
       }
 
       const origin = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+      // user_id seulement si le profil existe ; kc_sub toujours (identité du
+      // payeur). Le consentement au démarrage immédiat est gardé comme preuve,
+      // daté par la création de la session (paramètres stables : la clé
+      // d'idempotence exige des paramètres identiques).
+      const subscriptionMetadata: Record<string, string> = {
+        ...(account.userId ? { user_id: account.userId } : {}),
+        ...(account.kcSub ? { kc_sub: account.kcSub } : {}),
+        gym_code: code ?? "",
+        channel: code ? "gym" : "direct",
+        plan_key: planKey,
+        immediate_start_consent: "true",
+      };
       const base: Stripe.Checkout.SessionCreateParams = {
         mode: "subscription",
         line_items: [{ price: priceId, quantity: 1 }],
@@ -771,17 +836,17 @@ async function startServer() {
           ? { customer: account.stripeCustomerId }
           : { customer_email: account.email }),
         success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/cancel`,
-        client_reference_id: account.userId,
-        subscription_data: {
-          metadata: {
-            user_id: account.userId,
-            gym_code: code ?? "",
-            channel: code ? "gym" : "direct",
-            plan_key: planKey,
+        cancel_url: `${origin}/paiement/${planKey}`,
+        client_reference_id: payerId(account),
+        locale: "fr",
+        branding_settings: CHECKOUT_BRANDING,
+        custom_text: {
+          submit: {
+            message: "Ton abonnement démarre dès le paiement, à ta demande (article 6 des CGV). Résiliable à tout moment, effet en fin de période.",
           },
         },
-        metadata: { user_id: account.userId, gym_code: code ?? "", plan_key: planKey },
+        subscription_data: { metadata: subscriptionMetadata },
+        metadata: subscriptionMetadata,
       };
 
       // Remise adhérent : promo créée/synchronisée depuis la config de la
@@ -803,7 +868,7 @@ async function startServer() {
       try {
         const idempotencyKey = [
           "subscription-checkout",
-          account.userId,
+          payerId(account),
           planKey,
           interval,
           code || "direct",
@@ -826,7 +891,11 @@ async function startServer() {
     }
   });
 
+  // Portail client Stripe. Sans parcours : accueil du portail (carte,
+  // factures, réactivation). flow=update : confirmation d'un changement de
+  // formule au prorata ; flow=cancel : résiliation en fin de période.
   app.post("/api/create-subscription-portal", async (req, res) => {
+    const { flow, planKey, interval } = req.body ?? {};
     const stripeClient = getStripe();
     if (!stripeClient) {
       return res.status(500).json({ error: "Stripe is not configured" });
@@ -840,15 +909,85 @@ async function startServer() {
     }
     try {
       const origin = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
-      const session = await stripeClient.billingPortal.sessions.create({
+      const params: Stripe.BillingPortal.SessionCreateParams = {
         customer: account.stripeCustomerId,
-        return_url: `${origin}/tarifs`,
-      });
+        return_url: `${origin}/mon-abonnement`,
+        locale: "fr",
+      };
+
+      if (flow === "update" || flow === "cancel") {
+        const subscription = await currentSubscription(stripeClient, account.stripeCustomerId);
+        if (!subscription) {
+          return res.status(404).json({ error: "Aucun abonnement en cours à modifier." });
+        }
+        if (flow === "cancel") {
+          params.flow_data = {
+            type: "subscription_cancel",
+            subscription_cancel: { subscription: subscription.id },
+            after_completion: { type: "redirect", redirect: { return_url: `${origin}/mon-abonnement?resiliation=1` } },
+          };
+        } else {
+          if (!PLAN_KEYS.includes(planKey) || !INTERVALS.includes(interval)) {
+            return res.status(400).json({ error: "Formule ou périodicité invalide." });
+          }
+          if (!account.allowedPlanKeys.includes(planKey)) {
+            return res.status(403).json({ error: "Cette formule n'est pas disponible pour ton profil MMA IQ." });
+          }
+          const priceId = await resolvePrice(stripeClient, `${planKey}_${interval}`);
+          const current = planOf(subscription);
+          if (!priceId || !current.itemId) {
+            return res.status(500).json({ error: CHECKOUT_UNAVAILABLE });
+          }
+          if (current.priceId === priceId) {
+            return res.status(409).json({ error: "C'est déjà ta formule actuelle.", code: "same_plan" });
+          }
+          params.flow_data = {
+            type: "subscription_update_confirm",
+            subscription_update_confirm: {
+              subscription: subscription.id,
+              items: [{ id: current.itemId, price: priceId, quantity: 1 }],
+            },
+            after_completion: { type: "redirect", redirect: { return_url: `${origin}/mon-abonnement?formule=${planKey}` } },
+          };
+        }
+      }
+
+      const session = await stripeClient.billingPortal.sessions.create(params);
       return res.json({ url: session.url });
     } catch (error) {
       console.error("Stripe billing portal error:", error);
       return res.status(500).json({ error: CHECKOUT_UNAVAILABLE });
     }
+  });
+
+  // « Mon abonnement » : compte MMA IQ (lab-service) + abonnement web relu chez Stripe.
+  app.get("/api/subscription/overview", async (req, res) => {
+    const account = await getMmaIqCheckoutContext(req);
+    if (!account) {
+      return res.status(401).json({ error: "Connecte-toi avec ton compte MMA IQ." });
+    }
+    const stripeClient = getStripe();
+    let web = null;
+    try {
+      if (stripeClient && account.stripeCustomerId) {
+        const subscription = await currentSubscription(stripeClient, account.stripeCustomerId);
+        if (subscription) web = await describeSubscription(stripeClient, subscription);
+      }
+    } catch (error) {
+      console.error("Lecture de l'abonnement Stripe impossible:", error);
+      return res.status(502).json({ error: "Ton abonnement ne peut pas être lu pour le moment. Réessaie dans un instant." });
+    }
+    return res.json({
+      email: account.email,
+      profileExists: account.profileExists ?? true,
+      allowedPlanKeys: account.allowedPlanKeys,
+      pendingPayment: account.pendingPayment ?? false,
+      currentTier: account.currentTier ?? null,
+      currentPlatform: account.currentPlatform ?? null,
+      currentExpiresAt: account.currentExpiresAt ?? null,
+      hasStripeCustomer: Boolean(account.stripeCustomerId),
+      web,
+    });
   });
 
   // Statut d'une session pour la page /success (aucune donnée sensible).
@@ -868,7 +1007,9 @@ async function startServer() {
         if (!account) {
           return res.status(401).json({ error: "Connexion MMA IQ requise" });
         }
-        if (session.metadata?.user_id !== account.userId) {
+        const samePayer = (account.userId && session.metadata?.user_id === account.userId)
+          || (account.kcSub && session.metadata?.kc_sub === account.kcSub);
+        if (!samePayer) {
           return res.status(403).json({ error: "Cette session appartient à un autre compte." });
         }
       }
@@ -883,12 +1024,40 @@ async function startServer() {
         currency: session.currency,
         kind: session.metadata?.kind ?? null,
         formationId: session.metadata?.formation_id ?? null,
+        // Paiement fait avant la création du profil dans l'app.
+        profileExists: session.mode === "subscription" ? Boolean(session.metadata?.user_id) : null,
       });
     } catch (error: any) {
       console.error("Stripe session retrieve error:", error);
       res.status(404).json({ error: "Session introuvable" });
     }
   });
+
+  // Aperçu des e-mails, hors production : modèles et messages traités.
+  if (process.env.NODE_ENV !== "production") {
+    const kinds = Object.keys(subscriptionEmails) as SubscriptionEmailKind[];
+    app.get("/api/dev/emails", (_req, res) => {
+      const rows = recentEmails()
+        .map((email) => `<li><a href="/api/dev/emails/${email.id}">${email.sentAt.slice(11, 19)} — ${email.to} — ${email.subject}</a> <small>(${email.mode})</small></li>`)
+        .join("");
+      res.type("html").send(`<!doctype html><meta charset="utf-8"><title>E-mails MMA IQ</title>
+<body style="font-family:system-ui;margin:40px;max-width:900px">
+<h1>E-mails MMA IQ</h1><p>Envoi : <b>${mailMode() === "brevo" ? "Brevo (réel)" : "aperçu seulement (BREVO_API_KEY absente)"}</b></p>
+<h2>Modèles</h2><ul>${kinds.map((kind) => `<li><a href="/api/dev/email-templates/${kind}">${kind}</a></li>`).join("")}</ul>
+<h2>Derniers messages</h2><ul>${rows || "<li>Aucun pour l'instant.</li>"}</ul></body>`);
+    });
+    app.get("/api/dev/emails/:id", (req, res) => {
+      const email = findRecentEmail(req.params.id);
+      if (!email) return res.status(404).send("E-mail introuvable");
+      res.type("html").send(email.html);
+    });
+    app.get("/api/dev/email-templates/:kind", (req, res) => {
+      const kind = req.params.kind as SubscriptionEmailKind;
+      if (!kinds.includes(kind)) return res.status(404).send("Modèle inconnu");
+      const rendered = renderSubscriptionEmail(kind, sampleEmailData(kind));
+      res.type(req.query.format === "text" ? "text/plain" : "html").send(req.query.format === "text" ? rendered.text : rendered.html);
+    });
+  }
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
