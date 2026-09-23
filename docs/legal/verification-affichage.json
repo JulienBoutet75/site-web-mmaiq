@@ -1,0 +1,203 @@
+{
+  "checks": [
+    {
+      "base": "site",
+      "path": "/mentions-legales",
+      "width": 1440,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "site",
+      "path": "/confidentialite",
+      "width": 1440,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "site",
+      "path": "/cgv",
+      "width": 1440,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "site",
+      "path": "/mentions-legales",
+      "width": 390,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "site",
+      "path": "/confidentialite",
+      "width": 390,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "site",
+      "path": "/cgv",
+      "width": 390,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "site",
+      "path": "/mentions-legales",
+      "width": 768,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "site",
+      "path": "/confidentialite",
+      "width": 768,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "site",
+      "path": "/cgv",
+      "width": 768,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/mentions-legales",
+      "width": 1440,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/confidentialite",
+      "width": 1440,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/conditions",
+      "width": 1440,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/mentions-legales",
+      "width": 390,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/confidentialite",
+      "width": 390,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/conditions",
+      "width": 390,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/mentions-legales",
+      "width": 768,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/confidentialite",
+      "width": 768,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    },
+    {
+      "base": "prototype",
+      "path": "/conditions",
+      "width": 768,
+      "company": true,
+      "form": true,
+      "capital": true,
+      "address": true,
+      "personalNameMatches": 0,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}
