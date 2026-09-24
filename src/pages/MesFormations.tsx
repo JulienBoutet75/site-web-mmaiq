@@ -1,29 +1,59 @@
 import { useEffect, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { motion } from "motion/react";
-import { ArrowRight, Clock, GraduationCap, Play } from "lucide-react";
-import { Badge } from "../components/ui/Badge";
+import { Seo } from "../components/Seo";
 import { useAuth } from "../context/AuthContext";
 import { supabase } from "../lib/supabase";
+import { countCompleted, readCompletedChapters, syncCompletedChapters } from "../utils/formationProgress";
+import { Dialog, useDialogTitleId } from "../v3/Dialog";
+import { Button, ButtonLink } from "../v3/ui";
+import { disciplineLabel, levelLabel } from "../data/academy";
 
-// Libellés capitalisés des niveaux (stockés en minuscules en base)
-const levelLabels: Record<string, string> = {
-  debutant: "Débutant",
-  amateur: "Amateur",
-  pro: "Pro"
-};
+// Figma « Mes formations » : bibliothèque vide (2110:23240 desktop, 2174:21597 mobile),
+// bibliothèque active (2114:20985 / 2174:22982), terminée (2114:21083 / 2174:23028)
+// et modale « V3 · Choix de chapitre » (2109:20097 / 2109:20129).
 
-// Espace « Mes formations » : liste les instructionals débloqués sur le compte
-// connecté (achats Stripe ou codes d'accès). Les visiteurs non connectés sont
+// Espace « Mes formations » : liste les formations débloquées sur le compte
+// connecté (achats Stripe ou codes d’accès). Les visiteurs non connectés sont
 // renvoyés vers /connexion avec un retour automatique ici après connexion.
+
+// Visuel de repli quand la formation n’a pas de miniature (photo de la maquette).
+const FALLBACK_VISUAL = "/v3/photo-sparring-lab.webp";
+
+const NUMBER_WORDS = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
+
+type Chapter = { id: string; formation_id: string; title: string; sort_order: number | null };
+type Coach = { id: string; name: string; slug: string | null; photo_url: string | null };
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
+/** Chemin de lecture d’une formation (chapitre facultatif). */
+const readingPath = (formation: any, chapter?: number) =>
+  `/mes-formations/${formation.slug || formation.id}${chapter ? `?chapitre=${chapter}` : ""}`;
+
+/** « Jab-cross : la mécanique du striking » → « Jab-cross » (sous-titre de la modale). */
+const shortTitle = (title: string) => title.split(/\s:\s/)[0];
+
+/** Sous-titre de la page selon le contenu de la bibliothèque. */
+function libraryIntro(count: number, chapterCount: number, allDone: boolean) {
+  if (allDone) return "Ton parcours est terminé. Retrouve tous les chapitres pour revoir les gestes à ton rythme.";
+  if (count > 1) return "Retrouve les formations débloquées sur ton compte. Reprends ton apprentissage, quand tu veux.";
+  if (chapterCount === 0) return "Retrouve ta formation.";
+  if (chapterCount === 1) return "Retrouve le chapitre de ta formation.";
+  return `Retrouve les ${NUMBER_WORDS[chapterCount] ?? chapterCount} chapitres de ta formation.`;
+}
+
 export function MesFormations() {
-  const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
 
   const [formations, setFormations] = useState<any[]>([]);
-  const [coaches, setCoaches] = useState<any[]>([]);
+  const [coaches, setCoaches] = useState<Coach[]>([]);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  // Formation dont on choisit le chapitre (modale « Choisis ton chapitre. »).
+  const [picking, setPicking] = useState<any | null>(null);
+  // Incrémenté quand la progression synchronisée depuis le serveur change (relecture).
+  const [, setProgressVersion] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -33,7 +63,7 @@ export function MesFormations() {
       setLoadError(false);
       try {
         // 1) Achats complétés du compte (la RLS « own purchases » limite déjà
-        // la lecture aux lignes de l'utilisateur, le filtre explicite est une ceinture).
+        // la lecture aux lignes de l’utilisateur, le filtre explicite est une ceinture).
         const { data: purchases, error: pErr } = await supabase
           .from("purchases")
           .select("formation_id, created_at")
@@ -47,37 +77,45 @@ export function MesFormations() {
           if (!cancelled) {
             setFormations([]);
             setCoaches([]);
+            setChapters([]);
           }
           return;
         }
 
-        // 2) Formations correspondantes — requête séparée plutôt qu'une jointure
-        // embed : la relation FK purchases→formations n'est pas garantie côté schéma.
-        const { data: rows, error: fErr } = await supabase
-          .from("formations")
-          .select("*")
-          .in("id", ids);
+        // 2) Formations correspondantes — requête séparée plutôt qu’une jointure
+        // embed : la relation FK purchases→formations n’est pas garantie côté schéma.
+        const { data: rows, error: fErr } = await supabase.from("formations").select("*").in("id", ids);
         if (fErr) throw new Error(fErr.message);
 
-        // On préserve l'ordre d'achat (le plus récent en premier).
+        // On préserve l’ordre d’achat (le plus récent en premier).
         const byId = new Map((rows || []).map((f: any) => [f.id, f]));
         const ordered = ids.map((id) => byId.get(id)).filter(Boolean);
 
-        // Coachs pour l'affichage des cartes (facultatif : la carte reste valide sans).
+        // 3) Programme de chaque formation (nombre de chapitres, progression, choix de chapitre).
+        const { data: chData, error: chErr } = await supabase
+          .from("formation_chapters")
+          .select("id, formation_id, title, sort_order")
+          .in("formation_id", ids)
+          .order("sort_order");
+        if (chErr) throw new Error(chErr.message);
+
+        // Coachs pour l’affichage des cartes (facultatif : la carte reste valide sans).
         const coachIds = [...new Set(ordered.map((f: any) => f.coach_id).filter(Boolean))];
-        let coachRows: any[] = [];
+        let coachRows: Coach[] = [];
         if (coachIds.length > 0) {
-          const { data: cData } = await supabase
-            .from("coaches")
-            .select("id, name, slug, photo_url")
-            .in("id", coachIds);
+          const { data: cData } = await supabase.from("coaches").select("id, name, slug, photo_url").in("id", coachIds);
           coachRows = cData || [];
         }
 
         if (!cancelled) {
           setFormations(ordered);
+          setChapters(chData || []);
           setCoaches(coachRows);
         }
+        // Progression enregistrée sur un autre appareil (si la table existe).
+        syncCompletedChapters(user.id, ids).then((changed) => {
+          if (changed && !cancelled) setProgressVersion((v) => v + 1);
+        });
       } catch (err) {
         console.error("Erreur chargement de mes formations:", err);
         if (!cancelled) setLoadError(true);
@@ -90,179 +128,220 @@ export function MesFormations() {
     };
   }, [user]);
 
-  // Session en cours de résolution : spinner sobre (même style que PageLoader).
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[var(--color-bg-base)] flex items-center justify-center">
-        <div className="w-10 h-10 rounded-full border-2 border-white/10 border-t-[var(--color-accent-primary)] animate-spin"></div>
-      </div>
-    );
-  }
-
   // Pas de compte connecté : direction la connexion, avec retour ici après.
-  if (!user) {
+  if (!authLoading && !user) {
     return <Navigate to="/connexion?redirect=/mes-formations" replace />;
   }
 
-  return (
-    <div className="bg-[var(--color-bg-base)] text-white selection:bg-[var(--color-accent-red)] selection:text-white min-h-screen font-body">
-      {/* En-tête */}
-      <section className="px-6 pt-32 md:pt-40 pb-10 md:pb-14 border-b border-white/5">
-        <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
-          >
-            <Badge color="red" className="mb-6 bg-[var(--color-bg-elevated)] border border-[var(--color-accent-red)]/30 text-white tracking-[0.2em] px-4 py-2 text-xs">
-              MMA IQ ACADEMY
-            </Badge>
-            <h1 className="font-display text-4xl md:text-6xl text-white mb-4 tracking-tight">
-              Mes formations
-            </h1>
-            <p className="font-body text-base md:text-lg text-[var(--color-text-secondary)] max-w-2xl leading-relaxed">
-              Retrouve ici tous les instructionals débloqués sur ton compte, accessibles en illimité.
-            </p>
-          </motion.div>
-        </div>
-      </section>
+  const seo = (
+    <Seo
+      title="Mes formations — MMA IQ Academy"
+      description="Retrouve les formations débloquées sur ton compte MMA IQ Academy et reprends ton apprentissage, quand tu veux."
+      canonicalPath="/mes-formations"
+    />
+  );
 
-      {/* Grille des formations */}
-      <section className="px-6 py-12 md:py-16 min-h-[50vh]">
-        <div className="max-w-7xl mx-auto">
-          {loading && (
-            <div className="flex items-center justify-center py-32">
-              <div className="w-10 h-10 rounded-full border-2 border-white/10 border-t-[var(--color-accent-primary)] animate-spin"></div>
-            </div>
-          )}
-
-          {!loading && loadError && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-32">
-              <p className="font-display text-2xl text-white mb-2">Impossible de charger tes formations.</p>
-              <p className="font-body text-[var(--color-text-secondary)]">Réessaie dans un instant — si le problème persiste, contacte-nous.</p>
-            </motion.div>
-          )}
-
-          {!loading && !loadError && formations.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center py-24 md:py-32 flex flex-col items-center"
-            >
-              <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 text-[var(--color-accent-red)]">
-                <GraduationCap size={28} />
+  // Session ou bibliothèque en cours de chargement, ou erreur de lecture.
+  if (authLoading || loading || loadError) {
+    return (
+      <>
+        {seo}
+        <LibraryHeader />
+        <section className="v3-gutter bg-v3-clair py-12 lg:py-[72px]" aria-live="polite">
+          <div className="v3-container">
+            {loadError ? (
+              <div className="flex flex-col items-start gap-4">
+                <p className="text-[26px] font-semibold leading-8 text-v3-navy">Impossible de charger tes formations.</p>
+                <p className="v3-body text-v3-ink-muted">Réessaie dans un instant. Si le problème persiste, <Link to="/contact" className="underline underline-offset-4">contacte-nous</Link>.</p>
               </div>
-              <p className="font-display text-2xl md:text-3xl text-white mb-3">Tu n'as pas encore de formation</p>
-              <p className="font-body text-[var(--color-text-secondary)] mb-8 max-w-md">
-                Explore le catalogue : des instructionals ciblés, à l'essentiel, par des coachs qui savent transmettre.
+            ) : (
+              <div role="status" className="flex items-center gap-3 text-v3-ink-muted">
+                <span aria-hidden="true" className="size-6 animate-spin rounded-full border-2 border-v3-border border-t-v3-brand" />
+                <span className="v3-label">Chargement de ta bibliothèque…</span>
+              </div>
+            )}
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // Bibliothèque vide
+  if (formations.length === 0) {
+    return (
+      <>
+        {seo}
+        <LibraryHeader />
+        <section className="v3-gutter bg-v3-clair py-12 lg:py-[72px]">
+          <div className="v3-container flex flex-col gap-10 lg:flex-row lg:items-start">
+            <div className="flex flex-col items-start gap-6 rounded-[16px] bg-white p-6 lg:flex-1 lg:bg-v3-clair lg:p-12">
+              <p className="v3-label text-v3-ink-muted">TA BIBLIOTHÈQUE · 0 FORMATION</p>
+              <h2 className="text-[36px] font-medium leading-10 tracking-[-1.08px] text-v3-navy lg:text-[48px] lg:font-semibold lg:leading-[54px] lg:tracking-[-1px]">
+                Tout commence<br />par un premier cours.
+              </h2>
+              <p className="v3-body text-v3-ink-muted lg:max-w-[640px]">
+                Tu n’as pas encore de formation sur ce compte. Explore l’Academy pour trouver le sujet que tu souhaites approfondir.
               </p>
-              <Link
-                to="/instructional"
-                className="bg-[var(--color-accent-red)] hover:opacity-90 text-white font-ui font-semibold py-4 px-8 rounded-full transition-all duration-300 shadow-xl flex items-center justify-center gap-2"
-              >
-                Découvrir le catalogue <ArrowRight size={18} />
-              </Link>
-            </motion.div>
-          )}
-
-          {!loading && !loadError && formations.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {formations.map((formation: any, i: number) => {
-                const coach = coaches.find((c: any) => c.id === formation.coach_id);
-                const coursePath = `/course/${formation.slug || formation.id}`;
-                return (
-                  <motion.div
-                    key={formation.id || i}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: i * 0.05 }}
-                    className="relative group flex flex-col h-full bg-white/[0.04] border border-white/[0.05] rounded-3xl overflow-hidden hover:border-[var(--color-accent-red)]/40 hover:-translate-y-2 transition-all duration-300"
-                  >
-                    <div
-                      onClick={() => navigate(coursePath)}
-                      className="cursor-pointer flex flex-col h-full"
-                    >
-                      <div className="aspect-video bg-[var(--color-bg-elevated)] relative overflow-hidden shrink-0">
-                        {formation.thumbnail_url ? (
-                          <img
-                            loading="lazy"
-                            src={formation.thumbnail_url}
-                            alt={formation.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          // Repli sans vignette : bloc dégradé aux tokens de la
-                          // carte plutôt qu'une image par défaut inexistante.
-                          <div className="w-full h-full bg-gradient-to-br from-[var(--color-bg-elevated)] via-[var(--color-bg-surface)] to-[var(--color-accent-red)]/20 flex items-center justify-center">
-                            <GraduationCap size={48} className="text-white/20" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-surface)] via-[var(--color-bg-surface)]/20 to-transparent"></div>
-
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
-                          <div className="w-16 h-16 rounded-full bg-[var(--color-accent-red)] flex items-center justify-center backdrop-blur-md shadow-[0_0_40px_rgba(255,23,68,0.6)] transform scale-75 group-hover:scale-100 transition-transform duration-500">
-                            <Play className="w-6 h-6 ml-1 text-white" fill="currentColor" />
-                          </div>
-                        </div>
-
-                        {formation.level && (
-                          <div className="absolute top-4 left-4 z-20">
-                            <Badge
-                              color={formation.level?.toLowerCase() === "debutant" ? "green" : formation.level?.toLowerCase() === "amateur" ? "purple" : "red"}
-                              className="bg-black/80 backdrop-blur-md border-white/5 font-bold tracking-widest text-[10px]"
-                            >
-                              {levelLabels[formation.level?.toLowerCase()] || formation.level}
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="p-6 flex flex-col flex-grow">
-                        <div className="flex items-center gap-3 mb-4">
-                          {coach ? (
-                            <Link
-                              to={`/coaches/${coach.slug}`}
-                              className="flex items-center gap-2 hover:opacity-80 transition-opacity relative z-30"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <div className="w-6 h-6 md:w-8 md:h-8 rounded-full overflow-hidden border border-white/10 shrink-0">
-                                <img loading="lazy" src={coach.photo_url} alt={coach.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                              </div>
-                              <span className="font-ui text-xs md:text-sm font-semibold text-white/90">{coach.name}</span>
-                            </Link>
-                          ) : (
-                            <span className="font-ui text-xs md:text-sm font-semibold text-white/90">Coach</span>
-                          )}
-
-                          {formation.duration && (
-                            <>
-                              <span className="text-white/30 text-xs">•</span>
-                              <div className="flex items-center gap-1.5 text-[var(--color-text-secondary)] text-xs md:text-sm font-ui">
-                                <Clock size={14} /> {formation.duration}
-                              </div>
-                            </>
-                          )}
-                        </div>
-
-                        <h3 className="font-display text-xl md:text-2xl mb-4 text-white group-hover:text-[var(--color-accent-red)] transition-colors line-clamp-2 leading-tight">
-                          {formation.title}
-                        </h3>
-
-                        <div className="mt-auto pt-5 border-t border-white/5">
-                          <button className="w-full bg-[var(--color-accent-red)] hover:opacity-90 text-white font-ui font-bold py-3 px-5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-[0_0_15px_rgba(255,23,68,0.2)]">
-                            Regarder <ArrowRight size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
+              <ButtonLink to="/academy">Découvrir l’Academy</ButtonLink>
             </div>
-          )}
+            <div className="flex flex-col items-start gap-6 rounded-[16px] bg-v3-accent p-6 text-white lg:w-[420px] lg:shrink-0 lg:p-8">
+              <h2 className="v3-subheading">Tu as reçu<br />un code d’accès ?</h2>
+              <p className="v3-body">
+                Ouvre la fiche de la formation concernée et saisis ton code pour débloquer ses chapitres. Elle apparaîtra ensuite ici.
+              </p>
+              <ButtonLink to="/academy">Utiliser mon code</ButtonLink>
+              <p className="v3-small">
+                Besoin d’aide ? <Link to="/contact" className="underline-offset-4 hover:underline">Notre équipe peut retrouver ton accès.</Link>
+              </p>
+            </div>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  // Bibliothèque active ou terminée : progression du navigateur, synchronisée si possible (voir utils/formationProgress).
+  const cards = formations.map((formation: any) => {
+    const programme = chapters.filter((c) => c.formation_id === formation.id);
+    const total = programme.length;
+    const completed = readCompletedChapters(user!.id, formation.id);
+    const done = countCompleted(completed, total);
+    const nextChapter = programme.findIndex((_, index) => !completed.includes(index + 1)) + 1;
+    return { formation, programme, total, done, nextChapter, finished: total > 0 && done === total };
+  });
+  const allDone = cards.every((card) => card.finished);
+  const intro = libraryIntro(cards.length, cards[0].total, allDone);
+
+  return (
+    <>
+      {seo}
+      <section className="v3-gutter bg-v3-clair py-8 lg:py-[72px]">
+        <div className="v3-container flex flex-col items-start gap-4 lg:gap-10">
+          <p className="v3-label text-v3-ink-muted">MMA IQ ACADEMY · MON COMPTE</p>
+          <h1 className="text-[36px] font-medium leading-10 tracking-[-1.08px] text-v3-navy lg:text-[48px] lg:font-semibold lg:leading-[54px] lg:tracking-[-1px]">Mes formations</h1>
+          <p className="v3-body text-v3-ink-muted lg:max-w-[1100px]">{intro}</p>
+
+          <ul className="flex w-full flex-col gap-4 lg:gap-10">
+            {cards.map(({ formation, programme, total, done, nextChapter, finished }) => {
+              const coach = coaches.find((c) => c.id === formation.coach_id);
+              const details = [
+                disciplineLabel(formation.discipline),
+                levelLabel(formation.level?.toLowerCase()),
+                formation.duration,
+              ].filter(Boolean);
+              // Statut : on n’affiche « en cours » / « terminé » que si une progression existe.
+              const status = finished
+                ? `TERMINÉ · ${done} SUR ${total} CHAPITRES`
+                : done > 0
+                  ? `EN COURS · ${done} SUR ${total} CHAPITRES`
+                  : `FORMATION · ${total} CHAPITRE${total > 1 ? "S" : ""}`;
+              const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+              return (
+                <li key={formation.id} className="flex flex-col gap-4 rounded-[16px] bg-white p-6 lg:flex-row-reverse lg:justify-end lg:gap-10 lg:bg-v3-clair lg:p-8">
+                  <div className="flex min-w-0 flex-col items-start gap-4 lg:flex-1 lg:gap-6">
+                    <p className="v3-label text-v3-ink-muted">{status}</p>
+                    <h2 className="v3-subheading text-v3-navy">
+                      <Link to={readingPath(formation)} className="underline-offset-4 hover:underline">{formation.title}</Link>
+                    </h2>
+                    {(details.length > 0 || coach) && (
+                      <p className="v3-label text-v3-ink-muted">
+                        {details.join(" · ")}
+                        {coach && (
+                          <>
+                            {details.length > 0 && " · "}
+                            {coach.slug ? <Link to={`/coaches/${coach.slug}`} className="underline-offset-4 hover:underline">{coach.name}</Link> : coach.name}
+                          </>
+                        )}
+                      </p>
+                    )}
+                    <div
+                      role="progressbar"
+                      aria-label={`Progression : ${done} sur ${total} chapitres terminés`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={percent}
+                      className="h-1 w-full bg-v3-border lg:max-w-[700px]"
+                    >
+                      <div className="h-full bg-v3-lavender" style={{ width: `${percent}%` }} />
+                    </div>
+                    {total === 0 ? (
+                      <ButtonLink to={readingPath(formation)}>Ouvrir la formation</ButtonLink>
+                    ) : finished ? (
+                      <Button onClick={() => setPicking(formation)} aria-haspopup="dialog">Revoir un chapitre</Button>
+                    ) : done > 0 ? (
+                      <ButtonLink to={readingPath(formation, nextChapter)}>Reprendre la formation</ButtonLink>
+                    ) : (
+                      <Button onClick={() => setPicking(formation)} aria-haspopup="dialog">Choisir un chapitre</Button>
+                    )}
+                  </div>
+                  <div className="relative h-[220px] w-full shrink-0 overflow-hidden rounded-[16px] sm:h-[320px] lg:h-[270px] lg:w-[400px]">
+                    <img
+                      src={formation.thumbnail_url || FALLBACK_VISUAL}
+                      alt=""
+                      width={1600}
+                      height={687}
+                      loading="lazy"
+                      decoding="async"
+                      referrerPolicy="no-referrer"
+                      className="absolute inset-0 size-full object-cover"
+                    />
+                  </div>
+                  {picking?.id === formation.id && (
+                    <ChapterDialog formation={formation} chapters={programme} onClose={() => setPicking(null)} />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+
+          <ButtonLink to="/academy" variant="light">Explorer l’Academy</ButtonLink>
         </div>
       </section>
-    </div>
+    </>
+  );
+}
+
+/** En-tête sombre « Mes formations » (bibliothèque vide, chargement). */
+function LibraryHeader() {
+  return (
+    <section className="v3-gutter bg-v3-fond py-12 lg:py-[72px]">
+      <div className="v3-container flex flex-col items-start gap-6 lg:gap-10">
+        <p className="v3-label text-v3-lavender">MMA IQ ACADEMY · MON COMPTE</p>
+        <h1 className="text-[36px] font-medium leading-10 tracking-[-1.08px] text-v3-paper lg:text-[48px] lg:font-semibold lg:leading-[54px] lg:tracking-[-1px]">Mes formations</h1>
+        <p className="v3-body text-v3-muted lg:max-w-[800px]">
+          Retrouve les formations débloquées sur ton compte. Reprends ton apprentissage, quand tu veux.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+/** Modale « Choisis ton chapitre. » : chaque chapitre ouvre la lecture au bon endroit. */
+function ChapterDialog({ formation, chapters, onClose }: { formation: any; chapters: Chapter[]; onClose: () => void }) {
+  const titleId = useDialogTitleId("chapitre-title");
+  const navigate = useNavigate();
+  return (
+    <Dialog open onClose={onClose} labelledBy={titleId} panelClassName="max-w-[560px] rounded-[16px] bg-v3-surface p-6 text-white sm:p-10">
+      <div className="flex flex-col items-start gap-6">
+        <h2 id={titleId} className="text-[32px] font-semibold leading-[38px] sm:text-[40px] sm:leading-[46px]">Choisis ton chapitre.</h2>
+        <p className="v3-body text-v3-muted">Formation · {shortTitle(formation.title)}</p>
+        {chapters.map((chapter, index) => (
+          <Button
+            key={chapter.id}
+            block
+            data-autofocus={index === 0 ? true : undefined}
+            className="whitespace-normal"
+            onClick={() => {
+              onClose();
+              navigate(readingPath(formation, index + 1));
+            }}
+          >
+            {pad(index + 1)} · {chapter.title}
+          </Button>
+        ))}
+        <Button variant="outline" onClick={onClose}>Fermer</Button>
+      </div>
+    </Dialog>
   );
 }

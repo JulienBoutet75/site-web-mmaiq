@@ -12,9 +12,11 @@ interface WaitlistFormProps {
   id?: string;
   className?: string;
   onSuccess?: () => void;
+  /** « light » : champs V3 sur fond clair (fenêtres Academy). */
+  tone?: 'dark' | 'light';
 }
 
-export function WaitlistForm({ interest = 'app', id, className = '', onSuccess }: WaitlistFormProps) {
+export function WaitlistForm({ interest = 'app', id, className = '', onSuccess, tone = 'dark' }: WaitlistFormProps) {
   const generatedId = useId();
   const formId = id ?? `waitlist-${generatedId}`;
   const [email, setEmail] = useState('');
@@ -29,6 +31,7 @@ export function WaitlistForm({ interest = 'app', id, className = '', onSuccess }
   const errorRef = useRef<HTMLParagraphElement>(null);
   const codeRef = useRef<HTMLInputElement>(null);
   const academy = interest === 'academy';
+  const light = tone === 'light';
 
   useEffect(() => {
     const handleSuccess = (event: Event) => {
@@ -80,29 +83,29 @@ export function WaitlistForm({ interest = 'app', id, className = '', onSuccess }
   return (
     <div id={formId} data-waitlist-form={interest} className={`scroll-mt-28 text-left ${className}`}>
       {status === 'success' ? (
-        <div ref={successRef} tabIndex={-1} role="status" className="flex gap-3 rounded-2xl border border-[var(--color-violet-300)]/30 bg-[var(--color-accent-primary)]/10 p-5">
-          <CheckCircle2 className="mt-0.5 h-6 w-6 shrink-0 text-[var(--color-violet-300)]" aria-hidden="true" />
+        <div ref={successRef} tabIndex={-1} role="status" className={light ? "flex gap-3 rounded-[12px] border border-v3-border bg-white p-4" : "flex gap-3 rounded-2xl border border-[var(--color-violet-300)]/30 bg-[var(--color-accent-primary)]/10 p-5"}>
+          <CheckCircle2 className={`mt-0.5 h-6 w-6 shrink-0 ${light ? 'text-v3-brand' : 'text-[var(--color-violet-300)]'}`} aria-hidden="true" />
           <div>
-            <p className="font-semibold text-white">Ton inscription est enregistrée.</p>
-            <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+            <p className={light ? "font-semibold text-v3-navy" : "font-semibold text-white"}>Ton inscription est enregistrée.</p>
+            <p className={light ? "mt-1 text-sm leading-5 text-v3-ink-muted" : "mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]"}>
               {academy ? 'Nous te préviendrons par email lorsque les premières formations seront disponibles.' : "Nous te préviendrons par email lorsque l'application sera disponible."}
             </p>
           </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} aria-label={academy ? 'Être prévenu des premières formations' : "Être prévenu du lancement de l'application"} aria-busy={status === 'loading'}>
-          <label htmlFor={`${formId}-email`} className="mb-2 block text-sm font-medium text-white">Ton adresse email</label>
+          <label htmlFor={`${formId}-email`} className={light ? "v3-field-label" : "mb-2 block text-sm font-medium text-white"}>Ton adresse email</label>
           <div className="flex flex-col gap-3 sm:flex-row">
             <input id={`${formId}-email`} name="email" type="email" autoComplete="email" inputMode="email" required maxLength={254}
               value={email} onChange={event => setEmail(event.target.value)} placeholder="toi@exemple.fr" readOnly={status === 'loading'}
               aria-describedby={`${formId}-privacy${error ? ` ${formId}-error` : ''}`}
-              className="min-h-14 min-w-0 flex-1 rounded-xl border border-white/20 bg-[var(--color-bg-surface)] px-4 text-base text-white placeholder:text-white/50 focus:border-[var(--color-violet-300)]" />
-            <button type="submit" disabled={status === 'loading'} className="inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-accent-primary)] px-5 text-base font-bold text-white transition-colors hover:bg-[var(--color-violet-600)] disabled:cursor-wait disabled:opacity-70">
+              className={light ? "v3-input min-w-0 flex-1" : "min-h-14 min-w-0 flex-1 rounded-xl border border-white/20 bg-[var(--color-bg-surface)] px-4 text-base text-white placeholder:text-white/50 focus:border-[var(--color-violet-300)]"} />
+            <button type="submit" disabled={status === 'loading'} className={light ? "inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-[12px] bg-v3-brand px-6 text-base font-semibold text-white transition-colors hover:bg-v3-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-v3-brand disabled:cursor-wait disabled:opacity-70" : "inline-flex min-h-14 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--color-accent-primary)] px-5 text-base font-bold text-white transition-colors hover:bg-[var(--color-violet-600)] disabled:cursor-wait disabled:opacity-70"}>
               {status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Bell className="h-4 w-4" aria-hidden="true" />}
               {status === 'loading' ? 'Inscription…' : 'Me prévenir'}
             </button>
           </div>
-          {error && <p id={`${formId}-error`} ref={errorRef} role="alert" tabIndex={-1} className="mt-3 text-sm leading-relaxed text-[var(--color-semantic-error)]">{error}</p>}
+          {error && <p id={`${formId}-error`} ref={errorRef} role="alert" tabIndex={-1} className={light ? "mt-3 text-sm leading-5 text-[#c0392b]" : "mt-3 text-sm leading-relaxed text-[var(--color-semantic-error)]"}>{error}</p>}
           {!academy && (
             <details className="mt-3 text-sm" open={code ? true : undefined}>
               <summary className="w-fit cursor-pointer py-2 text-[var(--color-text-secondary)] hover:text-white">J'ai un code salle <span className="text-xs">(facultatif)</span></summary>
@@ -112,9 +115,9 @@ export function WaitlistForm({ interest = 'app', id, className = '', onSuccess }
                 placeholder="Ex. GRACIELYON" className="min-h-12 w-full rounded-xl border border-white/20 bg-[var(--color-bg-surface)] px-4 text-base text-white placeholder:text-white/50 sm:max-w-xs" />
             </details>
           )}
-          <p id={`${formId}-privacy`} className="mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
+          <p id={`${formId}-privacy`} className={light ? "mt-3 text-sm leading-5 text-v3-ink-muted" : "mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)]"}>
             Inscription gratuite, sans compte. {academy ? 'Un email à la sortie des premières formations.' : "Un email au lancement de l'app."}{' '}
-            <Link to="/confidentialite" className="underline underline-offset-4 hover:text-white">Confidentialité</Link>
+            <Link to="/confidentialite" className={light ? "underline underline-offset-4 hover:text-v3-navy" : "underline underline-offset-4 hover:text-white"}>Confidentialité</Link>
           </p>
         </form>
       )}

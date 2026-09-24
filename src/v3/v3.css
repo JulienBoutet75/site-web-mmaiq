@@ -1,0 +1,226 @@
+/* ------------------------------------------------------------------
+   MMA IQ — Direction V3 « The next round » (Figma 2092:6678)
+   Couleurs, fonds dégradés et styles typographiques de la maquette.
+   Les dégradés Figma sont orientés du coin haut-gauche au coin bas-droit
+   (« to bottom right ») avec des arrêts à 14,286 % / 85,714 %.
+   ------------------------------------------------------------------ */
+
+@theme {
+  --color-v3-brand: #7b2fff;
+  --color-v3-brand-hover: #6a1ff0;
+  --color-v3-lavender: #c9a9ff;
+  --color-v3-lavender-soft: #d9c4ff;
+  --color-v3-paper: #f0f4ff;
+  --color-v3-muted: #aab2c8;
+  --color-v3-navy: #04050a;
+  --color-v3-ink-muted: #4a5568;
+  --color-v3-border: #d8dde8;
+  --color-v3-night: #221c33;
+  --color-v3-card: #ffffff;
+  --color-v3-glass: #07080a;
+  --color-v3-titanium: #78787d;
+
+  --radius-v3-button: 12px;
+  --radius-v3-card: 16px;
+  --radius-v3-hero: 24px;
+}
+
+/* Fonds de section (styles Figma « MMA IQ V3 / Fond / … ») */
+@utility bg-v3-fond {
+  background-color: #221c33;
+  background-image: linear-gradient(to bottom right, #2c2442 14.286%, #191625 85.714%);
+}
+@utility bg-v3-nav {
+  background-color: #1e182c;
+  background-image: linear-gradient(to bottom right, #221b34 14.286%, #191625 85.714%);
+}
+@utility bg-v3-surface {
+  background-color: #2a2239;
+  background-image: linear-gradient(to bottom right, #302742 14.286%, #211d31 85.714%);
+}
+@utility bg-v3-accent {
+  background-color: #3c2661;
+  background-image: linear-gradient(to bottom right, #4a267a 14.286%, #2f2548 85.714%);
+}
+@utility bg-v3-clair {
+  background-color: #eee9f8;
+  background-image: linear-gradient(to bottom right, #f4f0fc 14.286%, #e9e2f5 85.714%);
+}
+
+@layer components {
+  /* Racine V3 : DM Sans avec taille optique automatique (axe opsz 9–40),
+     comme le rendu Figma — les grands titres utilisent la coupe « display ». */
+  .v3 {
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    /* Lissage en niveaux de gris, comme le rendu Figma (texte clair sur fond sombre). */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .v3 :where(h1, h2, h3, h4, h5, h6) {
+    font-family: "DM Sans", sans-serif;
+  }
+
+  /* MMA IQ V2/Label — 14/20 Medium */
+  .v3-label { font-size: 14px; line-height: 20px; font-weight: 500; }
+  /* MMA IQ V2/Small — 14/20 Regular */
+  .v3-small { font-size: 14px; line-height: 20px; font-weight: 400; }
+  /* MMA IQ V2/Body — 18/28 Regular (16/24 sur mobile quand la maquette l’indique) */
+  .v3-body { font-size: 18px; line-height: 28px; font-weight: 400; }
+  /* MMA IQ V2/Button — 16/24 SemiBold */
+  .v3-button-text { font-size: 16px; line-height: 24px; font-weight: 600; }
+  /* MMA IQ V2/Subheading — 26/32 SemiBold */
+  .v3-subheading { font-size: 26px; line-height: 32px; font-weight: 600; }
+  /* Sur-titre lavande en capitales */
+  .v3-eyebrow { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--color-v3-lavender); }
+
+  /* MMA IQ V2/Heading — 48/54 SemiBold −1 px (desktop) ; 32/38 sur mobile */
+  .v3-heading {
+    font-family: "DM Sans", sans-serif;
+    font-size: 32px; line-height: 38px; font-weight: 600; letter-spacing: 0;
+  }
+  @media (min-width: 1024px) {
+    .v3-heading { font-size: 48px; line-height: 54px; letter-spacing: -1px; }
+  }
+  /* Titre de section mobile « 40/44 Medium −1,2 px » → 48/54 SemiBold sur desktop */
+  .v3-heading-lg {
+    font-family: "DM Sans", sans-serif;
+    font-size: 40px; line-height: 44px; font-weight: 500; letter-spacing: -1.2px;
+  }
+  @media (min-width: 1024px) {
+    .v3-heading-lg { font-size: 48px; line-height: 54px; font-weight: 600; letter-spacing: -1px; }
+  }
+  /* Grande promesse Bebas Neue — 52/56 mobile, 88/92 desktop */
+  .v3-display {
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: 400;
+    font-size: 52px; line-height: 56px;
+    text-transform: uppercase;
+  }
+  @media (min-width: 1024px) {
+    .v3-display { font-size: 88px; line-height: 92px; }
+  }
+
+  /* Gouttières de page : 24 px mobile, 40 px tablette, 80 px desktop.
+     Largeur de lecture plafonnée à 1 280 px. */
+  .v3-gutter { padding-inline: 24px; }
+  @media (min-width: 768px) { .v3-gutter { padding-inline: 40px; } }
+  @media (min-width: 1280px) { .v3-gutter { padding-inline: 80px; } }
+  .v3-container { width: 100%; max-width: 1280px; margin-inline: auto; }
+
+  /* Premier écran : navigation 72 px (mobile) / 104 px (desktop). */
+  .v3-first-screen { min-height: calc(100svh - 72px); }
+  @media (min-width: 1024px) { .v3-first-screen { min-height: calc(100svh - 104px); } }
+
+  /* Champs de formulaire (fond clair) */
+  .v3-input {
+    width: 100%;
+    min-height: 56px;
+    border-radius: 12px;
+    border: 1px solid var(--color-v3-border);
+    background: #ffffff;
+    padding: 15px 16px; /* 56 px avec la bordure de 1 px */
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--color-v3-navy);
+    transition: border-color 150ms, box-shadow 150ms;
+  }
+  .v3-input::placeholder { color: var(--color-v3-ink-muted); opacity: 1; }
+  .v3-input:focus { outline: none; border-color: var(--color-v3-brand); box-shadow: 0 0 0 3px rgb(123 47 255 / 20%); }
+  .v3-input[aria-invalid="true"] { border-color: #c0392b; }
+  textarea.v3-input { min-height: 140px; resize: vertical; }
+  select.v3-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%234a5568' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 44px; }
+  .v3-field-label { display: block; margin-bottom: 8px; font-size: 14px; line-height: 20px; font-weight: 500; color: var(--color-v3-navy); }
+
+  /* Champs de formulaire (fond sombre) */
+  .v3-input-dark {
+    width: 100%;
+    min-height: 56px;
+    border-radius: 12px;
+    border: 1px solid rgb(255 255 255 / 16%);
+    background: rgb(255 255 255 / 6%);
+    padding: 15px 16px; /* 56 px avec la bordure de 1 px */
+    font-size: 16px;
+    line-height: 24px;
+    color: #ffffff;
+  }
+  .v3-input-dark::placeholder { color: var(--color-v3-muted); opacity: 1; }
+  .v3-input-dark:focus { outline: none; border-color: var(--color-v3-lavender); box-shadow: 0 0 0 3px rgb(201 169 255 / 20%); }
+}
+
+/* Cadre iPhone (composant Figma « MMA IQ V3 / iPhone / Capture réelle »).
+   Géométrie relative à la largeur : 272 px de référence. */
+.v3-iphone {
+  position: relative;
+  width: 100%;
+  padding: 0.714%;
+  border-radius: 45px;
+  background-image: linear-gradient(109.6deg, #c2c2cc 10.714%, #4d4d57 26.429%, #9e9ea8 46.429%, #33333b 66.429%, #a8a8b2 82.143%);
+  filter: drop-shadow(0 19.4px 19.4px rgb(8 5 18 / 40%));
+}
+.v3-iphone__glass {
+  overflow: hidden;
+  padding: 2.174%;
+  border-radius: 43px;
+  background: var(--color-v3-glass);
+}
+.v3-iphone__screen {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1206 / 2622;
+  object-fit: contain;
+  border-radius: 37px;
+  background: #1a1726;
+}
+.v3-iphone__island {
+  position: absolute;
+  left: 36.07%;
+  top: 3.05%;
+  width: 27.86%;
+  height: 3.73%;
+  border-radius: 11px;
+  background: var(--color-v3-glass);
+}
+.v3-iphone__lens {
+  position: absolute;
+  left: 58.21%;
+  top: 4.32%;
+  width: 2.5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #0f131f;
+}
+.v3-iphone__home {
+  position: absolute;
+  left: 34.29%;
+  top: 97.46%;
+  width: 31.43%;
+  height: 0.51%;
+  border-radius: 1.5px;
+  background: rgb(240 240 247 / 85%);
+}
+.v3-iphone__btn {
+  position: absolute;
+  width: 0.89%;
+  border-radius: 1.2px;
+  background: var(--color-v3-titanium);
+}
+.v3-iphone__btn--action { left: -0.71%; top: 17.29%; height: 3.05%; }
+.v3-iphone__btn--vol-up { left: -0.71%; top: 23.9%; height: 4.41%; }
+.v3-iphone__btn--vol-down { left: -0.71%; top: 29.66%; height: 4.41%; }
+.v3-iphone__btn--side { right: -0.71%; top: 26.27%; height: 9.66%; }
+
+/* Boîtes de dialogue V3 (sélecteur de profil, stores, aides) */
+.v3-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+  background: rgb(18 14 29 / 72%);
+  backdrop-filter: blur(6px);
+}

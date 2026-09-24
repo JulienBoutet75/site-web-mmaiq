@@ -1,302 +1,158 @@
-import { useState, useEffect } from "react";
-import { motion } from 'motion/react';
 import { Link } from "react-router-dom";
-import { Badge } from "../components/ui/Badge";
-import { EditableText, EditableImage, EditableSelect } from "../components/admin/Editable";
-import { useAuth } from "../context/AuthContext";
-import { useSite } from "../context/SiteContext";
-import { fetchData } from "../lib/supabase";
-import { Play, ArrowRight, PlayCircle, Video, ChevronLeft, ChevronRight, CalendarDays, Target, ChartNoAxesCombined } from "lucide-react";
-import { powerUpVariant, textRevealVariant } from "../animations";
-import PricingSection from "../components/PricingSection";
-import { TrustBar } from "../components/TrustBar";
-import { PhoneFrame } from "../components/PhoneFrame";
-import { WaitlistForm } from "../components/WaitlistForm";
-import { FaqAccordion } from "../components/FaqAccordion";
+import { ArrowUpRight } from "lucide-react";
 import { Seo } from "../components/Seo";
-import { CoachIntroduction } from "../components/CoachIntroduction";
-import { faqs } from "../data/faq";
+import { ArrowLink, DownloadButton, Eyebrow, IPhone, Section, StoreButtons } from "../v3/ui";
+
+// Figma « Accueil · Desktop · Vue complète » (2190:20475) et « Mobile » (2190:20613).
+
+const BENEFITS = [
+  {
+    title: "Retrouve tes exercices.",
+    text: ["Organise tes séances et retrouve", "tes programmes au même endroit."],
+    image: "/v3/photo-training-zone.webp",
+    alt: "Salle d’entraînement MMA IQ : cordes ondulatoires, corde à sauter et travail au sac",
+    tile: "bg-white lg:bg-v3-clair",
+  },
+  {
+    title: "Reviens sur les actions clés.",
+    text: ["Tutoriels et analyse vidéo :", "des repères pour affiner ta technique."],
+    image: "/v3/photo-sparring-lab.webp",
+    alt: "Deux combattants travaillent un enchaînement aux pattes d’ours",
+    tile: "bg-v3-lavender lg:bg-v3-accent",
+  },
+  {
+    title: "Suis ta progression.",
+    text: ["Rassemble ton suivi et tes objectifs", "pour préparer la suite."],
+    image: "/v3/photo-hands-wrapped.webp",
+    alt: "Combattant concentré, mains bandées",
+    tile: "bg-v3-navy lg:bg-v3-fond",
+  },
+];
+
+const PROFILES = [
+  { number: "01", title: "Je pratique", text: "Poser les bases. Trouver ton rythme.", to: "/pratiquant" },
+  { number: "02", title: "Je combats", text: "Structurer ta préparation. Affiner ton gameplan.", to: "/combattant" },
+  { number: "03", title: "Je coache", text: "Suivre tes athlètes. Accompagner leur progression.", to: "/coach" },
+  { number: "04", title: "Je dirige une salle", text: "Connecter ton club. Rejoindre le programme partenaire.", to: "/partenaires" },
+];
 
 export function Home() {
-  const { accessToken } = useAuth();
-  const { siteData, isAdmin } = useSite();
-  const [coaches, setCoaches] = useState<any[]>([]);
-  const [formations, setFormations] = useState<any[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    Promise.all([
-      fetchData("coaches", "id,name,slug,photo_url,tagline,bio", "&order=name.asc", accessToken),
-      fetchData("formations", "*", "&order=created_at.desc", accessToken),
-    ]).then(([c, f]) => {
-      if (cancelled) return;
-      setCoaches(c || []);
-      setFormations((f || []).filter((formation: any) => formation.published !== false));
-    }).catch(error => console.error("Error loading coaches/formations", error));
-    return () => { cancelled = true; };
-  }, [accessToken]);
-
   return (
-    <div className="bg-[var(--color-bg-base)] text-white">
-      <Seo title="MMA IQ — Ta semaine de MMA, avec un plan clair" description="Entraînement, suivi de progression et préparation des combats. Découvre l'application MMA IQ et inscris-toi gratuitement pour être prévenu du lancement." canonicalPath="/" />
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0" aria-hidden="true">
-          <EditableImage path="home.hero.main.bg" defaultSrc="https://tmmtabzxcgxlmsgfgxwx.supabase.co/storage/v1/object/public/images/22.png" className="h-full w-full" imgClassName="h-full w-full object-cover opacity-20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-bg-base)] via-[var(--color-bg-base)]/90 to-[var(--color-bg-base)]/60" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[var(--color-bg-base)] to-transparent" />
+    <>
+      <Seo
+        title="MMA IQ — Chaque round. Plus intelligent."
+        description="De ta prochaine séance à ton prochain combat : prépare-toi, travaille ta technique et suis ta progression dans une seule app, disponible sur iOS et Android."
+        canonicalPath="/"
+      />
+
+      {/* 02 · Hero — Une promesse, un produit */}
+      <section className="v3-first-screen relative flex w-full flex-col overflow-hidden bg-v3-fond text-white lg:flex-row lg:items-center">
+        <div aria-hidden="true" className="absolute inset-0 hidden lg:block">
+          <img src="/v3/campaign-training.webp" alt="" width={1536} height={1024} fetchPriority="high" className="size-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[rgba(44,36,66,0.98)] via-[rgba(33,27,51,0.82)] via-43% to-[rgba(26,22,37,0.08)]" />
         </div>
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 pt-28 pb-14 sm:pt-36 sm:pb-20 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
-          <div className="min-w-0 max-w-2xl">
-            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--color-violet-300)]/25 bg-[var(--color-accent-primary)]/10 px-3 py-2 text-xs font-semibold tracking-wide text-[var(--color-violet-200)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-violet-300)]" aria-hidden="true" /> Bientôt sur iOS et Android
-            </p>
-            <EditableText as="h1" path="home.launch.title" defaultText="Ta semaine de MMA, avec un plan clair." className="font-display text-5xl leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl" />
-            <EditableText as="p" path="home.launch.subtitle" defaultText="Organise tes entraînements, suis ta progression et prépare tes combats avec MMA IQ. Une application pensée pour accompagner ta pratique, séance après séance." className="mt-6 max-w-xl text-base leading-relaxed text-[var(--color-text-secondary)] sm:text-lg" />
-            <div className="mt-7 max-w-xl">
-              <p className="mb-4 text-base font-semibold">Sois prévenu du lancement.</p>
-              <WaitlistForm id="home-waitlist" />
+
+        <div className="v3-gutter relative flex w-full flex-1 flex-col justify-center gap-6 py-6 lg:py-14">
+          <div className="v3-container flex flex-1 flex-col justify-center gap-6 lg:flex-none">
+            <div className="flex w-full flex-col items-start gap-4 lg:max-w-[544px] lg:gap-6">
+              <p className="v3-label whitespace-pre-wrap text-v3-lavender">{"MMA IQ  /  L’INTELLIGENCE DU COMBAT"}</p>
+              <h1 className="v3-display text-v3-paper">Chaque round.<br />Plus intelligent.</h1>
+              <p className="text-[16px] leading-6 text-v3-muted lg:text-[18px] lg:leading-7">
+                <span className="lg:hidden">Planifie tes entraînements, suis ta nutrition et prépare tes combats dans une seule app.</span>
+                <span className="hidden lg:inline">De ta prochaine séance à ton prochain combat. Prépare-toi, travaille ta technique et suis ta progression dans une seule app.</span>
+              </p>
+              <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:gap-6">
+                <DownloadButton />
+                <ArrowLink to="/application">Voir l’application en action</ArrowLink>
+              </div>
+              <p className="v3-small text-v3-muted">
+                Disponible sur iOS et Android<span className="hidden lg:inline"> · Commence gratuitement</span>
+              </p>
             </div>
-            <a href="#demo" className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-white hover:text-[var(--color-violet-200)]">
-              <PlayCircle className="h-5 w-5" aria-hidden="true" /> Voir la démonstration <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </a>
-          </div>
-          <figure className="hidden lg:block">
-            <PhoneFrame src="/app/videos/hero-performance.mp4" poster="/app/videos/hero-performance-poster.webp" label="Démonstration du suivi de progression dans MMA IQ" eager />
-            <figcaption className="mx-auto mt-5 max-w-xs text-center text-sm leading-relaxed text-[var(--color-text-secondary)]">Capture réelle de l'application.<br />Ton suivi de progression, au même endroit.</figcaption>
-          </figure>
-        </div>
-      </section>
 
-      <TrustBar />
-
-      <section id="demo" className="scroll-mt-24 border-b border-white/10 px-6 py-14 sm:py-20">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-            <div className="max-w-2xl">
-              <p className="mb-3 text-sm font-semibold text-[var(--color-violet-300)]">À l'intérieur de l'app</p>
-              <h2 className="font-display text-4xl leading-tight sm:text-5xl">De ton prochain entraînement<br className="hidden sm:block" /> à tes prochains progrès.</h2>
+            {/* Mobile : la photo de campagne passe sous le texte */}
+            <div className="relative min-h-[120px] w-full flex-1 overflow-hidden rounded-[16px] lg:hidden">
+              <img src="/v3/campaign-training.webp" alt="Une athlète travaille son direct avec son coach aux pattes d’ours" width={1536} height={1024} className="absolute inset-0 size-full object-cover" />
             </div>
-            <Link to="/app" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--color-violet-200)] hover:text-white">Explorer l'application <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
-          </div>
-          <video controls playsInline preload="none" poster="/app/videos/montage-full-poster.webp" aria-label="Démonstration des modules de l'application MMA IQ" className="aspect-video w-full rounded-2xl border border-white/10 bg-[var(--color-bg-surface)]">
-            <source src="/app/videos/montage-full.mp4" type="video/mp4" />
-          </video>
-          <p className="mt-3 text-sm text-[var(--color-text-secondary)]">Une capture de l'application en préparation. Lance la vidéo et agrandis-la pour explorer les écrans.</p>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {[
-              { icon: CalendarDays, title: 'Organise ta semaine', desc: 'Retrouve ton programme et les séances prévues selon ton objectif.' },
-              { icon: Target, title: 'Sache quoi travailler', desc: 'Appuie-toi sur les tutoriels et leurs consignes pour préparer tes séances.' },
-              { icon: ChartNoAxesCombined, title: 'Suis ta progression', desc: 'Consulte tes indicateurs et leur évolution pour faire le point sur ta pratique.' },
-            ].map(({ icon: Icon, title, desc }) => (
-              <article key={title} className="border-t border-white/15 pt-6">
-                <Icon className="mb-4 h-6 w-6 text-[var(--color-violet-300)]" aria-hidden="true" />
-                <h3 className="font-display text-2xl tracking-wide">{title}</h3>
-                <p className="mt-2 text-base leading-relaxed text-[var(--color-text-secondary)]">{desc}</p>
-              </article>
-            ))}
           </div>
         </div>
       </section>
-      <CoachIntroduction coaches={coaches} />
 
-      {/* SECTION 5 — LES FORMATIONS (masquée tant qu'aucune formation n'est
-          publiée : un titre au-dessus d'un carrousel vide ferait site cassé) */}
-      {(formations.length > 0 || isAdmin) && (
-      <section className="py-16 md:py-24 px-6 bg-[var(--color-bg-elevated)] border-t border-[var(--color-border)] relative overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={textRevealVariant}
-            className="text-center mb-12 md:mb-16 flex flex-col items-center"
-          >
-            <EditableText as="h2" path="home.courses.title" defaultText="Coaching vidéo : MMA IQ Academy" className="text-lg sm:text-2xl md:text-5xl lg:text-6xl font-display uppercase tracking-tighter text-white mb-2 text-center" />
-            <EditableText as="p" path="home.courses.subtitle" defaultText="Des formations pour approfondir ta technique, achetées à l’unité." className="text-[var(--color-text-secondary)] font-body text-xs sm:text-sm md:text-xl text-center" />
-          </motion.div>
-
-          <div className="relative flex items-center justify-center w-full max-w-5xl mx-auto px-0 md:px-12">
-            <button
-              aria-label="Formations précédentes" className="hidden md:flex absolute left-0 p-3 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full text-white hover:bg-white/10 shadow-[0_0_15px_rgba(0,0,0,0.5)] z-10"
-              onClick={() => document.getElementById('formations-scroll')?.scrollBy({ left: -400, behavior: 'smooth' })}
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <div id="formations-scroll" className="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 pb-8 scrollbar-hide scroll-smooth w-full px-4 md:px-0">
-              {[1, 2].map((i) => {
-                const selectedCoachId = siteData.texts[`home.featured_course_coach_${i}`];
-                const selectedFormationId = siteData.texts[`home.featured_course_${i}`];
-
-                const coach = coaches.find(c => String(c.id) === String(selectedCoachId));
-                const filteredFormations = selectedCoachId
-                  ? formations.filter(f => String(f.coach_id) === String(selectedCoachId))
-                  : formations;
-
-                let formation = selectedFormationId
-                  ? formations.find(f => String(f.id) === String(selectedFormationId))
-                  : null;
-
-                if (!formation || (selectedCoachId && String(formation.coach_id) !== String(selectedCoachId))) {
-                  formation = filteredFormations[i - 1];
-                }
-
-                const formationCoach = coaches.find(c => String(c.id) === String(formation?.coach_id));
-
-                if (!formation && !isAdmin) return null;
-
-                return (
-                  <motion.div
-                    key={i}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={powerUpVariant}
-                    className="w-[85vw] max-w-[300px] md:max-w-none md:w-[calc(50%-12px)] bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-2xl p-3 md:p-6 text-center group hover:border-[var(--color-accent-primary)] transition-colors snap-center relative overflow-hidden flex-shrink-0"
-                  >
-                  {isAdmin && (
-                    <div className="absolute top-2 right-2 z-50 bg-black/90 p-2 rounded-lg border border-purple-500/50 backdrop-blur-md shadow-xl text-left w-[200px]">
-                      <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">Coach {i}</div>
-                      <EditableSelect
-                        path={`home.featured_course_coach_${i}`}
-                        options={coaches.map(c => ({ value: String(c.id), label: c.name }))}
-                        defaultText="Choisir un coach..."
-                        className="text-xs mb-2"
-                      />
-                      <div className="text-[10px] text-purple-400 font-bold uppercase tracking-widest mb-1">Formation {i}</div>
-                      <EditableSelect
-                        path={`home.featured_course_${i}`}
-                        options={filteredFormations.map(f => ({ value: String(f.id), label: f.title }))}
-                        defaultText="Choisir une formation..."
-                        className="text-xs"
-                      />
-                    </div>
-                  )}
-                  <Link to={formation ? `/course/${formation.slug}` : "#"} className="block w-full h-full">
-                    <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-accent-primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-
-                    <div className="w-full aspect-video mx-auto mb-3 md:mb-6 relative mt-2 md:mt-6 rounded-xl overflow-hidden">
-                      <div className="absolute inset-0 bg-[var(--color-accent-primary)] rounded-xl blur-xl opacity-0 group-hover:opacity-30 transition-opacity animate-aura-pulse"></div>
-                      <div className="w-full h-full rounded-xl overflow-hidden border-2 border-[var(--color-border)] group-hover:border-[var(--color-accent-primary)] transition-colors relative z-10">
-                        {formation?.thumbnail_url ? (
-                          <img loading="lazy"
-                            src={formation.thumbnail_url}
-                            alt={formation.title}
-                            className="w-full h-full object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[var(--color-bg-elevated)] to-[var(--color-bg-surface)] flex items-center justify-center">
-                            <Video className="w-10 h-10 text-white/30" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-[var(--color-accent-primary)]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <div className="w-12 h-12 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-[var(--color-accent-primary)]">
-                            <Play className="w-5 h-5 text-white ml-1" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <h3 className="text-2xl font-ui font-bold text-white mb-2">{formation?.title || "Sélectionne une formation"}</h3>
-                    <div className="flex flex-wrap justify-center gap-2 mb-4">
-                      {formation?.level && (
-                        <Badge className="bg-white/5 text-[var(--color-accent-primary)] border-[var(--color-accent-primary)]/30 font-ui text-xs">
-                          {formation.level}
-                        </Badge>
-                      )}
-                      {formation?.duration && (
-                        <Badge className="bg-white/5 text-[var(--color-accent-primary)] border-[var(--color-accent-primary)]/30 font-ui text-xs">
-                          {formation.duration}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {formation?.description && (
-                      <p className="text-sm font-body text-[var(--color-text-secondary)] mb-6 line-clamp-3">
-                        {formation.description}
-                      </p>
-                    )}
-
-                    <div className="grid grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-4 items-center">
-                      <div className="flex flex-col items-center">
-                        {(formationCoach?.photo_url || coach?.photo_url) ? (
-                          <img loading="lazy"
-                            src={formationCoach?.photo_url || coach?.photo_url}
-                            alt={formationCoach?.name || coach?.name || "Coach"}
-                            className="w-10 h-10 rounded-full object-cover mb-1 border border-[var(--color-border)]"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          <div className="w-10 h-10 rounded-full bg-[var(--color-bg-elevated)] border border-[var(--color-border)] flex items-center justify-center mb-1">
-                            <span className="font-display text-sm text-white/40">{(formationCoach?.name || coach?.name || "?").charAt(0)}</span>
-                          </div>
-                        )}
-                        <div className="text-[10px] font-ui text-[var(--color-text-secondary)] uppercase tracking-wider">{formationCoach?.name || coach?.name || "Coach"}</div>
-                      </div>
-                      <div>
-                        <span className="w-full bg-[var(--color-accent-primary)] hover:bg-[var(--color-accent-indigo)] text-white font-ui font-semibold rounded-lg text-xs py-2 h-auto pointer-events-none">
-                          {formation?.price_cents ? `Accéder (${formation.price_cents / 100}€)` : "Découvrir"}
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
+      {/* V3 · Du travail au progrès */}
+      <Section tone="fond" className="py-12 lg:py-16">
+        <div className="flex flex-col items-center gap-8 lg:min-h-[635px] lg:flex-row lg:justify-between lg:gap-16">
+          <div className="flex w-full flex-col gap-6 lg:max-w-[600px]">
+            <h2 className="v3-heading text-white">Moins d’improvisation.<br />Plus de direction.</h2>
+            <div className="v3-body flex flex-col gap-7 text-white">
+              <p>Tes entraînements et ton suivi nutrition, au même endroit.</p>
+              <p>Retrouve tes séances, consulte leur avancement et garde une vue claire sur tes apports quotidiens.</p>
             </div>
-            <button
-              aria-label="Formations suivantes" className="hidden md:flex absolute right-0 p-3 bg-black/60 backdrop-blur-sm border border-white/10 rounded-full text-white hover:bg-white/10 shadow-[0_0_15px_rgba(0,0,0,0.5)] z-10"
-              onClick={() => document.getElementById('formations-scroll')?.scrollBy({ left: 400, behavior: 'smooth' })}
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
           </div>
-
-          <div className="mt-2 text-center md:hidden">
-            <div className="text-[var(--color-text-secondary)] text-xs mb-4 animate-pulse">
-              ← Glissez pour voir plus →
-            </div>
-            <Link to="/instructional" className="inline-flex items-center gap-2 text-[var(--color-accent-primary)] font-ui font-bold hover:underline">
-              Voir tout le catalogue <ArrowRight className="w-4 h-4" />
-            </Link>
+          <div className="flex w-full flex-col items-center gap-10 sm:flex-row sm:justify-center sm:gap-8 lg:w-[616px] lg:shrink-0">
+            <IPhone src="/v3/capture-training.webp" alt="Écran Entraînement de MMA IQ : calendrier de la semaine, statistiques et séance de sparring prévue" caption="Ta prochaine séance" className="w-[260px] lg:w-[272px]" />
+            <IPhone src="/v3/capture-nutrition.webp" alt="Écran Nutrition de MMA IQ : calories restantes et répartition des macronutriments" caption="Ton suivi nutrition" className="w-[260px] lg:w-[272px]" />
           </div>
         </div>
-      </section>
-      )}
+      </Section>
 
-      <PricingSection compact />
+      {/* 03 · Ce que l’app change */}
+      <Section tone="clair" className="py-14 lg:py-20" innerClassName="flex flex-col gap-8 lg:gap-14">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:gap-20">
+          <h2 className="v3-heading-lg text-v3-navy lg:w-[720px] lg:shrink-0">Prépare le travail <br />de ta prochaine séance.</h2>
+          <p className="v3-body hidden text-v3-ink-muted lg:block lg:max-w-[440px]">
+            Retrouve tes exercices, les points techniques à travailler et le suivi de tes séances.
+          </p>
+        </div>
+        <ul className="grid gap-8 lg:grid-cols-3">
+          {BENEFITS.map((benefit) => (
+            <li key={benefit.title} className="flex items-center gap-4 lg:flex-col lg:items-start lg:gap-6">
+              <div className={`relative h-[142px] w-[110px] shrink-0 overflow-hidden rounded-[16px] lg:h-[300px] lg:w-full ${benefit.tile}`}>
+                <img src={benefit.image} alt={benefit.alt} loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col gap-2 lg:gap-6">
+                <h3 className="text-[22px] font-medium leading-[26px] text-v3-navy lg:text-[26px] lg:font-semibold lg:leading-8">{benefit.title}</h3>
+                <p className="text-[16px] leading-6 text-v3-ink-muted lg:text-[18px] lg:leading-7">
+                  {benefit.text[0]}<br className="hidden lg:block" /><span className="lg:hidden"> </span>{benefit.text[1]}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Section>
 
-      <section className="border-t border-white/10 px-6 py-14 sm:py-20">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="mb-8 font-display text-4xl sm:text-5xl">Avant de nous rejoindre.</h2>
-          <FaqAccordion items={faqs.filter(f => f.featured)} />
-          <Link to="/faq" className="mt-6 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[var(--color-violet-200)] hover:text-white">Toutes les questions <ArrowRight className="h-4 w-4" /></Link>
+      {/* 04 · À chacun son parcours */}
+      <Section tone="fond" className="py-14 lg:py-24" innerClassName="flex flex-col gap-8 lg:flex-row lg:gap-20">
+        <div className="flex flex-col gap-4 lg:w-[500px] lg:shrink-0 lg:gap-6">
+          <Eyebrow>CHOISIS TON POINT DE DÉPART</Eyebrow>
+          <h2 className="v3-heading-lg text-v3-paper">Des outils pour <br />ta façon de pratiquer.</h2>
+          <p className="text-[16px] leading-6 text-v3-muted lg:max-w-[440px] lg:text-[18px] lg:leading-7">
+            Du premier entraînement à la préparation <br className="hidden lg:block" />d’un combat.
+            <span className="hidden lg:inline"> Seul, avec ton coach <br />ou avec toute ta salle.</span>
+          </p>
         </div>
-      </section>
-      <section className="border-t border-white/10 bg-[var(--color-bg-surface)] px-6 py-14 sm:py-20">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2 lg:items-center lg:gap-16">
-          <div>
-            <p className="mb-3 text-sm font-semibold text-[var(--color-violet-300)]">L'application arrive.</p>
-            <h2 className="font-display text-4xl sm:text-5xl">On te prévient quand c'est prêt.</h2>
-            <p className="mt-4 text-base leading-relaxed text-[var(--color-text-secondary)]">Laisse ton email pour être informé de sa disponibilité sur iOS et Android.</p>
-          </div>
-          <WaitlistForm id="home-footer-waitlist" />
-        </div>
-      </section>
-      <section className="mx-auto grid max-w-6xl gap-6 px-6 py-12 md:grid-cols-2">
-        <Link to="/instructional" className="group rounded-2xl border border-white/10 p-6 transition-colors hover:border-[var(--color-violet-300)]/50">
-          <p className="text-sm font-semibold text-[var(--color-violet-300)]">MMA IQ Academy</p>
-          <h2 className="mt-2 font-display text-2xl">Approfondis ta technique.</h2>
-          <p className="mt-2 text-base leading-relaxed text-[var(--color-text-secondary)]">Découvre le projet Academy, ses coachs et ses formations vidéo.</p>
-          <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold">Découvrir l'Academy <ArrowRight className="h-4 w-4" /></span>
-        </Link>
-        <Link to="/partenaires" className="group rounded-2xl border border-white/10 p-6 transition-colors hover:border-[var(--color-violet-300)]/50">
-          <p className="text-sm font-semibold text-[var(--color-violet-300)]">Pour les salles et les clubs</p>
-          <h2 className="mt-2 font-display text-2xl">Prépare la suite avec tes adhérents.</h2>
-          <p className="mt-2 text-base leading-relaxed text-[var(--color-text-secondary)]">Découvre le programme partenaires et son fonctionnement pour ta salle.</p>
-          <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold">Voir le programme <ArrowRight className="h-4 w-4" /></span>
-        </Link>
-      </section>
-    </div>
+        <ul className="flex w-full flex-col lg:max-w-[700px]">
+          {PROFILES.map((profile) => (
+            <li key={profile.to}>
+              <Link to={profile.to} className="group flex items-center gap-4 border-b border-v3-border py-6 lg:gap-6 lg:py-7">
+                <span className="v3-label shrink-0 text-v3-lavender">{profile.number}</span>
+                <span className="flex min-w-0 flex-1 flex-col gap-2">
+                  <span className="text-[22px] font-medium leading-[26px] text-v3-paper transition-colors group-hover:text-white lg:text-[26px] lg:font-semibold lg:leading-8">{profile.title}</span>
+                  <span className="v3-label text-v3-muted">{profile.text}</span>
+                </span>
+                <ArrowUpRight aria-hidden="true" strokeWidth={2.4} className="size-6 shrink-0 text-v3-lavender transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      {/* 05 · Prochaine étape */}
+      <Section tone="accent" className="py-14 lg:py-20" innerClassName="flex flex-col items-center gap-6 text-center">
+        <h2 className="v3-heading-lg w-full max-w-[1000px] text-white">Ta prochaine séance <br />commence ici.</h2>
+        <p className="w-full max-w-[1000px] text-[16px] leading-6 text-white lg:text-[18px] lg:leading-7">Télécharge MMA IQ et prépare ta prochaine séance.</p>
+        <StoreButtons className="w-full max-w-[294px] sm:w-auto sm:max-w-none sm:justify-center" stackOnMobile />
+        <p className="v3-small text-white">iPhone · Android</p>
+      </Section>
+    </>
   );
 }

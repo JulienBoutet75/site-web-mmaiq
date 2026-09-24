@@ -25,19 +25,25 @@ create table if not exists public.partners (
   siret text,
   -- Statut TVA pour l'auto-facturation (Phase 1)
   vat_status text check (vat_status in ('tva20', 'franchise_293b', 'asso_non_assujettie')),
-  -- Décisions du 13 juil 2026 : taux par salle (défaut 20 %), à vie ;
-  -- remise adhérent −20 % pendant 3 mois, configurable par salle.
-  commission_rate numeric not null default 0.20
+  -- Taux de référence du simulateur commercial V1. La remise reste inactive
+  -- tant que sa durée n'est pas renseignée explicitement pour le partenaire.
+  commission_rate numeric not null default 0.10
     check (commission_rate >= 0 and commission_rate <= 0.5),
-  discount_percent integer not null default 20
+  discount_percent integer not null default 10
     check (discount_percent >= 0 and discount_percent <= 100),
-  discount_months integer not null default 3
+  discount_months integer not null default 0
     check (discount_months >= 0 and discount_months <= 24),
   status text not null default 'active'
     check (status in ('pending', 'active', 'suspended')),
   notes text,
   created_at timestamptz not null default now()
 );
+
+-- Rend aussi le script sûr pour une table créée avec les anciens defaults.
+-- Les lignes existantes ne sont pas modifiées automatiquement.
+alter table public.partners alter column commission_rate set default 0.10;
+alter table public.partners alter column discount_percent set default 10;
+alter table public.partners alter column discount_months set default 0;
 
 alter table public.partners enable row level security;
 

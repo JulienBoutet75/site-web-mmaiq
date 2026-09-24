@@ -1,29 +1,18 @@
-import { useEffect, useRef, useState, FormEvent } from "react";
-import { motion } from "motion/react";
-import { Link } from "react-router-dom";
-import { Badge } from "../components/ui/Badge";
-import { Button } from "../components/ui/Button";
-import {
-  Send,
-  Mail,
-  MessageSquare,
-  User,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  Building2,
-  ArrowRight,
-  Tag,
-  ChevronDown,
-} from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowDown } from "lucide-react";
 import { submitLead } from "../lib/supabase";
-import { AmbientBackground } from "../components/AmbientBackground";
 import { Seo } from "../components/Seo";
 import { CONTACT_EMAIL } from "../data/site";
-import { textRevealVariant, powerUpVariant } from "../animations";
+import { ACCOUNT_TITLE, FormAlert } from "../components/AccountForm";
+import { Dialog, useDialogTitleId } from "../v3/Dialog";
+import { Button, ButtonLink, Eyebrow, Section } from "../v3/ui";
+
+// Figma « Contact · Desktop · Vue complète » (2110:24662) et « Mobile » (2174:22267) ;
+// état « Contact · Message envoyé » (2093:5003 / 2093:5022).
 
 const MOTIFS = [
-  { id: "app", label: "Question sur l'app ou une formation" },
+  { id: "app", label: "Question sur l’app ou une formation" },
   { id: "partner", label: "Partenariat salle ou club" },
   { id: "presse", label: "Presse" },
   { id: "autre", label: "Autre" },
@@ -31,23 +20,33 @@ const MOTIFS = [
 
 type MotifId = (typeof MOTIFS)[number]["id"];
 
-const INPUT_CLASSES =
-  "w-full bg-[var(--color-bg-base)]/50 border border-white/10 rounded-xl px-5 py-4 font-ui text-white focus:border-[var(--color-accent-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-primary)] transition-colors duration-300 placeholder:text-white/55";
+const isMotif = (value: string | null): value is MotifId => MOTIFS.some((m) => m.id === value);
+
+/** Champs du formulaire de contact : 48 px de haut (padding 12/16), fond blanc, rayon 12. */
+const FIELD = "v3-input min-h-12 py-[11px]";
+const LABEL = "v3-label text-v3-navy";
 
 export function Contact() {
+  // ?motif=partner (lien « Devenir partenaire ») pré-sélectionne le sujet ; valeurs inconnues ignorées.
+  const [searchParams] = useSearchParams();
+  const motifParam = searchParams.get("motif");
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [motif, setMotif] = useState<MotifId>("app");
+  const [motif, setMotif] = useState<MotifId>(() => (isMotif(motifParam) ? motifParam : "app"));
   const [message, setMessage] = useState("");
+  // Candidature partenaire : nom du club et ville, lus par l’admin (PartnersCRUD).
+  const [clubName, setClubName] = useState("");
+  const [city, setCity] = useState("");
   // Honeypot : champ invisible pour les humains, rempli par les bots
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  const successTitleRef = useRef<HTMLHeadingElement>(null);
+  const successTitleId = useDialogTitleId("contact-envoye");
 
   useEffect(() => {
-    if (status === "success") successTitleRef.current?.focus();
-  }, [status]);
+    if (isMotif(motifParam)) setMotif(motifParam);
+  }, [motifParam]);
 
   // Une saisie après un échec efface l'erreur : l'utilisateur corrige, on repart à zéro
   const withErrorReset = <T,>(setter: (v: T) => void) => (value: T) => {
@@ -59,12 +58,16 @@ export function Contact() {
   const setEmailSafe = withErrorReset(setEmail);
   const setMotifSafe = withErrorReset(setMotif);
   const setMessageSafe = withErrorReset(setMessage);
+  const setClubNameSafe = withErrorReset(setClubName);
+  const setCitySafe = withErrorReset(setCity);
 
   const resetFields = () => {
     setName("");
     setEmail("");
     setMotif("app");
     setMessage("");
+    setClubName("");
+    setCity("");
     setWebsite("");
   };
 
@@ -83,20 +86,19 @@ export function Contact() {
     const motifLabel = MOTIFS.find((m) => m.id === motif)!.label;
     try {
       if (motif === "partner") {
-        // Mêmes conventions que Partenaires.tsx pour rester compatible admin :
-        // PartnersCRUD regexe « Contact : » dans le message (le champ name du
-        // formulaire Contact est le nom de la personne, pas celui du club).
+        // Format historique des candidatures (ancien formulaire /partenaires) :
+        // name = club ; « Contact : » et « Ville : » sont relus par PartnersCRUD.
         await submitLead({
           type: "partner",
           email,
-          name,
+          name: clubName.trim() || name,
           message: [
-            "Via le formulaire de contact — motif : Partenariat salle ou club",
             name && `Contact : ${name}`,
+            city.trim() && `Ville : ${city.trim()}`,
             message,
           ]
             .filter(Boolean)
-            .join("\n\n"),
+            .join("\n"),
         });
       } else {
         await submitLead({
@@ -114,264 +116,215 @@ export function Contact() {
     }
   };
 
+  const selectedMotif = MOTIFS.find((m) => m.id === motif)!.label;
+
   return (
-    <div className="bg-[var(--color-bg-base)] text-white pt-32 pb-24 min-h-screen relative overflow-hidden selection:bg-[var(--color-accent-primary)] selection:text-white">
+    <>
       <Seo
         title="Contact — MMA IQ"
-        description="Une question sur l'app, une formation ou un partenariat salle ? Écris-nous, on répond sous 24h ouvrées."
+        description="Une question sur l’app, une formation ou un partenariat salle ? Écris à l’équipe MMA IQ."
         canonicalPath="/contact"
       />
-      <AmbientBackground />
 
-      {/* Hero */}
-      <section className="px-6 max-w-3xl mx-auto text-center mb-12 relative z-10">
-        <motion.div initial="hidden" animate="visible" variants={textRevealVariant}>
-          <Badge color="purple" className="mb-8 bg-white/5 border-white/10 text-white/80 shadow-[0_0_30px_rgba(123,47,255,0.2)]">
-            CONTACT
-          </Badge>
-          <h1 className="font-display text-display-xl mb-6 leading-[1.05] tracking-tight drop-shadow-2xl">
-            Une question, une proposition, un{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-accent-primary)] to-[var(--color-violet-300)]">
-              partenariat ?
-            </span>
-          </h1>
-          <p className="font-body text-lg md:text-xl text-[var(--color-text-secondary)] leading-relaxed">
-            On répond sous 24h ouvrées.
-          </p>
-        </motion.div>
-      </section>
+      {/* 01 · Introduction */}
+      <Section tone="fond" className="py-8 lg:py-12" innerClassName="flex flex-col items-start gap-6 lg:items-center lg:text-center">
+        <Eyebrow>PARLONS MMA</Eyebrow>
+        <h1 className="text-[32px] font-semibold leading-[38px] text-white lg:max-w-[720px] lg:text-[40px] lg:leading-[46px]">
+          Comment peut-on<br />t’aider ?
+        </h1>
+        <p className="v3-body text-v3-muted lg:max-w-[720px]">Une question sur MMA IQ, une formation ou ton club ? Écris-nous.</p>
+      </Section>
 
-      {/* Form */}
-      <section className="px-6 max-w-2xl mx-auto relative z-10">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={powerUpVariant}
-        >
-          {/* Orientation : les salles ont leur propre parcours */}
-          <Link
-            to="/partenaires"
-            className="group flex items-center gap-4 bg-white/[0.03] border border-white/[0.08] rounded-2xl px-6 py-4 mb-6 hover:border-[var(--color-accent-primary)]/40 transition-colors duration-300"
-          >
-            <div className="w-10 h-10 shrink-0 rounded-xl bg-[var(--color-accent-primary)]/15 text-[var(--color-accent-primary)] flex items-center justify-center">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <p className="font-body text-sm text-[var(--color-text-secondary)] leading-snug">
-              Tu gères un club ou une salle ?{" "}
-              <span className="font-ui font-semibold text-white">Découvre le programme partenaires</span>
-            </p>
-            <ArrowRight className="w-4 h-4 shrink-0 ml-auto text-[var(--color-accent-primary)] group-hover:translate-x-1 transition-transform duration-300" />
-          </Link>
-
-          {status === "success" ? (
-            <div
-              role="status"
-              className="bg-white/[0.04] border border-[var(--color-success)]/30 rounded-[2rem] p-8 md:p-12 text-center"
-            >
-              <CheckCircle2 className="w-12 h-12 text-[var(--color-success)] mx-auto mb-4" />
-              <h2
-                ref={successTitleRef}
+      {/* 02 · Écrire à MMA IQ */}
+      <Section tone="clair" className="py-8 lg:py-12">
+        <div className="mx-auto flex w-full max-w-[1152px] flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,416fr)_minmax(0,672fr)] lg:items-start lg:gap-10 xl:gap-16">
+          {/* Formulaire — en premier dans le DOM (ordre mobile), à droite sur desktop */}
+          <form onSubmit={handleSubmit} className="relative flex w-full flex-col items-start gap-6 lg:order-last">
+            {/* Honeypot anti-spam : invisible et inatteignable pour un humain */}
+            <div aria-hidden="true" className="absolute -left-[9999px] top-0 h-px w-px overflow-hidden">
+              <label htmlFor="contact-website">Ne pas remplir ce champ</label>
+              <input
+                type="text"
+                id="contact-website"
+                name="website"
                 tabIndex={-1}
-                className="font-ui font-bold text-2xl text-white mb-2 focus:outline-none"
-              >
-                Message envoyé !
-              </h2>
-              <p className="font-body text-[var(--color-text-secondary)] mb-8">
-                Merci, on a bien reçu ton message. On te répond sous 24h ouvrées, par email.
-              </p>
-
-              <p className="font-ui font-bold text-xs uppercase tracking-widest text-[var(--color-text-secondary)] mb-4">
-                En attendant notre réponse
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                <Link
-                  to="/app"
-                  className="group flex items-center justify-between gap-3 px-5 py-4 bg-white/[0.04] border border-white/10 rounded-xl font-ui font-semibold text-sm text-white hover:border-[var(--color-accent-primary)]/50 transition-colors duration-300"
-                >
-                  Découvrir l'app
-                  <ArrowRight className="w-4 h-4 text-[var(--color-accent-primary)] group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
-                <Link
-                  to="/faq"
-                  className="group flex items-center justify-between gap-3 px-5 py-4 bg-white/[0.04] border border-white/10 rounded-xl font-ui font-semibold text-sm text-white hover:border-[var(--color-accent-primary)]/50 transition-colors duration-300"
-                >
-                  Consulter la FAQ
-                  <ArrowRight className="w-4 h-4 text-[var(--color-accent-primary)] group-hover:translate-x-1 transition-transform duration-300" />
-                </Link>
-              </div>
-
-              <button
-                onClick={() => setStatus("idle")}
-                className="font-ui font-semibold text-sm text-[var(--color-accent-primary)] hover:underline"
-              >
-                Envoyer un autre message
-              </button>
+                autoComplete="off"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
             </div>
-          ) : (
-            <form
-              className="bg-white/[0.04] border border-white/[0.05] rounded-[2rem] p-8 md:p-12 backdrop-blur-sm shadow-[0_20px_40px_-15px_rgba(0,0,0,0.7)] relative overflow-hidden group hover:border-[var(--color-accent-primary)]/30 transition-colors duration-500"
-              onSubmit={handleSubmit}
-            >
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(123,47,255,0.05)_0%,transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
-              {/* Honeypot anti-spam : invisible et inatteignable pour un humain */}
-              <div aria-hidden="true" className="absolute -left-[9999px] top-0 w-px h-px overflow-hidden">
-                <label htmlFor="contact-website">Ne pas remplir ce champ</label>
-                <input
-                  type="text"
-                  id="contact-website"
-                  name="website"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  value={website}
-                  onChange={(e) => setWebsite(e.target.value)}
-                />
+            <div className="flex w-full flex-col gap-2">
+              <label htmlFor="contact-name" className={LABEL}>Nom</label>
+              <input
+                type="text"
+                id="contact-name"
+                name="name"
+                autoComplete="name"
+                required
+                minLength={2}
+                value={name}
+                onChange={(e) => setNameSafe(e.target.value)}
+                className={FIELD}
+                placeholder="Prénom et nom"
+              />
+            </div>
+
+            <div className="flex w-full flex-col gap-2">
+              <label htmlFor="contact-email" className={LABEL}>E-mail</label>
+              <input
+                type="email"
+                id="contact-email"
+                name="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                spellCheck={false}
+                required
+                value={email}
+                onChange={(e) => setEmailSafe(e.target.value)}
+                className={FIELD}
+                placeholder="toi@exemple.fr"
+              />
+            </div>
+
+            {/* Sujet : le <select> natif (invisible) reste le vrai contrôle ; la couche visible reprend
+                la maquette « libellé  ↓ » avec la flèche juste après le texte. */}
+            <div className="flex w-full flex-col gap-2">
+              <label htmlFor="contact-motif" className={LABEL}>Sujet</label>
+              <div className="relative flex min-h-12 w-full items-center gap-2 rounded-[12px] border border-v3-border bg-white px-4 py-[11px] text-[16px] leading-6 text-v3-navy transition-[border-color,box-shadow] focus-within:border-v3-brand focus-within:shadow-[0_0_0_3px_rgb(123_47_255/20%)]">
+                <span aria-hidden="true" className="truncate">{selectedMotif}</span>
+                <ArrowDown aria-hidden="true" strokeWidth={1.7} className="size-4 shrink-0" />
+                <select
+                  id="contact-motif"
+                  name="motif"
+                  required
+                  value={motif}
+                  onChange={(e) => setMotifSafe(e.target.value as MotifId)}
+                  className="absolute inset-0 size-full cursor-pointer appearance-none opacity-0"
+                >
+                  {MOTIFS.map((m) => (
+                    <option key={m.id} value={m.id}>{m.label}</option>
+                  ))}
+                </select>
               </div>
+            </div>
 
-              <div className="space-y-8 relative z-10">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="name"
-                    className="flex items-center gap-2 font-ui font-semibold text-sm text-white/80"
-                  >
-                    <User className="w-4 h-4 text-[var(--color-accent-primary)]" /> Nom
-                  </label>
+            {motif === "partner" && (
+              <div className="grid w-full gap-6 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="contact-club" className={LABEL}>Nom du club</label>
                   <input
                     type="text"
-                    id="name"
+                    id="contact-club"
+                    name="club"
+                    autoComplete="organization"
                     required
                     minLength={2}
-                    value={name}
-                    onChange={(e) => setNameSafe(e.target.value)}
-                    className={INPUT_CLASSES}
-                    placeholder="Ton nom"
+                    value={clubName}
+                    onChange={(e) => setClubNameSafe(e.target.value)}
+                    className={FIELD}
+                    placeholder="Nom de ta salle ou de ton club"
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="email"
-                    className="flex items-center gap-2 font-ui font-semibold text-sm text-white/80"
-                  >
-                    <Mail className="w-4 h-4 text-[var(--color-accent-primary)]" /> Email
-                  </label>
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="contact-city" className={LABEL}>Ville</label>
                   <input
-                    type="email"
-                    id="email"
+                    type="text"
+                    id="contact-city"
+                    name="city"
+                    autoComplete="address-level2"
                     required
-                    value={email}
-                    onChange={(e) => setEmailSafe(e.target.value)}
-                    className={INPUT_CLASSES}
-                    placeholder="ton@email.com"
+                    value={city}
+                    onChange={(e) => setCitySafe(e.target.value)}
+                    className={FIELD}
+                    placeholder="Ville du club"
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="motif"
-                    className="flex items-center gap-2 font-ui font-semibold text-sm text-white/80"
-                  >
-                    <Tag className="w-4 h-4 text-[var(--color-accent-primary)]" /> Motif
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="motif"
-                      required
-                      value={motif}
-                      onChange={(e) => setMotifSafe(e.target.value as MotifId)}
-                      className={`${INPUT_CLASSES} appearance-none pr-12 cursor-pointer`}
-                    >
-                      {MOTIFS.map((m) => (
-                        <option key={m.id} value={m.id} className="bg-[var(--color-bg-base)] text-white">
-                          {m.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-[var(--color-text-secondary)] absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label
-                    htmlFor="message"
-                    className="flex items-center gap-2 font-ui font-semibold text-sm text-white/80"
-                  >
-                    <MessageSquare className="w-4 h-4 text-[var(--color-accent-primary)]" /> Message
-                  </label>
-                  <textarea
-                    id="message"
-                    rows={5}
-                    required
-                    maxLength={2000}
-                    value={message}
-                    onChange={(e) => setMessageSafe(e.target.value)}
-                    className={`${INPUT_CLASSES} resize-none`}
-                    placeholder="Comment peut-on t'aider ?"
-                  ></textarea>
-                </div>
-
-                {status === "error" && (
-                  <div
-                    role="alert"
-                    className="flex items-start gap-2 text-sm font-ui text-[var(--color-accent-red)] bg-[var(--color-accent-red)]/10 border border-[var(--color-accent-red)]/30 rounded-xl px-4 py-3"
-                  >
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                    <p>
-                      L'envoi a échoué. Réessaie dans un instant, ou écris-nous directement à{" "}
-                      <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline">
-                        {CONTACT_EMAIL}
-                      </a>
-                      .
-                    </p>
-                  </div>
-                )}
-
-                {/* Annonce du statut d'envoi aux lecteurs d'écran */}
-                <span className="sr-only" role="status">
-                  {status === "loading" ? "Envoi du message en cours" : ""}
-                </span>
-
-                <Button
-                  variant="primary"
-                  disabled={status === "loading"}
-                  className="w-full py-4 text-lg rounded-xl shadow-[0_0_30px_rgba(123,47,255,0.3)] hover:shadow-[0_0_40px_rgba(123,47,255,0.5)] transition-all duration-300 flex items-center justify-center gap-2 group/btn disabled:opacity-60"
-                >
-                  {status === "loading" ? (
-                    <>
-                      Envoi en cours…
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    </>
-                  ) : (
-                    <>
-                      Envoyer le message
-                      <Send className="w-5 h-5 group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
-                    </>
-                  )}
-                </Button>
-
-                <p className="font-body text-xs text-[var(--color-text-secondary)] text-center leading-relaxed">
-                  Tes données servent uniquement à te répondre. Jamais partagées, jamais de spam.{" "}
-                  <Link to="/confidentialite" className="underline hover:text-white transition-colors">
-                    Politique de confidentialité
-                  </Link>
-                </p>
               </div>
-            </form>
-          )}
+            )}
 
-          {/* Canal de secours */}
-          <p className="font-body text-sm text-[var(--color-text-secondary)] text-center mt-6">
-            Tu préfères l'email ? Écris-nous à{" "}
+            <div className="flex w-full flex-col gap-2">
+              <label htmlFor="contact-message" className={LABEL}>Message</label>
+              <textarea
+                id="contact-message"
+                name="message"
+                rows={2}
+                required
+                maxLength={2000}
+                value={message}
+                onChange={(e) => setMessageSafe(e.target.value)}
+                className="block min-h-20 w-full resize-y rounded-[16px] border border-v3-border bg-white px-4 py-[11px] lg:bg-v3-clair text-[16px] leading-6 text-v3-navy transition-[border-color,box-shadow] placeholder:text-v3-ink-muted focus:border-v3-brand focus:shadow-[0_0_0_3px_rgb(123_47_255/20%)] focus:outline-none"
+                placeholder="Dis-nous comment on peut t’aider…"
+              />
+            </div>
+
+            <p className="v3-small text-v3-ink-muted">
+              Les informations de ce formulaire servent uniquement à répondre à ta demande.{" "}
+              <Link to="/confidentialite" className="underline decoration-v3-ink-muted/40 underline-offset-2 hover:text-v3-navy hover:decoration-v3-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-v3-brand">
+                Consulter la confidentialité
+              </Link>.
+            </p>
+
+            {status === "error" && (
+              <FormAlert>
+                L’envoi a échoué. Réessaie dans un instant, ou écris-nous directement à{" "}
+                <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold underline underline-offset-2">{CONTACT_EMAIL}</a>.
+              </FormAlert>
+            )}
+
+            {/* Annonce du statut d'envoi aux lecteurs d'écran */}
+            <span className="sr-only" role="status">
+              {status === "loading" ? "Envoi du message en cours" : ""}
+            </span>
+
+            <Button type="submit" disabled={status === "loading"} aria-busy={status === "loading"} className="w-full lg:w-auto">
+              {status === "loading" ? "Envoi en cours…" : "Envoyer mon message"}
+            </Button>
+          </form>
+
+          {/* Contact direct */}
+          <div className="flex w-full flex-col items-start gap-6">
+            <h2 className="text-[32px] font-semibold leading-[38px] text-v3-navy lg:text-[48px] lg:leading-[54px] lg:tracking-[-1px]">
+              Écris à l’équipe MMA IQ.
+            </h2>
+            <p className="v3-body text-v3-ink-muted">Pour l’application et les formations, un projet de club ou une demande presse.</p>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="font-ui font-semibold text-white underline hover:text-[var(--color-violet-300)] transition-colors"
+              className="v3-subheading break-all text-v3-navy underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-v3-brand"
             >
               {CONTACT_EMAIL}
             </a>
+            <hr className="h-px w-full border-0 bg-v3-border lg:w-[400px] lg:max-w-full" />
+            <p className="v3-label text-v3-ink-muted">TU GÈRES UNE SALLE ?</p>
+            <p className="v3-body text-v3-ink-muted">Découvre le programme dédié aux clubs et aux salles partenaires.</p>
+            <ButtonLink to="/partenaires">Programme partenaires</ButtonLink>
+          </div>
+        </div>
+      </Section>
+
+      {/* 03 · Aide et ressources */}
+      <Section tone="accent" className="py-12 lg:py-[72px]" innerClassName="flex flex-col items-start gap-6 lg:gap-10">
+        <h2 className="text-[36px] font-medium leading-10 tracking-[-1.08px] text-white lg:text-[48px] lg:font-semibold lg:leading-[54px] lg:tracking-[-1px]">
+          Retrouve une réponse<br />dans le centre d’aide.
+        </h2>
+        <p className="v3-body text-white lg:max-w-[850px]">
+          Retrouve les réponses sur l’application, ton abonnement et les formations dans notre centre d’aide.
+        </p>
+        <ButtonLink to="/aide">Consulter l’aide</ButtonLink>
+      </Section>
+
+      {/* Contact · Message envoyé */}
+      <Dialog open={status === "success"} onClose={() => setStatus("idle")} labelledBy={successTitleId} panelClassName="max-w-[560px]">
+        <div className="flex flex-col items-start gap-6 rounded-[16px] bg-v3-clair p-6 text-v3-navy max-sm:-mx-6 lg:p-12">
+          <p className="v3-label text-v3-ink-muted">MESSAGE ENVOYÉ</p>
+          <h2 id={successTitleId} className={ACCOUNT_TITLE}>Merci pour<br />ton message.</h2>
+          <p className="v3-body text-v3-ink-muted">
+            L’équipe MMA IQ reviendra vers toi par e-mail. Tu peux continuer à découvrir l’application.
           </p>
-        </motion.div>
-      </section>
-    </div>
+          <ButtonLink to="/application">Découvrir l’application</ButtonLink>
+          <Button onClick={() => setStatus("idle")}>Revenir au formulaire</Button>
+        </div>
+      </Dialog>
+    </>
   );
 }

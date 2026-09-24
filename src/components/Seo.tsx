@@ -2,11 +2,11 @@ import { useEffect } from 'react'
 import { SITE_URL } from '../data/site'
 
 // Valeurs par défaut = celles d'index.html (restaurées au démontage de la page)
-const DEFAULT_TITLE = 'MMA IQ — Ta semaine de MMA, avec un plan clair'
+const DEFAULT_TITLE = 'MMA IQ — Chaque round. Plus intelligent.'
 const DEFAULT_DESCRIPTION =
-  "Découvre MMA IQ : entraînement, tutoriels et suivi de progression en MMA. Inscris-toi gratuitement pour être prévenu du lancement de l'application."
+  "De ta prochaine séance à ton prochain combat : prépare-toi, travaille ta technique et suis ta progression dans une seule app, disponible sur iOS et Android."
 const DEFAULT_OG_DESCRIPTION =
-  "Entraînement, tutoriels et suivi de progression. Découvre l'application MMA IQ en préparation et sois prévenu de son lancement."
+  "Entraînement, nutrition, analyse vidéo et suivi de progression : l’app MMA IQ, sur iOS et Android."
 
 const JSONLD_ATTR = 'data-seo-jsonld'
 

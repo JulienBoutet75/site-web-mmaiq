@@ -1,6 +1,7 @@
 @import "./fonts.css";
 @import "./design-tokens.css";
 @import "tailwindcss";
+@import "./v3/v3.css";
 
 html, body {
   overflow-x: clip;
@@ -42,75 +43,17 @@ body {
   min-height: 100vh;
 }
 
-h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: var(--font-display);
+/* En couche « base » : les classes (utilitaires Tailwind, styles V3) priment. */
+@layer base {
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: var(--font-display);
+  }
 }
 
 .font-days-one {
   font-family: var(--font-days-one);
   font-size: 0.9em;
   letter-spacing: -0.02em;
-}
-
-/* Fond d'ambiance organique (AmbientBackground) : halos violets qui dérivent
-   lentement + grain subtil. Transform-only → GPU, zéro boucle JS.
-   Coupé automatiquement par la règle prefers-reduced-motion globale. */
-.ambient-blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(90px);
-  will-change: transform;
-}
-.ambient-blob-1 {
-  width: 60vw; height: 60vw; left: -15vw; top: -20vw;
-  background: radial-gradient(circle, rgba(123, 47, 255, 0.22), transparent 65%);
-  animation: ambient-drift-1 46s ease-in-out infinite alternate;
-}
-.ambient-blob-2 {
-  width: 50vw; height: 50vw; right: -12vw; top: 20vh;
-  background: radial-gradient(circle, rgba(80, 22, 179, 0.18), transparent 65%);
-  animation: ambient-drift-2 58s ease-in-out infinite alternate;
-}
-.ambient-blob-3 {
-  width: 45vw; height: 45vw; left: 20vw; bottom: -18vw;
-  background: radial-gradient(circle, rgba(178, 141, 255, 0.10), transparent 65%);
-  animation: ambient-drift-3 52s ease-in-out infinite alternate;
-}
-@keyframes ambient-drift-1 { to { transform: translate3d(8vw, 6vh, 0) scale(1.15); } }
-@keyframes ambient-drift-2 { to { transform: translate3d(-6vw, -8vh, 0) scale(0.9); } }
-@keyframes ambient-drift-3 { to { transform: translate3d(-8vw, -5vh, 0) scale(1.1); } }
-.ambient-grain {
-  position: absolute;
-  inset: 0;
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
-}
-
-/* Bandeau partenaires : défilement continu (TrustBar, >5 logos).
-   La piste contient la liste dupliquée → -50% boucle sans couture.
-   Coupé par la règle prefers-reduced-motion globale. */
-.trust-marquee {
-  animation: trust-scroll 36s linear infinite;
-}
-.trust-marquee:hover {
-  animation-play-state: paused;
-}
-@keyframes trust-scroll {
-  to { transform: translateX(-50%); }
-}
-.trust-marquee-mask {
-  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-}
-
-/* Halo doux réservé aux survols de cartes/CTA */
-@keyframes aura-pulse {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.05); }
-}
-.animate-aura-pulse {
-  animation: aura-pulse 3s ease-in-out infinite;
 }
 
 /* Focus clavier visible sur tout le site */
