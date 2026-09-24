@@ -66,17 +66,19 @@ async function startServer() {
   // les pages (VITE_ENABLE_CHECKOUT), vérifié ici pour qu'un appel direct à
   // l'API ne contourne pas le mode liste d'attente.
   const SUBSCRIPTION_CHECKOUT_ENABLED = process.env.VITE_ENABLE_CHECKOUT === "true";
-  // Clés Stripe de test sur un site public : seuls les comptes listés dans
-  // CHECKOUT_TEST_EMAILS peuvent payer, sinon n'importe qui obtiendrait un
-  // vrai accès avec une carte de test. En local, et avec les clés réelles,
-  // tout le monde passe.
+  // Clés Stripe de test : tant que l'app n'est pas publique, tout compte peut
+  // payer en test. CHECKOUT_TEST_EMAILS (facultatif) réserve le paiement à
+  // quelques comptes si besoin. En local et avec les clés réelles, aucune
+  // restriction. Au passage en réel, les abonnements de test sont ignorés
+  // par lab-service (STRIPE_LIVEMODE=true) et ceux déjà créés sont à clore.
   const STRIPE_TEST_KEYS = /^(sk|rk)_test_/.test(process.env.STRIPE_SECRET_KEY || "");
   const LOCAL_SITE = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/.test(process.env.APP_URL || "");
   const CHECKOUT_TEST_EMAILS = new Set(
     (process.env.CHECKOUT_TEST_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean),
   );
   const paymentOpenTo = (email?: string | null) =>
-    !STRIPE_TEST_KEYS || LOCAL_SITE || (!!email && CHECKOUT_TEST_EMAILS.has(email.toLowerCase()));
+    !STRIPE_TEST_KEYS || LOCAL_SITE || CHECKOUT_TEST_EMAILS.size === 0
+    || (!!email && CHECKOUT_TEST_EMAILS.has(email.toLowerCase()));
   const PAYMENT_NOT_OPEN = "Le paiement sur le site est en phase de test : il est réservé à quelques comptes pour le moment et ouvrira bientôt à tous.";
   // Marque affichée sur la page de paiement Stripe, quels que soient les
   // réglages du compte (un environnement de test s'appelle « New business sandbox »).
