@@ -66,6 +66,18 @@ async function startServer() {
   // les pages (VITE_ENABLE_CHECKOUT), vérifié ici pour qu'un appel direct à
   // l'API ne contourne pas le mode liste d'attente.
   const SUBSCRIPTION_CHECKOUT_ENABLED = process.env.VITE_ENABLE_CHECKOUT === "true";
+  // Clés Stripe de test sur un site public : seuls les comptes listés dans
+  // CHECKOUT_TEST_EMAILS peuvent payer, sinon n'importe qui obtiendrait un
+  // vrai accès avec une carte de test. En local, et avec les clés réelles,
+  // tout le monde passe.
+  const STRIPE_TEST_KEYS = /^(sk|rk)_test_/.test(process.env.STRIPE_SECRET_KEY || "");
+  const LOCAL_SITE = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/.test(process.env.APP_URL || "");
+  const CHECKOUT_TEST_EMAILS = new Set(
+    (process.env.CHECKOUT_TEST_EMAILS || "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean),
+  );
+  const paymentOpenTo = (email?: string | null) =>
+    !STRIPE_TEST_KEYS || LOCAL_SITE || (!!email && CHECKOUT_TEST_EMAILS.has(email.toLowerCase()));
+  const PAYMENT_NOT_OPEN = "Le paiement sur le site ouvre bientôt. En attendant, abonne-toi depuis l'application.";
   // Marque affichée sur la page de paiement Stripe, quels que soient les
   // réglages du compte (un environnement de test s'appelle « New business sandbox »).
   const CHECKOUT_BRANDING: Stripe.Checkout.SessionCreateParams.BrandingSettings = {
@@ -399,6 +411,9 @@ async function startServer() {
     const auth = await getUserFromRequest(req);
     if (!auth) {
       return res.status(401).json({ error: "Connexion requise" });
+    }
+    if (!paymentOpenTo(auth.user.email)) {
+      return res.status(403).json({ error: "L'achat de formations sur le site ouvre bientôt.", code: "checkout_disabled" });
     }
 
     try {
@@ -752,6 +767,9 @@ async function startServer() {
     const account = await getMmaIqCheckoutContext(req);
     if (!account) {
       return res.status(401).json({ error: "Connecte-toi avec ton compte MMA IQ avant de continuer." });
+    }
+    if (!paymentOpenTo(account.email)) {
+      return res.status(403).json({ error: PAYMENT_NOT_OPEN, code: "checkout_disabled" });
     }
     if (!account.allowedPlanKeys.includes(planKey)) {
       return res.status(403).json({ error: "Cette formule n'est pas disponible pour ton profil MMA IQ." });
