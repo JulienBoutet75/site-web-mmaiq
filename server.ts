@@ -77,7 +77,7 @@ async function startServer() {
   );
   const paymentOpenTo = (email?: string | null) =>
     !STRIPE_TEST_KEYS || LOCAL_SITE || (!!email && CHECKOUT_TEST_EMAILS.has(email.toLowerCase()));
-  const PAYMENT_NOT_OPEN = "Le paiement sur le site ouvre bientôt. En attendant, abonne-toi depuis l'application.";
+  const PAYMENT_NOT_OPEN = "Le paiement sur le site est en phase de test : il est réservé à quelques comptes pour le moment et ouvrira bientôt à tous.";
   // Marque affichée sur la page de paiement Stripe, quels que soient les
   // réglages du compte (un environnement de test s'appelle « New business sandbox »).
   const CHECKOUT_BRANDING: Stripe.Checkout.SessionCreateParams.BrandingSettings = {
@@ -413,7 +413,7 @@ async function startServer() {
       return res.status(401).json({ error: "Connexion requise" });
     }
     if (!paymentOpenTo(auth.user.email)) {
-      return res.status(403).json({ error: "L'achat de formations sur le site ouvre bientôt.", code: "checkout_disabled" });
+      return res.status(403).json({ error: "L'achat de formations sur le site est en phase de test et ouvrira bientôt à tous.", code: "checkout_disabled", reason: "test_account_not_listed" });
     }
 
     try {
@@ -752,7 +752,7 @@ async function startServer() {
     const { planKey, interval, gymCode, immediateStartConsent } = req.body ?? {};
     if (!SUBSCRIPTION_CHECKOUT_ENABLED) {
       return res.status(403).json({
-        error: "Les abonnements sur le site ouvrent bientôt. En attendant, abonne-toi depuis l'application.",
+        error: "Les abonnements sur le site ouvrent bientôt.",
         code: "checkout_disabled",
       });
     }
@@ -769,7 +769,7 @@ async function startServer() {
       return res.status(401).json({ error: "Connecte-toi avec ton compte MMA IQ avant de continuer." });
     }
     if (!paymentOpenTo(account.email)) {
-      return res.status(403).json({ error: PAYMENT_NOT_OPEN, code: "checkout_disabled" });
+      return res.status(403).json({ error: PAYMENT_NOT_OPEN, code: "checkout_disabled", reason: "test_account_not_listed" });
     }
     if (!account.allowedPlanKeys.includes(planKey)) {
       return res.status(403).json({ error: "Cette formule n'est pas disponible pour ton profil MMA IQ." });
