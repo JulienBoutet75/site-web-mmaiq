@@ -35,7 +35,7 @@ interface SessionInfo {
 // la session CÔTÉ SERVEUR et on affiche le vrai statut — fini la page
 // statique qui disait « paiement réussi » sans rien vérifier.
 export function Success() {
-  const { authenticated, loading: accountLoading, getAccessToken, login } = useMmaIqAccount();
+  const { authenticated, loading: accountLoading, getAccessToken, login, loginError, loginPending } = useMmaIqAccount();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [info, setInfo] = useState<SessionInfo | null>(null);
@@ -124,9 +124,10 @@ export function Success() {
         <Confirmation
           status="CONNEXION REQUISE"
           title="Reconnecte-toi à MMA IQ."
-          actions={<Button onClick={() => login()}>Se connecter et vérifier</Button>}
+          actions={<Button disabled={loginPending} onClick={() => login().catch(() => {})}>{loginPending ? "Connexion…" : "Se connecter et vérifier"}</Button>}
         >
           <p>Nous devons vérifier que cette session Stripe appartient bien à ton compte.</p>
+          {loginError && <p role="alert">{loginError}</p>}
         </Confirmation>
       )}
 

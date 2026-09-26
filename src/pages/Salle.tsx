@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { AlertCircle, Bell, CheckCircle2, Loader2, MapPin } from "lucide-react";
 import { supabase, submitLead } from "../lib/supabase";
 import { saveReferral } from "../lib/referral";
-import { useMmaIqAccount } from "../context/MmaIqAccountContext";
 import { ACTIVE_PRICING, formatEuroCents, isClubDiscountEligible } from "../config/subscriptionCommercial";
 import { Seo } from "../components/Seo";
 import { KEY_FIGURE, PROFILE_HEADING, ProfileFeatures } from "../components/ProfileSections";
@@ -44,15 +43,12 @@ interface PartnerPublic {
 // convertit en pré-inscription waitlist taguée (l'app n'est pas encore lancée).
 // Pas de maquette dédiée : langage V3 de la page Partenaire (fonds, titres, cartes, champs).
 export function Salle() {
-  const { beginSubscriptionCheckout, checkoutError } = useMmaIqAccount();
   const { slug } = useParams();
   const [partner, setPartner] = useState<PartnerPublic | null>(null);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
-  const [subscribing, setSubscribing] = useState<string | null>(null);
-  const [subError, setSubError] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -84,20 +80,6 @@ export function Salle() {
     } catch (err) {
       console.error("Salle waitlist error:", err);
       setStatus("error");
-    }
-  };
-
-  const handleSubscribe = async (planKey: "essentiel" | "performance" | "elite") => {
-    if (subscribing || !partner) return;
-    setSubError(false);
-    setSubscribing(planKey);
-    try {
-      await beginSubscriptionCheckout({ planKey, interval, gymCode: partner.code });
-      // Redirection vers Stripe : on ne reset pas subscribing.
-    } catch (err) {
-      console.error("Salle checkout error:", err);
-      setSubError(true);
-      setSubscribing(null);
     }
   };
 
@@ -292,15 +274,13 @@ export function Salle() {
                 {hasDiscount && !isClubDiscountEligible(plan.key) && (
                   <p className="v3-small text-v3-ink-muted">Essentiel n'est pas remisé par le code club.</p>
                 )}
-                <Button
+                <ButtonLink
                   block
                   className="mt-auto"
-                  onClick={() => handleSubscribe(plan.key)}
-                  disabled={subscribing !== null}
+                  to={`/paiement/${plan.key}?${new URLSearchParams({ interval, salle: partner.code })}`}
                 >
-                  {subscribing === plan.key ? <Loader2 aria-hidden="true" className="size-5 animate-spin" /> : null}
                   Choisir {plan.name}
-                </Button>
+                </ButtonLink>
               </li>
             ))}
           </ul>
@@ -308,13 +288,6 @@ export function Salle() {
           {hasDiscount && (
             <p className="v3-small text-v3-ink-muted">
               La remise −{partner.discount_percent} % ({partner.discount_months} mois) est appliquée automatiquement aux formules Performance et Elite mensuelles.
-            </p>
-          )}
-
-          {(subError || checkoutError) && (
-            <p role="alert" className="flex items-center gap-2 rounded-[12px] border border-[#c0392b]/40 bg-[#c0392b]/10 px-4 py-3 text-[14px] leading-5 text-v3-navy">
-              <AlertCircle aria-hidden="true" strokeWidth={1.7} className="size-4 shrink-0 text-[#c0392b]" />
-              {checkoutError || "Impossible d'ouvrir le paiement. Réessaie dans un instant."}
             </p>
           )}
         </Section>

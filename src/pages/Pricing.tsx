@@ -8,7 +8,7 @@ import { ArrowLink, ButtonLink, Section, cx } from "../v3/ui";
 
 // Figma « Tarifs · Desktop · Vue complète » (2110:22226) et « Mobile » (2174:21124).
 
-type PaidPlanKey = Exclude<SubscriptionPlanKey, "coach_suite">;
+type PaidPlanKey = SubscriptionPlanKey;
 
 type Plan = {
   name: string;
@@ -53,7 +53,7 @@ export function Pricing() {
     const next = new URLSearchParams();
     ["interval", "salle", "ref", "code", "source"].forEach((name) => {
       const value = searchParams.get(name);
-      if (value) next.set(name, value);
+      if (value !== null) next.set(name, value);
     });
     const query = next.toString();
     navigate(`/paiement/${requestedPlan}${query ? `?${query}` : ""}`, { replace: true });
@@ -68,7 +68,7 @@ export function Pricing() {
   const forwarded = new URLSearchParams();
   FORWARDED_PARAMS.forEach((name) => {
     const value = searchParams.get(name);
-    if (value) forwarded.set(name, value);
+    if (value !== null) forwarded.set(name, value);
   });
   const query = forwarded.toString();
   const checkoutPath = (key: PaidPlanKey) => `/paiement/${key}${query ? `?${query}` : ""}`;
@@ -130,7 +130,7 @@ export function Pricing() {
         </p>
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
           <ButtonLink to="/coach">Découvrir Coach Suite</ButtonLink>
-          <ArrowLink to="/paiement/coach_suite" tone="dark">S’abonner à Coach Suite</ArrowLink>
+          <ArrowLink to={checkoutPath("coach_suite")} tone="dark">S’abonner à Coach Suite</ArrowLink>
         </div>
       </Section>
 

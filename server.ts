@@ -833,10 +833,12 @@ async function startServer() {
       ) {
         return res.status(400).json({
           error: "La remise club en nombre de mois s'applique à la formule mensuelle.",
+          code: "club_monthly_only",
         });
       }
 
       const origin = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+      const cancelParams = new URLSearchParams({ interval, salle: code ?? "", cancelled: "1" });
       // user_id seulement si le profil existe ; kc_sub toujours (identité du
       // payeur). Le consentement au démarrage immédiat est gardé comme preuve,
       // daté par la création de la session (paramètres stables : la clé
@@ -856,7 +858,7 @@ async function startServer() {
           ? { customer: account.stripeCustomerId }
           : { customer_email: account.email }),
         success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/paiement/${planKey}`,
+        cancel_url: `${origin}/paiement/${planKey}?${cancelParams}`,
         client_reference_id: payerId(account),
         locale: "fr",
         branding_settings: CHECKOUT_BRANDING,

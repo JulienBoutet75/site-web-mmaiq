@@ -28,7 +28,7 @@ const STATUS_LABELS: Record<string, { label: string; tone: "ok" | "warn" | "mute
 const STORE_NAMES: Record<string, string> = { APPLE: "l’App Store", GOOGLE: "Google Play" };
 
 export function MonAbonnement() {
-  const { authenticated, loading: accountLoading, profile, login, logout, getAccessToken, beginSubscriptionManagement, checkoutPending, checkoutError } = useMmaIqAccount();
+  const { authenticated, loading: accountLoading, profile, login, loginError, loginPending, logout, getAccessToken, beginSubscriptionManagement, checkoutPending, checkoutError } = useMmaIqAccount();
   const [searchParams] = useSearchParams();
   const [overview, setOverview] = useState<SubscriptionOverview | null>(null);
   const [state, setState] = useState<"idle" | "loading" | "ready" | "error">("idle");
@@ -94,9 +94,10 @@ export function MonAbonnement() {
             <h2 className="v3-subheading">Connecte-toi à ton compte MMA IQ.</h2>
             <p className="v3-body text-v3-ink-muted">Utilise l’adresse et le mot de passe de ton compte MMA IQ, les mêmes que dans l’application.</p>
             <div className="flex flex-wrap gap-4">
-              <Button onClick={() => login()}>Me connecter</Button>
+              <Button disabled={loginPending} onClick={() => login().catch(() => {})}>{loginPending ? "Connexion…" : "Me connecter"}</Button>
               <ButtonLink to="/tarifs" variant="outline-dark">Voir les formules</ButtonLink>
             </div>
+            {loginError && <p role="alert" className="v3-small text-[#c0392b]">{loginError}</p>}
           </Card>
         )}
 

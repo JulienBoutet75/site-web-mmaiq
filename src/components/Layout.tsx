@@ -152,6 +152,25 @@ export function Layout({ children }: { children: ReactNode }) {
     return <main className="min-h-screen bg-[var(--color-bg-base)]">{children}</main>;
   }
 
+  // L'achat garde son propre cadre, sans navigation commerciale ni téléchargement.
+  if (pathname.startsWith("/paiement/")) {
+    return (
+      <div className="v3 flex min-h-dvh flex-col bg-v3-clair text-v3-navy">
+        <a href="#contenu" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-10 focus:rounded-xl focus:bg-white focus:p-3">Aller au contenu</a>
+        <header className="bg-v3-nav">
+          <div className="mx-auto flex h-16 max-w-[1040px] items-center justify-between gap-4 px-5 sm:px-8">
+            <Brand />
+            <Link to="/aide" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-[13px] text-v3-paper underline underline-offset-4">Besoin d’aide ?</Link>
+          </div>
+        </header>
+        <main id="contenu" tabIndex={-1} className="flex-1 focus:outline-none">{children}</main>
+        <footer className="px-5 pb-5 text-center text-[12px] text-v3-ink-muted">
+          <Link to="/confidentialite" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline underline-offset-4">Confidentialité</Link>
+        </footer>
+      </div>
+    );
+  }
+
   const desktopLink = ({ isActive }: { isActive: boolean }) =>
     `v3-label whitespace-nowrap transition-colors hover:text-white ${isActive ? "text-white" : "text-v3-muted"}`;
   const mobileItem = "block w-full text-left text-[26px] font-semibold leading-8 text-white transition-colors hover:text-v3-lavender";
